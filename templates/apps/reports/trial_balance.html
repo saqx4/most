@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}{{ t.TRIAL_BALANCE_TITLE }}{% endblock %}
+{% block page_title %}{{ t.TRIAL_BALANCE_TITLE }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+  <p class="text-sm text-slate-500">{{ t.ACTIVE_ACCOUNTS_POSTED }}{% if company %} for {{ company.name }}{% endif %}.</p>
+  <div class="flex gap-2">
+    <a href="{% url 'reports:income_statement' %}" class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"><i class="ri-line-chart-line"></i> {{ t.INCOME_STATEMENT_LINK }}</a>
+    <a href="{% url 'reports:balance_sheet' %}" class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"><i class="ri-pie-chart-2-line"></i> {{ t.BALANCE_SHEET_LINK }}</a>
+  </div>
+</div>
+
+<div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-slate-200 bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+          <th class="px-4 py-3 font-medium">{{ t.ACCOUNT }}</th>
+          <th class="px-4 py-3 font-medium">{{ t.TYPE_COL }}</th>
+          <th class="px-4 py-3 text-right font-medium">{{ t.DEBIT }}</th>
+          <th class="px-4 py-3 text-right font-medium">{{ t.CREDIT }}</th>
+          <th class="px-4 py-3 text-right font-medium">{{ t.BALANCE_COL }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for r in rows.0 %}
+        <tr class="hover:bg-slate-50">
+          <td class="px-4 py-3"><span class="font-semibold text-slate-900">{{ r.account.code }}</span> <span class="text-slate-600">{{ r.account.name }}</span></td>
+          <td class="px-4 py-3 text-slate-500">{{ r.account.get_type_display }}</td>
+          <td class="whitespace-nowrap px-4 py-3 text-right text-slate-700">{{ r.debit|default:'0.00'|floatformat:2 }}</td>
+          <td class="whitespace-nowrap px-4 py-3 text-right text-slate-700">{{ r.credit|default:'0.00'|floatformat:2 }}</td>
+          <td class="whitespace-nowrap px-4 py-3 text-right font-medium text-slate-900">{{ r.balance|default:'0.00'|floatformat:2 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="px-4 py-10 text-center text-slate-400">{{ t.NO_ACCOUNTS_ACTIVITY }}</td></tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="border-t border-slate-200 bg-slate-50 font-semibold text-slate-900">
+          <td colspan="2" class="px-4 py-3 text-right">{{ t.TOTALS }}</td>
+          <td class="whitespace-nowrap px-4 py-3 text-right">{{ rows.1|floatformat:2 }}</td>
+          <td class="whitespace-nowrap px-4 py-3 text-right">{{ rows.2|floatformat:2 }}</td>
+          <td class="px-4 py-3"></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+{% endblock %}

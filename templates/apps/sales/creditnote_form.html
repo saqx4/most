@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}{{ t.NEW_CREDIT_NOTE }}{% endblock %}
+{% block page_title %}{{ t.CREATE_CREDIT_NOTE }}{% endblock %}
+{% block content %}
+<a href="{% url 'sales:creditnote_list' %}" class="mb-4 inline-flex items-center gap-1 text-sm text-indigo-600 hover:underline"><i class="ri-arrow-left-line"></i> {{ t.BACK }}</a>
+<div class="mx-auto max-w-4xl rounded-2xl border border-slate-200 bg-white p-6">
+  <h2 class="mb-6 text-lg font-semibold text-slate-900">{{ t.CREATE_CREDIT_NOTE }}</h2>
+  <form method="post">{% csrf_token %}
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3 mb-6">
+      {% for field in form.visible_fields %}
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}<p class="mt-1 text-xs text-red-600">{{ field.errors.0 }}</p>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <h3 class="mb-3 text-sm font-semibold text-slate-900">{{ t.LINE_ITEMS }}</h3>
+    {{ formset.management_form }}
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr class="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+          <th class="py-2 font-medium">{{ t.PRODUCT }}</th><th class="py-2 font-medium">{{ t.DESCRIPTION }}</th><th class="py-2 text-right font-medium">{{ t.QUANTITY }}</th><th class="py-2 text-right font-medium">{{ t.UNIT_PRICE }}</th><th class="py-2"></th>
+        </tr></thead>
+        <tbody>
+          {% for lf in formset.forms %}
+          <tr class="border-b border-slate-100">
+            <td class="py-2">{{ lf.product }}</td>
+            <td class="py-2">{{ lf.description }}</td>
+            <td class="py-2">{{ lf.quantity }}</td>
+            <td class="py-2">{{ lf.price }}</td>
+            <td class="py-2 text-center">{{ lf.DELETE }}{{ lf.id }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="mt-6 flex items-center gap-3">
+      <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-700">{{ t.CREATE_CREDIT_NOTE }}</button>
+      <a href="{% url 'sales:creditnote_list' %}" class="rounded-lg border border-slate-300 px-5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">{{ t.CANCEL }}</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

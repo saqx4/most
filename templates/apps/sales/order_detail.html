@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}{{ order.number }}{% endblock %}
+{% block page_title %}Order {{ order.number }}{% endblock %}
+{% block content %}
+<div class="mb-4 flex items-center justify-between">
+  <a href="{% url 'sales:order_list' %}" class="text-sm text-indigo-600 hover:underline"><i class="ri-arrow-left-line"></i> {{ t.BACK_TO_ORDERS }}</a>
+  <div class="flex gap-2">
+    {% if order.status == 'draft' %}
+    <form method="post" action="{% url 'sales:order_confirm' order.pk %}">{% csrf_token %}
+      <button class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"><i class="ri-check-line mr-1"></i>{{ t.CONFIRM_ORDER }}</button>
+    </form>
+    {% endif %}
+    <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium {% if order.status == 'confirmed' %}bg-emerald-50 text-emerald-700{% elif order.status == 'draft' %}bg-amber-50 text-amber-700{% else %}bg-slate-100 text-slate-600{% endif %}">{{ order.get_status_display }}</span>
+  </div>
+</div>
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <div class="lg:col-span-2 space-y-6">
+    <div class="rounded-2xl border border-slate-200 bg-white p-6">
+      <dl class="grid grid-cols-3 gap-4 text-sm">
+        <div><dt class="text-slate-500">{{ t.CUSTOMER }}</dt><dd class="font-medium text-slate-900">{{ order.customer }}</dd></div>
+        <div><dt class="text-slate-500">{{ t.DATE }}</dt><dd class="font-medium text-slate-900">{{ order.order_date }}</dd></div>
+        <div><dt class="text-slate-500">{{ t.WAREHOUSE }}</dt><dd class="font-medium text-slate-900">{{ order.warehouse }}</dd></div>
+      </dl>
+    </div>
+    <div class="rounded-2xl border border-slate-200 bg-white p-6">
+      <h2 class="mb-4 text-sm font-semibold text-slate-900">{{ t.LINE_ITEMS }}</h2>
+      <table class="w-full text-sm">
+        <thead><tr class="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+          <th class="py-2 font-medium">{{ t.PRODUCT }}</th><th class="py-2 text-right font-medium">{{ t.QUANTITY }}</th><th class="py-2 text-right font-medium">{{ t.UNIT_PRICE }}</th><th class="py-2 text-right font-medium">{{ t.DISCOUNT }}</th><th class="py-2 text-right font-medium">{{ t.TOTAL }}</th>
+        </tr></thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for line in order.lines.all %}
+          <tr>
+            <td class="py-2 font-medium text-slate-900">{{ line.product }}{% if line.description %}<br><span class="text-xs text-slate-500">{{ line.description }}</span>{% endif %}</td>
+            <td class="py-2 text-right">{{ line.quantity }}</td>
+            <td class="py-2 text-right">{{ line.price|floatformat:2 }}</td>
+            <td class="py-2 text-right">{{ line.discount_percent|floatformat:1 }}%</td>
+            <td class="py-2 text-right font-medium">{{ line.line_total|floatformat:2 }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="rounded-2xl border border-slate-200 bg-white p-6">
+    <h2 class="mb-3 text-sm font-semibold text-slate-900">{{ t.ORDER_TOTAL }}</h2>
+    <p class="text-3xl font-bold text-slate-900">{{ order.total|floatformat:2 }}</p>
+    <dl class="mt-4 space-y-2 text-sm">
+      <div class="flex justify-between"><dt class="text-slate-500">{{ t.SALESPERSON }}</dt><dd class="text-slate-700">{{ order.salesperson|default:"-" }}</dd></div>
+      <div class="flex justify-between"><dt class="text-slate-500">{{ t.TAX }}</dt><dd class="text-slate-700">{{ order.tax|default:"-" }}</dd></div>
+      <div class="flex justify-between"><dt class="text-slate-500">{{ t.NOTES }}</dt><dd class="text-slate-700">{{ order.notes|default:"-" }}</dd></div>
+    </dl>
+  </div>
+</div>
+{% endblock %}

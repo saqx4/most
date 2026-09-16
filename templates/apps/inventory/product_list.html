@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block page_title %}{{ t.PRODUCTS_SERVICES }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+  <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100">{{ t.PRODUCTS_SERVICES }}</h2>
+  <div class="flex items-center gap-2">
+    <a href="{% url 'inventory:product_export' %}?format=csv" class="inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700" title="Export CSV"><i class="ri-file-text-line"></i></a>
+    <a href="{% url 'inventory:product_export' %}?format=xlsx" class="inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700" title="Export Excel"><i class="ri-file-excel-2-line"></i></a>
+    <a href="{% url 'inventory:product_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors">
+      <i class="ri-add-line"></i> {{ t.NEW_PRODUCT }}
+    </a>
+  </div>
+</div>
+
+<div class="mb-6">
+  <form method="get" class="flex gap-2">
+    <input type="text" name="q" value="{{ q }}" placeholder="{{ t.SEARCH_SKU_NAME }}"
+      class="w-full max-w-sm rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
+    <button class="inline-flex items-center gap-2 rounded-lg bg-slate-800 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-700 transition-colors dark:bg-slate-700 dark:hover:bg-slate-600">
+      <i class="ri-search-line"></i> {{ t.SEARCH }}
+    </button>
+  </form>
+</div>
+
+<div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden dark:border-slate-700 dark:bg-slate-800">
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead>
+        <tr class="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400">
+          <th class="px-4 py-3 text-start font-medium">{{ t.SKU }}</th>
+          <th class="px-4 py-3 text-start font-medium">{{ t.NAME }}</th>
+          <th class="px-4 py-3 text-start font-medium">{{ t.CATEGORY }}</th>
+          <th class="px-4 py-3 text-end font-medium">{{ t.SALE_PRICE }}</th>
+          <th class="px-4 py-3 text-end font-medium">{{ t.ON_HAND }}</th>
+          <th class="px-4 py-3 text-start font-medium">{{ t.TYPE }}</th>
+          <th class="px-4 py-3 text-start font-medium">{{ t.STATUS }}</th>
+          <th class="px-4 py-3 text-end font-medium">{{ t.ACTIONS }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+        {% for p in page_obj %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+          <td class="whitespace-nowrap px-4 py-3 font-mono text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+            <a href="{% url 'inventory:product_detail' p.pk %}" class="hover:underline">{{ p.sku }}</a>
+          </td>
+          <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">{{ p.name }}</td>
+          <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ p.category|default:'—' }}</td>
+          <td class="whitespace-nowrap px-4 py-3 text-end text-slate-700 dark:text-slate-300">{{ p.sale_price|floatformat:2 }}</td>
+          <td class="whitespace-nowrap px-4 py-3 text-end {% if p.on_hand <= p.reorder_point %}text-red-600 font-semibold dark:text-red-400{% else %}text-slate-700 dark:text-slate-300{% endif %}">
+            {{ p.on_hand|floatformat:2 }}
+          </td>
+          <td class="px-4 py-3">
+            {% if p.is_service %}
+              <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">{{ t.SERVICE_TYPE }}</span>
+            {% else %}
+              <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-400">{{ t.PRODUCT_TYPE }}</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3">
+            {% if p.is_active %}
+              <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">{{ t.ACTIVE_STATUS }}</span>
+            {% else %}
+              <span class="inline-flex items-center rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400">{{ t.INACTIVE_STATUS }}</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3 text-end">
+            <div class="flex items-center justify-end gap-1">
+              <a href="{% url 'inventory:product_edit' p.pk %}" class="rounded p-1.5 text-slate-400 hover:bg-slate-100 hover:text-indigo-600 dark:hover:bg-slate-700 dark:hover:text-indigo-400 transition-colors" title="{{ t.EDIT }}"><i class="ri-edit-line text-base"></i></a>
+              <form method="post" action="{% url 'inventory:product_delete' p.pk %}" class="inline"
+                    hx-post="{% url 'inventory:product_delete' p.pk %}"
+                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                    hx-confirm="{{ t.CONFIRM_DELETE_PRODUCT }}"
+                    hx-swap="none">
+                {% csrf_token %}
+                <button type="submit" class="rounded p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors" title="{{ t.DELETE }}"><i class="ri-delete-bin-line text-base"></i></button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="px-4 py-12 text-center text-slate-400 dark:text-slate-500">{{ t.NO_PRODUCTS_FOUND }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if page_obj.has_other_pages %}
+  <div class="flex items-center justify-between border-t border-slate-200 px-4 py-3 dark:border-slate-700">
+    <span class="text-xs text-slate-500 dark:text-slate-400">{{ t.PAGE_X_OF_Y }}</span>
+    <div class="flex gap-1">
+      {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&q={{ q }}" class="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700">&laquo; {{ t.PREV }}</a>{% endif %}
+      {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&q={{ q }}" class="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700">{{ t.NEXT_BTN }} &raquo;</a>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

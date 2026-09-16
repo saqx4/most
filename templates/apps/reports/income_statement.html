@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}{{ t.INCOME_STATEMENT }}{% endblock %}
+{% block page_title %}{{ t.INCOME_STATEMENT }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+  <p class="text-sm text-slate-500">{{ t.REVENUE_EXPENSES_NET }}{% if company %} for {{ company.name }}{% endif %}.</p>
+  <div class="flex gap-2">
+    <a href="{% url 'reports:trial_balance' %}" class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"><i class="ri-scale-3-line"></i> {{ t.TRIAL_BALANCE_LINK }}</a>
+    <a href="{% url 'reports:balance_sheet' %}" class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"><i class="ri-pie-chart-2-line"></i> {{ t.BALANCE_SHEET_LINK }}</a>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+  <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div class="border-b border-slate-200 bg-slate-50 px-4 py-3"><h2 class="text-sm font-semibold text-slate-900">{{ t.REVENUE }}</h2></div>
+    <table class="w-full text-sm">
+      <tbody class="divide-y divide-slate-100">
+        {% for r in data.0 %}
+        <tr>
+          <td class="px-4 py-2.5 text-slate-700"><span class="font-semibold text-slate-900">{{ r.account.code }}</span> {{ r.account.name }}</td>
+          <td class="whitespace-nowrap px-4 py-2.5 text-right text-slate-700">{{ r.amount|default:'0.00'|floatformat:2 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="2" class="px-4 py-8 text-center text-slate-400">{{ t.NO_REVENUE_POSTED }}</td></tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="border-t border-slate-200 bg-slate-50 font-semibold text-slate-900">
+          <td class="px-4 py-3">{{ t.TOTAL_REVENUE }}</td>
+          <td class="whitespace-nowrap px-4 py-3 text-right">{{ data.2|default:'0.00'|floatformat:2 }}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div class="border-b border-slate-200 bg-slate-50 px-4 py-3"><h2 class="text-sm font-semibold text-slate-900">{{ t.EXPENSES }}</h2></div>
+    <table class="w-full text-sm">
+      <tbody class="divide-y divide-slate-100">
+        {% for r in data.1 %}
+        <tr>
+          <td class="px-4 py-2.5 text-slate-700"><span class="font-semibold text-slate-900">{{ r.account.code }}</span> {{ r.account.name }}</td>
+          <td class="whitespace-nowrap px-4 py-2.5 text-right text-slate-700">{{ r.amount|default:'0.00'|floatformat:2 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="2" class="px-4 py-8 text-center text-slate-400">{{ t.NO_EXPENSES_POSTED }}</td></tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="border-t border-slate-200 bg-slate-50 font-semibold text-slate-900">
+          <td class="px-4 py-3">{{ t.TOTAL_EXPENSES }}</td>
+          <td class="whitespace-nowrap px-4 py-3 text-right">{{ data.3|default:'0.00'|floatformat:2 }}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<div class="mt-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm">
+  <p class="text-sm font-semibold text-slate-900">{{ t.NET_INCOME }}</p>
+  <p class="text-xl font-bold {% if data.4 < 0 %}text-red-600{% else %}text-emerald-600{% endif %}">{{ data.4|default:'0.00'|floatformat:2 }}</p>
+</div>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}{{ t.CUSTOMERS }}{% endblock %}
+{% block page_title %}{{ t.CUSTOMERS }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+  <div>
+    <p class="text-sm text-slate-500 dark:text-slate-400">{{ page_obj.paginator.count }} customer{{ page_obj.paginator.count|pluralize }}</p>
+  </div>
+  <div class="flex items-center gap-2">
+    <a href="{% url 'sales:customer_export' %}?format=csv" class="inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700" title="Export CSV"><i class="ri-file-text-line"></i></a>
+    <a href="{% url 'sales:customer_export' %}?format=xlsx" class="inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700" title="Export Excel"><i class="ri-file-excel-2-line"></i></a>
+    <a href="{% url 'sales:customer_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors">
+      <i class="ri-user-add-line"></i> {{ t.NEW_CUSTOMER }}
+    </a>
+  </div>
+</div>
+
+<div class="mb-6">
+  <form method="get" class="flex gap-2">
+    <input type="text" name="q" value="{{ q }}" placeholder="{{ t.SEARCH_NAME_EMAIL_PHONE }}"
+      class="w-full max-w-sm rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
+    <button class="inline-flex items-center gap-2 rounded-lg bg-slate-800 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-700 transition-colors dark:bg-slate-700 dark:hover:bg-slate-600">
+      <i class="ri-search-line"></i> {{ t.SEARCH }}
+    </button>
+  </form>
+</div>
+
+<div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden dark:border-slate-700 dark:bg-slate-800">
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead>
+        <tr class="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400">
+          <th class="px-4 py-3 text-start font-medium">{{ t.NAME }}</th>
+          <th class="px-4 py-3 text-start font-medium">{{ t.EMAIL }}</th>
+          <th class="px-4 py-3 text-start font-medium">{{ t.PHONE }}</th>
+          <th class="px-4 py-3 text-end font-medium">{{ t.BALANCE }}</th>
+          <th class="px-4 py-3 text-start font-medium">{{ t.STATUS }}</th>
+          <th class="px-4 py-3 text-end font-medium">{{ t.ACTIONS }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+        {% for c in page_obj %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+          <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">{{ c.name }}</td>
+          <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ c.email|default:"-" }}</td>
+          <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ c.phone|default:"-" }}</td>
+          <td class="whitespace-nowrap px-4 py-3 text-end text-slate-700 dark:text-slate-300">{{ c.balance|floatformat:2 }}</td>
+          <td class="px-4 py-3">
+            {% if c.is_active %}
+              <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">{{ t.ACTIVE }}</span>
+            {% else %}
+              <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-500 dark:bg-slate-700 dark:text-slate-400">{{ t.INACTIVE }}</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3 text-end">
+            <div class="flex items-center justify-end gap-1">
+              <a href="{% url 'sales:customer_detail' c.pk %}" class="rounded p-1.5 text-slate-400 hover:bg-slate-100 hover:text-indigo-600 dark:hover:bg-slate-700 dark:hover:text-indigo-400 transition-colors" title="{{ t.VIEW }}"><i class="ri-eye-line text-base"></i></a>
+              <a href="{% url 'sales:customer_edit' c.pk %}" class="rounded p-1.5 text-slate-400 hover:bg-slate-100 hover:text-indigo-600 dark:hover:bg-slate-700 dark:hover:text-indigo-400 transition-colors" title="{{ t.EDIT }}"><i class="ri-edit-line text-base"></i></a>
+              <form method="post" action="{% url 'sales:customer_delete' c.pk %}" class="inline"
+                    hx-post="{% url 'sales:customer_delete' c.pk %}"
+                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                    hx-confirm="{{ t.CONFIRM_DELETE_CUSTOMER }}"
+                    hx-swap="none">
+                {% csrf_token %}
+                <button type="submit" class="rounded p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors" title="{{ t.DELETE }}"><i class="ri-delete-bin-line text-base"></i></button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="px-4 py-12 text-center text-slate-400 dark:text-slate-500">{{ t.NO_CUSTOMERS_FOUND }} <a class="text-indigo-600 hover:underline dark:text-indigo-400" href="{% url 'sales:customer_create' %}">{{ t.ADD_ONE }}</a>.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if page_obj.has_other_pages %}
+  <div class="flex items-center justify-between border-t border-slate-200 px-4 py-3 dark:border-slate-700">
+    <p class="text-xs text-slate-500 dark:text-slate-400">{{ t.PAGE_X_OF_Y }}</p>
+    <div class="flex gap-1">
+      {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&q={{ q }}" class="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700">&laquo; {{ t.PREV }}</a>{% endif %}
+      {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&q={{ q }}" class="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700">{{ t.NEXT_BTN }} &raquo;</a>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

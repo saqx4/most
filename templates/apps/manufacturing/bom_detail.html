@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block page_title %}BOM {{ bom.number }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+  <div class="flex items-center gap-3">
+    <a href="{% url 'manufacturing:bom_list' %}" class="text-slate-500 hover:text-slate-700"><i class="ri-arrow-left-line text-lg"></i></a>
+    <h2 class="text-xl font-bold text-slate-900">{{ bom.number }}</h2>
+    {% if bom.is_active %}
+      <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">{{ t.ACTIVE_STATUS }}</span>
+    {% else %}
+      <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">{{ t.INACTIVE_STATUS }}</span>
+    {% endif %}
+  </div>
+  <div class="flex gap-2">
+    <a href="{% url 'manufacturing:bom_edit' bom.pk %}" class="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50"><i class="ri-edit-line"></i> {{ t.EDIT }}</a>
+    <form method="post" action="{% url 'manufacturing:bom_delete' bom.pk %}" class="inline"
+          hx-post="{% url 'manufacturing:bom_delete' bom.pk %}"
+          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+          hx-confirm="Delete this BOM?"
+          hx-swap="none">
+      {% csrf_token %}
+      <button type="submit" class="inline-flex items-center gap-1 rounded-lg border border-red-300 px-3 py-2 text-sm text-red-600 hover:bg-red-50"><i class="ri-delete-bin-line"></i> {{ t.DELETE }}</button>
+    </form>
+    <a href="{% url 'manufacturing:workorder_create' %}" class="inline-flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-2 text-sm text-white hover:bg-indigo-700"><i class="ri-add-line"></i> {{ t.NEW_WORK_ORDER }}</a>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3 mb-6">
+  <div class="rounded-xl bg-white border border-slate-100 shadow-sm p-5 lg:col-span-2">
+    <h3 class="text-sm font-semibold text-slate-700 mb-3">{{ t.DETAILS }}</h3>
+    <dl class="grid grid-cols-2 gap-3 text-sm">
+      <div><dt class="text-xs text-slate-500">{{ t.FINISHED_PRODUCT }}</dt><dd class="font-medium">{{ bom.product.name }}</dd></div>
+      <div><dt class="text-xs text-slate-500">{{ t.OUTPUT_QUANTITY }}</dt><dd class="font-medium">{{ bom.quantity }}</dd></div>
+      <div><dt class="text-xs text-slate-500">{{ t.WAREHOUSE }}</dt><dd class="font-medium">{{ bom.warehouse|default:'—' }}</dd></div>
+      {% if bom.notes %}<div class="col-span-2"><dt class="text-xs text-slate-500">{{ t.NOTES }}</dt><dd>{{ bom.notes }}</dd></div>{% endif %}
+    </dl>
+  </div>
+  <div class="rounded-xl bg-white border border-slate-100 shadow-sm p-5">
+    <h3 class="text-sm font-semibold text-slate-700 mb-3">{{ t.WORK_ORDERS }}</h3>
+    <p class="text-3xl font-bold text-slate-800">{{ work_orders.count }}</p>
+    <p class="text-xs text-slate-500 mt-1">{{ t.TOTAL_WORK_ORDERS }}</p>
+    <a href="{% url 'manufacturing:workorder_create' %}" class="mt-4 block w-full text-center rounded-lg bg-indigo-600 px-3 py-2 text-sm text-white hover:bg-indigo-700">{{ t.CREATE_WORK_ORDER }}</a>
+  </div>
+</div>
+
+<!-- Component Lines -->
+<div class="rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden mb-6">
+  <div class="px-5 py-4 border-b border-slate-100"><h3 class="font-semibold text-slate-800">{{ t.COMPONENTS }}</h3></div>
+  <table class="min-w-full text-sm">
+    <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
+      <tr>
+        <th class="px-4 py-3 text-left">{{ t.COMPONENT }}</th>
+        <th class="px-4 py-3 text-left">{{ t.SKU }}</th>
+        <th class="px-4 py-3 text-right">{{ t.QUANTITY }}</th>
+        <th class="px-4 py-3 text-left">{{ t.UOM }}</th>
+        <th class="px-4 py-3 text-right">{{ t.AVG_COST_COL }}</th>
+        <th class="px-4 py-3 text-right">{{ t.LINE_COST }}</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      {% for line in lines %}
+      <tr class="hover:bg-slate-50">
+        <td class="px-4 py-3 font-medium">{{ line.component.name }}</td>
+        <td class="px-4 py-3 text-slate-500 font-mono text-xs">{{ line.component.sku }}</td>
+        <td class="px-4 py-3 text-right">{{ line.quantity }}</td>
+        <td class="px-4 py-3 text-slate-600">{{ line.uom|default:'—' }}</td>
+        <td class="px-4 py-3 text-right">{{ line.component.avg_cost|floatformat:2 }}</td>
+        <td class="px-4 py-3 text-right font-medium">{{ line.total_component_cost|floatformat:2 }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" class="px-4 py-6 text-center text-slate-400">{{ t.NO_COMPONENTS_DEFINED }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Work Orders -->
+{% if work_orders %}
+<div class="rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden">
+  <div class="px-5 py-4 border-b border-slate-100"><h3 class="font-semibold text-slate-800">{{ t.WORK_ORDERS }}</h3></div>
+  <table class="min-w-full text-sm">
+    <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
+      <tr>
+        <th class="px-4 py-3 text-left">{{ t.NUMBER }}</th>
+        <th class="px-4 py-3 text-right">{{ t.QUANTITY }}</th>
+        <th class="px-4 py-3 text-left">{{ t.START }}</th>
+        <th class="px-4 py-3 text-left">{{ t.STATUS }}</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      {% for wo in work_orders %}
+      <tr class="hover:bg-slate-50">
+        <td class="px-4 py-3 font-medium"><a href="{% url 'manufacturing:workorder_detail' wo.pk %}" class="text-indigo-600 hover:underline">{{ wo.number }}</a></td>
+        <td class="px-4 py-3 text-right">{{ wo.quantity }}</td>
+        <td class="px-4 py-3 text-slate-600">{{ wo.start_date }}</td>
+        <td class="px-4 py-3">
+          <span class="rounded-full px-2 py-0.5 text-xs font-medium
+            {% if wo.status == 'in_progress' %}bg-blue-50 text-blue-700
+            {% elif wo.status == 'done' %}bg-emerald-50 text-emerald-700
+            {% elif wo.status == 'cancelled' %}bg-red-50 text-red-700
+            {% else %}bg-slate-100 text-slate-600{% endif %}">
+            {{ wo.get_status_display }}
+          </span>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block page_title %}{{ t.SUPPLIER_BILLS_TITLE }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+  <h2 class="text-xl font-bold text-slate-900">{{ t.SUPPLIER_BILLS_TITLE }}</h2>
+  <a href="{% url 'purchasing:bill_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+    <i class="ri-add-line"></i> {{ t.NEW_BILL }}
+  </a>
+</div>
+
+<div class="mb-4 flex flex-wrap gap-2">
+  <a href="{% url 'purchasing:bill_list' %}" class="rounded-full px-3 py-1 text-xs font-medium border {% if not status %}bg-indigo-600 text-white border-indigo-600{% else %}bg-white border-slate-300 text-slate-600 hover:bg-slate-50{% endif %}">{{ t.ALL }}</a>
+  {% for val, label in status_choices %}
+  <a href="?status={{ val }}" class="rounded-full px-3 py-1 text-xs font-medium border {% if status == val %}bg-indigo-600 text-white border-indigo-600{% else %}bg-white border-slate-300 text-slate-600 hover:bg-slate-50{% endif %}">{{ label }}</a>
+  {% endfor %}
+</div>
+
+<div class="rounded-xl bg-white shadow-sm border border-slate-100 overflow-hidden">
+  <table class="min-w-full text-sm">
+    <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
+      <tr>
+        <th class="px-4 py-3 text-left">{{ t.NUMBER }}</th>
+        <th class="px-4 py-3 text-left">{{ t.SUPPLIER }}</th>
+        <th class="px-4 py-3 text-left">{{ t.BILL_DATE }}</th>
+        <th class="px-4 py-3 text-left">{{ t.DUE_DATE }}</th>
+        <th class="px-4 py-3 text-right">{{ t.TOTAL }}</th>
+        <th class="px-4 py-3 text-left">{{ t.STATUS }}</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      {% for bill in page_obj %}
+      <tr class="hover:bg-slate-50">
+        <td class="px-4 py-3 font-medium"><a href="{% url 'purchasing:bill_detail' bill.pk %}" class="text-indigo-600 hover:underline">{{ bill.number }}</a></td>
+        <td class="px-4 py-3 text-slate-700">{{ bill.supplier.name }}</td>
+        <td class="px-4 py-3 text-slate-600">{{ bill.bill_date }}</td>
+        <td class="px-4 py-3 text-slate-600">{{ bill.due_date|default:'—' }}</td>
+        <td class="px-4 py-3 text-right font-medium">{{ bill.total|floatformat:2 }}</td>
+        <td class="px-4 py-3">
+          <span class="rounded-full px-2 py-0.5 text-xs font-medium
+            {% if bill.status == 'posted' %}bg-amber-50 text-amber-700
+            {% elif bill.status == 'paid' %}bg-emerald-50 text-emerald-700
+            {% elif bill.status == 'void' %}bg-red-50 text-red-700
+            {% else %}bg-slate-100 text-slate-600{% endif %}">
+            {{ bill.get_status_display }}
+          </span>
+        </td>
+        <td class="px-4 py-3 text-end">
+          <div class="flex items-center justify-end gap-1">
+            {% if bill.status == 'draft' %}
+            <a href="{% url 'purchasing:bill_edit' bill.pk %}" class="rounded p-1.5 text-slate-400 hover:bg-slate-100 hover:text-indigo-600 dark:hover:bg-slate-700 dark:hover:text-indigo-400 transition-colors" title="{{ t.EDIT }}"><i class="ri-edit-line text-base"></i></a>
+            <form method="post" action="{% url 'purchasing:bill_delete' bill.pk %}" class="inline"
+                  hx-post="{% url 'purchasing:bill_delete' bill.pk %}"
+                  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                  hx-confirm="{{ t.CONFIRM_DELETE_BILL }}"
+                  hx-swap="none">
+              {% csrf_token %}
+              <button type="submit" class="rounded p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors" title="{{ t.DELETE }}"><i class="ri-delete-bin-line text-base"></i></button>
+            </form>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" class="px-4 py-8 text-center text-slate-400">{{ t.NO_BILLS_FOUND }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if page_obj.has_other_pages %}
+  <div class="flex items-center justify-between border-t border-slate-100 px-4 py-3 text-sm">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&status={{ status }}" class="rounded px-3 py-1 hover:bg-slate-100">← Prev</a>{% else %}<span></span>{% endif %}
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&status={{ status }}" class="rounded px-3 py-1 hover:bg-slate-100">Next →</a>{% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

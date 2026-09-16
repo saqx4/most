@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block page_title %}{{ t.MANUFACTURING }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+  <h2 class="text-xl font-bold text-slate-900">{{ t.MANUFACTURING_OVERVIEW }}</h2>
+  <div class="flex gap-2">
+    <a href="{% url 'manufacturing:workorder_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+      <i class="ri-add-line"></i> {{ t.NEW_WORK_ORDER }}
+    </a>
+    <a href="{% url 'manufacturing:bom_create' %}" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+      <i class="ri-file-list-3-line"></i> {{ t.NEW_BOM }}
+    </a>
+  </div>
+</div>
+
+<!-- KPIs -->
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-3 mb-8">
+  <div class="rounded-xl bg-white p-5 shadow-sm border border-slate-100">
+    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">{{ t.ACTIVE_BOMS }}</p>
+    <p class="mt-2 text-3xl font-bold text-slate-800">{{ total_boms }}</p>
+  </div>
+  <div class="rounded-xl bg-white p-5 shadow-sm border border-slate-100">
+    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">{{ t.OPEN_ORDERS }}</p>
+    <p class="mt-2 text-3xl font-bold text-amber-600">{{ open_orders }}</p>
+  </div>
+  <div class="rounded-xl bg-white p-5 shadow-sm border border-slate-100">
+    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">{{ t.COMPLETED_ORDERS }}</p>
+    <p class="mt-2 text-3xl font-bold text-emerald-600">{{ done_orders }}</p>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+  <!-- Recent Work Orders -->
+  <div class="rounded-xl bg-white shadow-sm border border-slate-100 overflow-hidden">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+      <h3 class="font-semibold text-slate-800">{{ t.RECENT_WORK_ORDERS }}</h3>
+      <a href="{% url 'manufacturing:workorder_list' %}" class="text-xs text-indigo-600 hover:underline">{{ t.VIEW_ALL }}</a>
+    </div>
+    <table class="min-w-full text-sm">
+      <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
+        <tr>
+          <th class="px-4 py-3 text-left">{{ t.NUMBER }}</th>
+          <th class="px-4 py-3 text-left">{{ t.PRODUCT_COL }}</th>
+          <th class="px-4 py-3 text-right">{{ t.QUANTITY }}</th>
+          <th class="px-4 py-3 text-left">{{ t.STATUS }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for wo in recent_orders %}
+        <tr class="hover:bg-slate-50">
+          <td class="px-4 py-3 font-medium"><a href="{% url 'manufacturing:workorder_detail' wo.pk %}" class="text-indigo-600 hover:underline">{{ wo.number }}</a></td>
+          <td class="px-4 py-3 text-slate-700">{{ wo.product.name }}</td>
+          <td class="px-4 py-3 text-right">{{ wo.quantity }}</td>
+          <td class="px-4 py-3">
+            <span class="rounded-full px-2 py-0.5 text-xs font-medium
+              {% if wo.status == 'in_progress' %}bg-blue-50 text-blue-700
+              {% elif wo.status == 'done' %}bg-emerald-50 text-emerald-700
+              {% elif wo.status == 'cancelled' %}bg-red-50 text-red-700
+              {% else %}bg-slate-100 text-slate-600{% endif %}">
+              {{ wo.get_status_display }}
+            </span>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="px-4 py-6 text-center text-slate-400">{{ t.NO_WORK_ORDERS_YET }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Recent BOMs -->
+  <div class="rounded-xl bg-white shadow-sm border border-slate-100 overflow-hidden">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+      <h3 class="font-semibold text-slate-800">{{ t.BILLS_OF_MATERIAL }}</h3>
+      <a href="{% url 'manufacturing:bom_list' %}" class="text-xs text-indigo-600 hover:underline">{{ t.VIEW_ALL }}</a>
+    </div>
+    <table class="min-w-full text-sm">
+      <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
+        <tr>
+          <th class="px-4 py-3 text-left">{{ t.NUMBER }}</th>
+          <th class="px-4 py-3 text-left">{{ t.PRODUCT_COL }}</th>
+          <th class="px-4 py-3 text-right">{{ t.QUANTITY }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for bom in recent_boms %}
+        <tr class="hover:bg-slate-50">
+          <td class="px-4 py-3 font-medium"><a href="{% url 'manufacturing:bom_detail' bom.pk %}" class="text-indigo-600 hover:underline">{{ bom.number }}</a></td>
+          <td class="px-4 py-3 text-slate-700">{{ bom.product.name }}</td>
+          <td class="px-4 py-3 text-right">{{ bom.quantity }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" class="px-4 py-6 text-center text-slate-400">{{ t.NO_BOMS_YET }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

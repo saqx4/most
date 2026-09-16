@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex items-center gap-3">
+  <a href="{% url 'purchasing:supplier_list' %}" class="text-slate-500 hover:text-slate-700"><i class="ri-arrow-left-line text-lg"></i></a>
+  <h2 class="text-xl font-bold text-slate-900">{{ title }}</h2>
+</div>
+
+<div class="max-w-2xl rounded-xl bg-white shadow-sm border border-slate-100 p-6">
+  <form method="post">
+    {% csrf_token %}
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {% for field in form %}
+      <div class="{% if field.name == 'address' or field.name == 'notes' %}sm:col-span-2{% endif %}">
+        <label class="mb-1 block text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}<p class="mt-1 text-xs text-red-600">{{ field.errors|join:', ' }}</p>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="mt-6 flex gap-3">
+      <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-medium text-white hover:bg-indigo-700">{{ t.SAVE }}</button>
+      <a href="{% url 'purchasing:supplier_list' %}" class="rounded-lg border border-slate-300 px-5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">{{ t.CANCEL }}</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

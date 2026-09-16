@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}{{ credit_note.number }}{% endblock %}
+{% block page_title %}Credit Note {{ credit_note.number }}{% endblock %}
+{% block content %}
+<div class="mb-4 flex items-center justify-between">
+  <a href="{% url 'sales:creditnote_list' %}" class="text-sm text-indigo-600 hover:underline"><i class="ri-arrow-left-line"></i> {{ t.BACK_TO_CREDIT_NOTES }}</a>
+  <div class="flex items-center gap-3">
+    {% if credit_note.status == 'draft' %}
+    <form method="post" action="{% url 'sales:creditnote_post' credit_note.pk %}">{% csrf_token %}
+      <button class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"><i class="ri-check-line mr-1"></i>{{ t.POST_CREDIT_NOTE }}</button>
+    </form>
+    {% endif %}
+    <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium {% if credit_note.status == 'posted' %}bg-emerald-50 text-emerald-700{% elif credit_note.status == 'void' %}bg-red-50 text-red-600{% else %}bg-slate-100 text-slate-600{% endif %}">{{ credit_note.get_status_display }}</span>
+  </div>
+</div>
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <div class="lg:col-span-2 space-y-6">
+    <div class="rounded-2xl border border-slate-200 bg-white p-6">
+      <dl class="grid grid-cols-3 gap-4 text-sm">
+        <div><dt class="text-slate-500">{{ t.CUSTOMER }}</dt><dd class="font-medium text-slate-900">{{ credit_note.customer }}</dd></div>
+        <div><dt class="text-slate-500">{{ t.CREDIT_DATE }}</dt><dd class="font-medium text-slate-900">{{ credit_note.credit_date }}</dd></div>
+        <div><dt class="text-slate-500">{{ t.ORIGINAL_INVOICE }}</dt><dd class="font-medium text-slate-900">{{ credit_note.original_invoice|default:"-" }}</dd></div>
+        <div class="sm:col-span-3"><dt class="text-slate-500">{{ t.REASON }}</dt><dd class="text-slate-700">{{ credit_note.reason|default:"-" }}</dd></div>
+      </dl>
+    </div>
+    <div class="rounded-2xl border border-slate-200 bg-white p-6">
+      <h2 class="mb-4 text-sm font-semibold text-slate-900">{{ t.LINE_ITEMS }}</h2>
+      <table class="w-full text-sm">
+        <thead><tr class="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+          <th class="py-2 font-medium">{{ t.PRODUCT }}</th><th class="py-2 font-medium">{{ t.DESCRIPTION }}</th><th class="py-2 text-right font-medium">{{ t.QUANTITY }}</th><th class="py-2 text-right font-medium">{{ t.UNIT_PRICE }}</th><th class="py-2 text-right font-medium">{{ t.TOTAL }}</th>
+        </tr></thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for line in credit_note.lines.all %}
+          <tr>
+            <td class="py-2 font-medium text-slate-900">{{ line.product }}</td>
+            <td class="py-2 text-slate-600">{{ line.description|default:"-" }}</td>
+            <td class="py-2 text-right">{{ line.quantity }}</td>
+            <td class="py-2 text-right">{{ line.price|floatformat:2 }}</td>
+            <td class="py-2 text-right font-medium text-red-600">{{ line.line_total|floatformat:2 }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="py-6 text-center text-slate-400">{{ t.NO_LINES }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="rounded-2xl border border-slate-200 bg-white p-6">
+    <h2 class="mb-3 text-sm font-semibold text-slate-900">{{ t.CREDIT_NOTE_TOTAL }}</h2>
+    <p class="text-3xl font-bold text-red-600">{{ credit_note.total|floatformat:2 }}</p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: A4; margin: 20mm 15mm; }
+  * { box-sizing: border-box; }
+  body { font-family: Helvetica, Arial, sans-serif; font-size: 10pt; color: #1e293b; line-height: 1.5; margin: 0; padding: 0; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #7c3aed; padding-bottom: 12px; margin-bottom: 20px; }
+  .company-name { font-size: 18pt; font-weight: bold; color: #7c3aed; margin: 0; }
+  .company-details { font-size: 8pt; color: #64748b; text-align: right; }
+  .doc-title { font-size: 22pt; font-weight: bold; color: #7c3aed; margin: 0 0 10px 0; }
+  .info-grid { display: flex; justify-content: space-between; margin-bottom: 20px; }
+  .info-box { width: 48%; }
+  .info-box h3 { font-size: 8pt; text-transform: uppercase; color: #64748b; margin: 0 0 4px 0; letter-spacing: 0.5px; }
+  .info-box p { margin: 2px 0; font-size: 9pt; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+  thead th { background: #7c3aed; color: #ffffff; padding: 8px 6px; font-size: 8pt; text-transform: uppercase; text-align: left; letter-spacing: 0.5px; }
+  thead th.num { text-align: right; }
+  tbody td { padding: 7px 6px; border-bottom: 1px solid #e2e8f0; font-size: 9pt; }
+  tbody td.num { text-align: right; }
+  .summary { width: 60%; margin: 0 auto 20px auto; }
+  .summary table { margin-bottom: 0; }
+  .summary td { padding: 8px 10px; font-size: 10pt; }
+  .summary td:first-child { font-weight: 600; color: #475569; }
+  .summary td:last-child { text-align: right; font-weight: 600; }
+  .summary tr.gross td { background: #f0fdf4; color: #065f46; }
+  .summary tr.deductions td { background: #fef2f2; color: #991b1b; }
+  .summary tr.net td { background: #ede9fe; color: #5b21b6; border-top: 2px solid #7c3aed; font-size: 12pt; }
+  .footer { margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+  .footer p { margin: 2px 0; font-size: 8pt; color: #475569; }
+  .status-badge { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 8pt; font-weight: bold; text-transform: uppercase; }
+  .status-draft { background: #f1f5f9; color: #475569; }
+  .status-issued { background: #ede9fe; color: #5b21b6; }
+  .status-paid { background: #d1fae5; color: #065f46; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <p class="company-name">{{ company.name }}</p>
+    <p style="font-size:8pt;color:#64748b;margin:2px 0;">{{ company.legal_name }}</p>
+    <p style="font-size:8pt;color:#64748b;margin:2px 0;">{{ company.address }}</p>
+    <p style="font-size:8pt;color:#64748b;margin:2px 0;">{{ company.phone }} | {{ company.email }}</p>
+  </div>
+  <div class="company-details">
+    <p class="doc-title">PAYSLIP</p>
+    <p style="margin:2px 0;"><span class="status-badge status-{{ payslip.status }}">{{ payslip.get_status_display }}</span></p>
+  </div>
+</div>
+
+<div class="info-grid">
+  <div class="info-box">
+    <h3>Employee Information</h3>
+    <p style="font-weight:bold;">{{ payslip.employee.full_name }}</p>
+    <p>Code: {{ payslip.employee.employee_code }}</p>
+    {% if payslip.employee.job_title %}<p>Title: {{ payslip.employee.job_title }}</p>{% endif %}
+    {% if payslip.employee.department %}<p>Department: {{ payslip.employee.department }}</p>{% endif %}
+    {% if payslip.employee.email %}<p>Email: {{ payslip.employee.email }}</p>{% endif %}
+  </div>
+  <div class="info-box">
+    <h3>Payslip Details</h3>
+    <table style="margin-bottom:0;">
+      <tr><td style="font-weight:600;color:#64748b;border:none;padding:3px 6px;">Period</td><td style="border:none;padding:3px 6px;">{{ payslip.period }}</td></tr>
+      <tr><td style="font-weight:600;color:#64748b;border:none;padding:3px 6px;">Issued On</td><td style="border:none;padding:3px 6px;">{{ payslip.issued_on|default:"-" }}</td></tr>
+      <tr><td style="font-weight:600;color:#64748b;border:none;padding:3px 6px;">Status</td><td style="border:none;padding:3px 6px;">{{ payslip.get_status_display }}</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="summary">
+  <table>
+    <tr class="gross"><td>Gross Pay</td><td>{{ payslip.gross|floatformat:2 }}</td></tr>
+    <tr class="deductions"><td>Total Deductions</td><td>{{ payslip.deductions|floatformat:2 }}</td></tr>
+    <tr class="net"><td>Net Pay</td><td>{{ payslip.net|floatformat:2 }}</td></tr>
+  </table>
+</div>
+
+{% if payslip.notes %}
+<div class="footer">
+  <h3 style="font-size:8pt;text-transform:uppercase;color:#64748b;margin:0 0 4px 0;">Notes</h3>
+  <p>{{ payslip.notes }}</p>
+</div>
+{% endif %}
+
+<div class="footer">
+  <p>This is a computer-generated payslip and does not require a signature. For questions, please contact the HR department.</p>
+</div>
+
+</body>
+</html>

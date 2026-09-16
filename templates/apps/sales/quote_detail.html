@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}{{ quote.number }}{% endblock %}
+{% block page_title %}Quote {{ quote.number }}{% endblock %}
+{% block content %}
+<div class="mb-4 flex items-center justify-between">
+  <a href="{% url 'sales:quote_list' %}" class="text-sm text-indigo-600 hover:underline"><i class="ri-arrow-left-line"></i> {{ t.BACK_TO_QUOTES }}</a>
+  <div class="flex items-center gap-3">
+    {% if quote.status == 'draft' %}
+    <form method="post" action="{% url 'sales:quote_send' quote.pk %}">{% csrf_token %}
+      <button class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"><i class="ri-send-plane-line mr-1"></i>{{ t.SEND_QUOTE }}</button>
+    </form>
+    {% endif %}
+    {% if quote.status == 'sent' or quote.status == 'draft' %}
+    <form method="post" action="{% url 'sales:quote_accept' quote.pk %}">{% csrf_token %}
+      <button class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"><i class="ri-check-line mr-1"></i>{{ t.ACCEPT }}</button>
+    </form>
+    <form method="post" action="{% url 'sales:quote_reject' quote.pk %}">{% csrf_token %}
+      <button class="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"><i class="ri-close-line mr-1"></i>{{ t.REJECT }}</button>
+    </form>
+    {% endif %}
+    {% if quote.status == 'accepted' and not quote.converted_to_order %}
+    <form method="post" action="{% url 'sales:quote_convert_to_order' quote.pk %}">{% csrf_token %}
+      <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"><i class="ri-arrow-right-line mr-1"></i>{{ t.CONVERT_TO_ORDER }}</button>
+    </form>
+    {% endif %}
+    <a href="{% url 'sales:quote_pdf' quote.pk %}" target="_blank" class="rounded-lg bg-slate-600 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700"><i class="ri-file-pdf-line mr-1"></i>PDF</a>
+    <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium {% if quote.status == 'accepted' %}bg-emerald-50 text-emerald-700{% elif quote.status == 'sent' %}bg-blue-50 text-blue-700{% elif quote.status == 'rejected' %}bg-red-50 text-red-600{% elif quote.status == 'expired' %}bg-amber-50 text-amber-700{% else %}bg-slate-100 text-slate-600{% endif %}">{{ quote.status|title }}</span>
+  </div>
+</div>
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <div class="lg:col-span-2 space-y-6">
+    <div class="rounded-2xl border border-slate-200 bg-white p-6">
+      <dl class="grid grid-cols-3 gap-4 text-sm">
+        <div><dt class="text-slate-500">{{ t.CUSTOMER }}</dt><dd class="font-medium text-slate-900">{{ quote.customer }}</dd></div>
+        <div><dt class="text-slate-500">{{ t.QUOTE_DATE }}</dt><dd class="font-medium text-slate-900">{{ quote.quote_date }}</dd></div>
+        <div><dt class="text-slate-500">{{ t.VALID_UNTIL }}</dt><dd class="font-medium text-slate-900">{{ quote.valid_until|default:"-" }}</dd></div>
+        <div><dt class="text-slate-500">{{ t.SALESPERSON }}</dt><dd class="font-medium text-slate-900">{{ quote.salesperson|default:"-" }}</dd></div>
+        <div><dt class="text-slate-500">{{ t.NOTES }}</dt><dd class="text-slate-700">{{ quote.notes|default:"-" }}</dd></div>
+        {% if quote.converted_to_order %}
+        <div><dt class="text-slate-500">{{ t.CONVERTED_TO }}</dt><dd class="font-medium text-indigo-600"><a href="{% url 'sales:order_detail' quote.converted_to_order.pk %}" class="hover:underline">{{ quote.converted_to_order.number }}</a></dd></div>
+        {% endif %}
+      </dl>
+    </div>
+    <div class="rounded-2xl border border-slate-200 bg-white p-6">
+      <h2 class="mb-4 text-sm font-semibold text-slate-900">{{ t.LINE_ITEMS }}</h2>
+      <table class="w-full text-sm">
+        <thead><tr class="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+          <th class="py-2 font-medium">{{ t.PRODUCT }}</th><th class="py-2 font-medium">{{ t.DESCRIPTION }}</th><th class="py-2 text-right font-medium">{{ t.QUANTITY }}</th><th class="py-2 text-right font-medium">{{ t.UNIT_PRICE }}</th><th class="py-2 text-right font-medium">{{ t.DISCOUNT }}</th><th class="py-2 text-right font-medium">{{ t.TOTAL }}</th>
+        </tr></thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for line in quote.lines.all %}
+          <tr>
+            <td class="py-2 font-medium text-slate-900">{{ line.product }}</td>
+            <td class="py-2 text-slate-600">{{ line.description|default:"-" }}</td>
+            <td class="py-2 text-right">{{ line.quantity }}</td>
+            <td class="py-2 text-right">{{ line.price|floatformat:2 }}</td>
+            <td class="py-2 text-right">{{ line.discount_percent|floatformat:1 }}%</td>
+            <td class="py-2 text-right font-medium text-slate-900">{{ line.line_total|floatformat:2 }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="py-6 text-center text-slate-400">{{ t.NO_LINES }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="rounded-2xl border border-slate-200 bg-white p-6">
+    <h2 class="mb-3 text-sm font-semibold text-slate-900">{{ t.QUOTE_TOTAL }}</h2>
+    <p class="text-3xl font-bold text-slate-900">{{ quote.total|floatformat:2 }}</p>
+  </div>
+</div>
+{% endblock %}

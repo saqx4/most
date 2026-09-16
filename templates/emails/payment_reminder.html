@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background: #dc2626; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+    <h1 style="margin: 0; font-size: 20px;">Payment Reminder</h1>
+    <p style="margin: 5px 0 0; opacity: 0.9;">{{ company.name }}</p>
+  </div>
+  <div style="border: 1px solid #e5e7eb; border-top: none; padding: 20px; border-radius: 0 0 8px 8px;">
+    <p>Dear {{ customer.name }},</p>
+    <p>This is a friendly reminder that you have outstanding invoices:</p>
+    <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+      <thead>
+        <tr style="background: #f9fafb;">
+          <th style="padding: 8px; text-align: left; border-bottom: 2px solid #e5e7eb;">Invoice</th>
+          <th style="padding: 8px; text-align: left; border-bottom: 2px solid #e5e7eb;">Due Date</th>
+          <th style="padding: 8px; text-align: right; border-bottom: 2px solid #e5e7eb;">Amount Due</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for inv in invoices %}
+        <tr>
+          <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">{{ inv.number }}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">{{ inv.due_date|default:"-" }}</td>
+          <td style="padding: 8px; text-align: right; border-bottom: 1px solid #e5e7eb; color: #dc2626;">{{ inv.amount_due|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p><strong>Total Outstanding: {{ total_due|floatformat:2 }}</strong></p>
+    <p>Please arrange payment at your earliest convenience.</p>
+    <p style="color: #6b7280; font-size: 13px;">This is an automated email. Please do not reply directly.</p>
+  </div>
+</body>
+</html>

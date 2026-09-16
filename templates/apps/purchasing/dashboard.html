@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block page_title %}{{ t.PURCHASES }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+  <h2 class="text-xl font-bold text-slate-900">{{ t.PURCHASING_OVERVIEW }}</h2>
+  <a href="{% url 'purchasing:po_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+    <i class="ri-add-line"></i> {{ t.NEW_PURCHASE_ORDER }}
+  </a>
+</div>
+
+<!-- KPI cards -->
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-3 mb-8">
+  <div class="rounded-xl bg-white p-5 shadow-sm border border-slate-100">
+    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">{{ t.ACTIVE_SUPPLIERS }}</p>
+    <p class="mt-2 text-3xl font-bold text-slate-800">{{ total_suppliers }}</p>
+  </div>
+  <div class="rounded-xl bg-white p-5 shadow-sm border border-slate-100">
+    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">{{ t.OPEN_ORDERS }}</p>
+    <p class="mt-2 text-3xl font-bold text-amber-600">{{ open_pos }}</p>
+  </div>
+  <div class="rounded-xl bg-white p-5 shadow-sm border border-slate-100">
+    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">{{ t.TOTAL_PAYABLE }}</p>
+    <p class="mt-2 text-3xl font-bold text-red-600">{{ total_payable|floatformat:2 }}</p>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+  <!-- Recent POs -->
+  <div class="rounded-xl bg-white shadow-sm border border-slate-100 overflow-hidden">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+      <h3 class="font-semibold text-slate-800">{{ t.RECENT_PURCHASE_ORDERS }}</h3>
+      <a href="{% url 'purchasing:po_list' %}" class="text-xs text-indigo-600 hover:underline">{{ t.VIEW_ALL }}</a>
+    </div>
+    <table class="min-w-full text-sm">
+      <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
+        <tr>
+          <th class="px-4 py-3 text-left">{{ t.NUMBER }}</th>
+          <th class="px-4 py-3 text-left">{{ t.SUPPLIER }}</th>
+          <th class="px-4 py-3 text-left">{{ t.STATUS }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for po in recent_pos %}
+        <tr class="hover:bg-slate-50">
+          <td class="px-4 py-3"><a href="{% url 'purchasing:po_detail' po.pk %}" class="text-indigo-600 hover:underline font-medium">{{ po.number }}</a></td>
+          <td class="px-4 py-3 text-slate-600">{{ po.supplier.name }}</td>
+          <td class="px-4 py-3">
+            <span class="inline-block rounded-full px-2 py-0.5 text-xs font-medium
+              {% if po.status == 'confirmed' %}bg-blue-50 text-blue-700
+              {% elif po.status == 'received' %}bg-emerald-50 text-emerald-700
+              {% elif po.status == 'cancelled' %}bg-red-50 text-red-700
+              {% else %}bg-slate-100 text-slate-600{% endif %}">
+              {{ po.get_status_display }}
+            </span>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" class="px-4 py-6 text-center text-slate-400">{{ t.NO_PURCHASE_ORDERS_YET }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Recent Bills -->
+  <div class="rounded-xl bg-white shadow-sm border border-slate-100 overflow-hidden">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+      <h3 class="font-semibold text-slate-800">{{ t.RECENT_SUPPLIER_BILLS }}</h3>
+      <a href="{% url 'purchasing:bill_list' %}" class="text-xs text-indigo-600 hover:underline">{{ t.VIEW_ALL }}</a>
+    </div>
+    <table class="min-w-full text-sm">
+      <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
+        <tr>
+          <th class="px-4 py-3 text-left">{{ t.NUMBER }}</th>
+          <th class="px-4 py-3 text-left">{{ t.SUPPLIER }}</th>
+          <th class="px-4 py-3 text-left">{{ t.STATUS }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for bill in recent_bills %}
+        <tr class="hover:bg-slate-50">
+          <td class="px-4 py-3"><a href="{% url 'purchasing:bill_detail' bill.pk %}" class="text-indigo-600 hover:underline font-medium">{{ bill.number }}</a></td>
+          <td class="px-4 py-3 text-slate-600">{{ bill.supplier.name }}</td>
+          <td class="px-4 py-3">
+            <span class="inline-block rounded-full px-2 py-0.5 text-xs font-medium
+              {% if bill.status == 'posted' %}bg-amber-50 text-amber-700
+              {% elif bill.status == 'paid' %}bg-emerald-50 text-emerald-700
+              {% elif bill.status == 'void' %}bg-red-50 text-red-700
+              {% else %}bg-slate-100 text-slate-600{% endif %}">
+              {{ bill.get_status_display }}
+            </span>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" class="px-4 py-6 text-center text-slate-400">{{ t.NO_BILLS_YET }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

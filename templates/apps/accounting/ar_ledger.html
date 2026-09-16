@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}{{ t.AR_LEDGER_TITLE }}{% endblock %}
+{% block page_title %}{{ t.AR_LEDGER_HEADING }}{% endblock %}
+{% block content %}
+<div class="mb-4">
+  <p class="text-sm text-slate-500">{{ t.POSTED_LINES_ASSET }} {% if company %}for {{ company.name }}{% endif %}.</p>
+</div>
+{% include 'apps/accounting/_ledger_table.html' %}
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}{{ t.BALANCE_SHEET }}{% endblock %}
+{% block page_title %}{{ t.BALANCE_SHEET }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+  <p class="text-sm text-slate-500">{{ t.ASSETS_LIABILITIES_EQUITY }}{% if company %} for {{ company.name }}{% endif %}.</p>
+  <div class="flex gap-2">
+    <a href="{% url 'reports:trial_balance' %}" class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"><i class="ri-scale-3-line"></i> {{ t.TRIAL_BALANCE_LINK }}</a>
+    <a href="{% url 'reports:income_statement' %}" class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"><i class="ri-line-chart-line"></i> {{ t.INCOME_STATEMENT_LINK }}</a>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div class="border-b border-slate-200 bg-slate-50 px-4 py-3"><h2 class="text-sm font-semibold text-slate-900">{{ t.ASSETS }}</h2></div>
+    <table class="w-full text-sm">
+      <tbody class="divide-y divide-slate-100">
+        {% for r in data.assets %}
+        <tr>
+          <td class="px-4 py-2.5 text-slate-700"><span class="font-semibold text-slate-900">{{ r.account.code }}</span> {{ r.account.name }}</td>
+          <td class="whitespace-nowrap px-4 py-2.5 text-right text-slate-700">{{ r.amount|default:'0.00'|floatformat:2 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="2" class="px-4 py-8 text-center text-slate-400">{{ t.NO_ASSETS_POSTED }}</td></tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="border-t border-slate-200 bg-slate-50 font-semibold text-slate-900">
+          <td class="px-4 py-3">{{ t.TOTAL_ASSETS }}</td>
+          <td class="whitespace-nowrap px-4 py-3 text-right">{{ data.total_assets|default:'0.00'|floatformat:2 }}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="space-y-6">
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div class="border-b border-slate-200 bg-slate-50 px-4 py-3"><h2 class="text-sm font-semibold text-slate-900">{{ t.LIABILITIES }}</h2></div>
+      <table class="w-full text-sm">
+        <tbody class="divide-y divide-slate-100">
+          {% for r in data.liabilities %}
+          <tr>
+            <td class="px-4 py-2.5 text-slate-700"><span class="font-semibold text-slate-900">{{ r.account.code }}</span> {{ r.account.name }}</td>
+            <td class="whitespace-nowrap px-4 py-2.5 text-right text-slate-700">{{ r.amount|default:'0.00'|floatformat:2 }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="2" class="px-4 py-8 text-center text-slate-400">{{ t.NO_LIABILITIES_POSTED }}</td></tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr class="border-t border-slate-200 bg-slate-50 font-semibold text-slate-900">
+            <td class="px-4 py-3">{{ t.TOTAL_LIABILITIES }}</td>
+            <td class="whitespace-nowrap px-4 py-3 text-right">{{ data.total_liabilities|default:'0.00'|floatformat:2 }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div class="border-b border-slate-200 bg-slate-50 px-4 py-3"><h2 class="text-sm font-semibold text-slate-900">{{ t.EQUITY }}</h2></div>
+      <table class="w-full text-sm">
+        <tbody class="divide-y divide-slate-100">
+          {% for r in data.equity %}
+          <tr>
+            <td class="px-4 py-2.5 text-slate-700"><span class="font-semibold text-slate-900">{{ r.account.code }}</span> {{ r.account.name }}</td>
+            <td class="whitespace-nowrap px-4 py-2.5 text-right text-slate-700">{{ r.amount|default:'0.00'|floatformat:2 }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="2" class="px-4 py-8 text-center text-slate-400">{{ t.NO_EQUITY_POSTED }}</td></tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr class="border-t border-slate-200 bg-slate-50 font-semibold text-slate-900">
+            <td class="px-4 py-3">{{ t.TOTAL_EQUITY }}</td>
+            <td class="whitespace-nowrap px-4 py-3 text-right">{{ data.total_equity|default:'0.00'|floatformat:2 }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <div class="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm">
+    <p class="text-sm font-semibold text-slate-900">{{ t.TOTAL_ASSETS }}</p>
+    <p class="text-lg font-bold text-slate-900">{{ data.total_assets|default:'0.00'|floatformat:2 }}</p>
+  </div>
+  <div class="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm">
+    <p class="text-sm font-semibold text-slate-900">{{ t.TOTAL_LIABILITIES }}</p>
+    <p class="text-lg font-bold text-slate-900">{{ data.total_liabilities|default:'0.00'|floatformat:2 }}</p>
+  </div>
+  <div class="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm">
+    <p class="text-sm font-semibold text-slate-900">{{ t.TOTAL_EQUITY }}</p>
+    <p class="text-lg font-bold text-slate-900">{{ data.total_equity|default:'0.00'|floatformat:2 }}</p>
+  </div>
+</div>
+<div class="mt-4 flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm">
+  <p class="text-sm font-semibold text-slate-900">{{ t.BALANCING_DIFFERENCE }} <span class="text-xs font-normal text-slate-400">({{ t.ASSETS_MINUS_LIABILITIES_EQUITY }})</span></p>
+  <p class="text-lg font-bold {% if data.difference == 0 %}text-emerald-600{% else %}text-red-600{% endif %}">{{ data.difference|default:'0.00'|floatformat:2 }}</p>
+</div>
+{% endblock %}

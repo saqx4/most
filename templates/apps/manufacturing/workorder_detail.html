@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block page_title %}{{ t.ORDER }} {{ wo.number }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+  <div class="flex items-center gap-3">
+    <a href="{% url 'manufacturing:workorder_list' %}" class="text-slate-500 hover:text-slate-700"><i class="ri-arrow-left-line text-lg"></i></a>
+    <h2 class="text-xl font-bold text-slate-900">{{ wo.number }}</h2>
+    <span class="rounded-full px-2 py-0.5 text-xs font-medium
+      {% if wo.status == 'in_progress' %}bg-blue-50 text-blue-700
+      {% elif wo.status == 'done' %}bg-emerald-50 text-emerald-700
+      {% elif wo.status == 'cancelled' %}bg-red-50 text-red-700
+      {% else %}bg-slate-100 text-slate-600{% endif %}">
+      {{ wo.get_status_display }}
+    </span>
+  </div>
+  <div class="flex gap-2">
+    {% if wo.status == 'draft' %}
+    <form method="post" action="{% url 'manufacturing:workorder_start' wo.pk %}">{% csrf_token %}
+      <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">{{ t.START_PRODUCTION }}</button>
+    </form>
+    <form method="post" action="{% url 'manufacturing:workorder_cancel' wo.pk %}">{% csrf_token %}
+      <button type="submit" class="rounded-lg border border-red-300 px-4 py-2 text-sm text-red-600 hover:bg-red-50">{{ t.CANCEL }}</button>
+    </form>
+    {% elif wo.status == 'in_progress' %}
+    <form method="post" action="{% url 'manufacturing:workorder_finish' wo.pk %}">{% csrf_token %}
+      <button type="submit" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700">{{ t.FINISH_UPDATE_STOCK }}</button>
+    </form>
+    <form method="post" action="{% url 'manufacturing:workorder_cancel' wo.pk %}">{% csrf_token %}
+      <button type="submit" class="rounded-lg border border-red-300 px-4 py-2 text-sm text-red-600 hover:bg-red-50">{{ t.CANCEL }}</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3 mb-6">
+  <div class="rounded-xl bg-white border border-slate-100 shadow-sm p-5 lg:col-span-2">
+    <h3 class="text-sm font-semibold text-slate-700 mb-3">{{ t.DETAILS }}</h3>
+    <dl class="grid grid-cols-2 gap-3 text-sm">
+      <div><dt class="text-xs text-slate-500">{{ t.PRODUCT_COL }}</dt><dd class="font-medium">{{ wo.product.name }}</dd></div>
+      <div><dt class="text-xs text-slate-500">{{ t.BOM }}</dt><dd class="font-medium"><a href="{% url 'manufacturing:bom_detail' wo.bom.pk %}" class="text-indigo-600 hover:underline">{{ wo.bom.number }}</a></dd></div>
+      <div><dt class="text-xs text-slate-500">{{ t.QUANTITY }}</dt><dd class="font-medium">{{ wo.quantity }}</dd></div>
+      <div><dt class="text-xs text-slate-500">{{ t.WAREHOUSE }}</dt><dd class="font-medium">{{ wo.warehouse.name }}</dd></div>
+      <div><dt class="text-xs text-slate-500">{{ t.START_DATE }}</dt><dd class="font-medium">{{ wo.start_date }}</dd></div>
+      <div><dt class="text-xs text-slate-500">{{ t.DUE_DATE }}</dt><dd class="font-medium">{{ wo.due_date|default:'—' }}</dd></div>
+      {% if wo.finished_at %}
+      <div><dt class="text-xs text-slate-500">{{ t.FINISHED_AT }}</dt><dd class="font-medium">{{ wo.finished_at|date:"Y-m-d H:i" }}</dd></div>
+      {% endif %}
+      {% if wo.notes %}<div class="col-span-2"><dt class="text-xs text-slate-500">{{ t.NOTES }}</dt><dd>{{ wo.notes }}</dd></div>{% endif %}
+    </dl>
+  </div>
+  <div class="rounded-xl bg-white border border-slate-100 shadow-sm p-5">
+    <p class="text-xs text-slate-500">{{ t.EXPECTED_MATERIAL_COST }}</p>
+    <p class="text-3xl font-bold text-slate-800 mt-1">{{ wo.expected_material_cost|floatformat:2 }}</p>
+    <p class="mt-3 text-xs text-slate-500">{{ t.PER_UNIT }}</p>
+    <p class="text-xl font-semibold text-slate-600">
+      {% if wo.quantity %}{{ wo.expected_material_cost|floatformat:2 }}{% else %}—{% endif %}
+    </p>
+  </div>
+</div>
+
+<!-- Material Requirements -->
+<div class="rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden">
+  <div class="px-5 py-4 border-b border-slate-100"><h3 class="font-semibold text-slate-800">{{ t.MATERIAL_REQUIREMENTS }}</h3></div>
+  <table class="min-w-full text-sm">
+    <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
+      <tr>
+        <th class="px-4 py-3 text-left">{{ t.COMPONENT }}</th>
+        <th class="px-4 py-3 text-left">{{ t.SKU }}</th>
+        <th class="px-4 py-3 text-right">{{ t.REQUIRED }}</th>
+        <th class="px-4 py-3 text-right">{{ t.CONSUMED }}</th>
+        <th class="px-4 py-3 text-right">{{ t.ON_HAND_COL }}</th>
+        <th class="px-4 py-3 text-left">{{ t.READY }}</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      {% for mat in materials %}
+      {% with on_hand=mat.component.on_hand %}
+      <tr class="hover:bg-slate-50">
+        <td class="px-4 py-3 font-medium">{{ mat.component.name }}</td>
+        <td class="px-4 py-3 text-slate-500 font-mono text-xs">{{ mat.component.sku }}</td>
+        <td class="px-4 py-3 text-right">{{ mat.required }}</td>
+        <td class="px-4 py-3 text-right text-emerald-600">{{ mat.consumed }}</td>
+        <td class="px-4 py-3 text-right {% if on_hand < mat.required %}text-red-600 font-semibold{% else %}text-slate-700{% endif %}">{{ on_hand }}</td>
+        <td class="px-4 py-3">
+          {% if on_hand >= mat.required %}
+            <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">✓ {{ t.YES }}</span>
+          {% else %}
+            <span class="rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">✗ {{ t.LOW }}</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endwith %}
+      {% empty %}
+      <tr><td colspan="6" class="px-4 py-6 text-center text-slate-400">{{ t.NO_MATERIAL_REQUIREMENTS }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}{{ employee.full_name }}{% endblock %}
+{% block page_title %}{{ employee.full_name }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+  <a href="{% url 'hr:employee_list' %}" class="inline-flex items-center gap-1 text-sm text-indigo-600 hover:underline dark:text-indigo-400"><i class="ri-arrow-left-line"></i> {{ t.BACK_TO_EMPLOYEES }}</a>
+  <div class="flex items-center gap-2">
+    <a href="{% url 'hr:employee_edit' employee.pk %}" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700">
+      <i class="ri-edit-line"></i> {{ t.EDIT }}
+    </a>
+    <form method="post" action="{% url 'hr:employee_delete' employee.pk %}" class="inline"
+          hx-post="{% url 'hr:employee_delete' employee.pk %}"
+          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+          hx-confirm="{{ t.CONFIRM_DELETE_EMPLOYEE }}"
+          hx-swap="none">
+      {% csrf_token %}
+      <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-red-300 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">
+        <i class="ri-delete-bin-line"></i> {{ t.DELETE }}
+      </button>
+    </form>
+  </div>
+</div>
+
+<div class="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+  <div class="grid grid-cols-2 gap-6 sm:grid-cols-4">
+    <div><p class="text-xs text-slate-500 dark:text-slate-400">{{ t.CODE_LABEL }}</p><p class="mt-1 font-mono text-lg font-semibold text-slate-900 dark:text-slate-100">{{ employee.employee_code }}</p></div>
+    <div><p class="text-xs text-slate-500 dark:text-slate-400">{{ t.DEPARTMENT_LABEL }}</p><p class="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">{{ employee.department|default:'—' }}</p></div>
+    <div><p class="text-xs text-slate-500 dark:text-slate-400">{{ t.JOB_TITLE_LABEL }}</p><p class="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">{{ employee.job_title|default:'—' }}</p></div>
+    <div><p class="text-xs text-slate-500 dark:text-slate-400">{{ t.BASE_SALARY }}</p><p class="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">{{ employee.base_salary|floatformat:2 }}</p></div>
+    <div><p class="text-xs text-slate-500 dark:text-slate-400">{{ t.EMAIL }}</p><p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ employee.email|default:'—' }}</p></div>
+    <div><p class="text-xs text-slate-500 dark:text-slate-400">{{ t.PHONE }}</p><p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ employee.phone|default:'—' }}</p></div>
+    <div><p class="text-xs text-slate-500 dark:text-slate-400">{{ t.HIRED_ON }}</p><p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ employee.hired_on|default:'—' }}</p></div>
+    <div><p class="text-xs text-slate-500 dark:text-slate-400">{{ t.STATUS }}</p>
+      {% if employee.is_active %}
+        <span class="mt-1 inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">{{ t.ACTIVE_STATUS }}</span>
+      {% else %}
+        <span class="mt-1 inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-500 dark:bg-slate-700 dark:text-slate-400">{{ t.INACTIVE_STATUS }}</span>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2 dark:border-slate-700 dark:bg-slate-800">
+    <h2 class="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">{{ t.RECENT_ATTENDANCE }}</h2>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead>
+          <tr class="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400">
+            <th class="px-4 py-3 text-start font-medium">{{ t.DATE }}</th>
+            <th class="px-4 py-3 text-start font-medium">{{ t.CLOCK_IN }}</th>
+            <th class="px-4 py-3 text-start font-medium">{{ t.CLOCK_OUT }}</th>
+            <th class="px-4 py-3 text-start font-medium">{{ t.STATUS }}</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+          {% for a in attendance %}
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+            <td class="whitespace-nowrap px-4 py-3 text-slate-700 dark:text-slate-300">{{ a.date }}</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ a.clock_in|default:'—' }}</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ a.clock_out|default:'—' }}</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ a.get_status_display }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" class="px-4 py-12 text-center text-slate-400 dark:text-slate-500">{{ t.NO_ATTENDANCE_RECORDED }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="space-y-6">
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+      <h2 class="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">{{ t.LEAVE_HISTORY }}</h2>
+      <ul class="space-y-3 text-sm">
+        {% for leave in leaves %}
+        <li class="text-slate-600 dark:text-slate-400">{{ leave.get_leave_type_display }} &middot; {{ leave.start_date }}&rarr;{{ leave.end_date }}
+          <span class="ms-1 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium
+            {% if leave.status == 'approved' %}bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400
+            {% elif leave.status == 'rejected' %}bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400
+            {% else %}bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400{% endif %}">{{ leave.get_status_display }}</span>
+        </li>
+        {% empty %}
+        <li class="text-slate-400 dark:text-slate-500">{{ t.NO_LEAVE_REQUESTS }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+      <h2 class="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">{{ t.PAYSLIPS_HEADING }}</h2>
+      <ul class="space-y-3 text-sm">
+        {% for slip in payslips %}
+        <li class="flex justify-between text-slate-600 dark:text-slate-400"><span>{{ slip.period }}</span><span class="font-semibold text-slate-900 dark:text-slate-100">{{ slip.net|floatformat:2 }}</span></li>
+        {% empty %}
+        <li class="text-slate-400 dark:text-slate-500">{{ t.NO_PAYSLIPS_YET }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

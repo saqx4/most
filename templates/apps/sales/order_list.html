@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}{{ t.SALES_ORDERS }}{% endblock %}
+{% block page_title %}{{ t.SALES_ORDERS }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+  <div class="flex flex-wrap gap-1">
+    <a href="{% url 'sales:order_list' %}" class="rounded-lg px-3 py-1.5 text-sm font-medium transition-colors {% if not status %}bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400{% else %}text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700{% endif %}">{{ t.ALL }}</a>
+    {% for val,label in statuses %}<a href="?status={{ val }}" class="rounded-lg px-3 py-1.5 text-sm font-medium transition-colors {% if status == val %}bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400{% else %}text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700{% endif %}">{{ label }}</a>{% endfor %}
+  </div>
+  <a href="{% url 'sales:order_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors">
+    <i class="ri-add-line"></i> {{ t.NEW_ORDER }}
+  </a>
+</div>
+
+<div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden dark:border-slate-700 dark:bg-slate-800">
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead>
+        <tr class="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400">
+          <th class="px-4 py-3 text-start font-medium">{{ t.NUMBER }}</th>
+          <th class="px-4 py-3 text-start font-medium">{{ t.CUSTOMER }}</th>
+          <th class="px-4 py-3 text-start font-medium">{{ t.DATE }}</th>
+          <th class="px-4 py-3 text-end font-medium">{{ t.TOTAL }}</th>
+          <th class="px-4 py-3 text-start font-medium">{{ t.STATUS }}</th>
+          <th class="px-4 py-3 text-end font-medium"></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+        {% for o in page_obj %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+          <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">{{ o.number }}</td>
+          <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ o.customer }}</td>
+          <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ o.order_date }}</td>
+          <td class="whitespace-nowrap px-4 py-3 text-end text-slate-700 dark:text-slate-300">{{ o.total|floatformat:2 }}</td>
+          <td class="px-4 py-3">
+            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+              {% if o.status == 'confirmed' %}bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400
+              {% elif o.status == 'draft' %}bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400
+              {% elif o.status == 'cancelled' %}bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400
+              {% else %}bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400{% endif %}">{{ o.get_status_display }}</span>
+          </td>
+          <td class="px-4 py-3 text-end">
+            <div class="flex items-center justify-end gap-1">
+              {% if o.status == 'draft' %}
+              <a href="{% url 'sales:order_edit' o.pk %}" class="rounded p-1.5 text-slate-400 hover:bg-slate-100 hover:text-indigo-600 dark:hover:bg-slate-700 dark:hover:text-indigo-400 transition-colors" title="{{ t.EDIT }}"><i class="ri-edit-line text-base"></i></a>
+              <form method="post" action="{% url 'sales:order_delete' o.pk %}" class="inline"
+                    hx-post="{% url 'sales:order_delete' o.pk %}"
+                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                    hx-confirm="{{ t.CONFIRM_DELETE_ORDER }}"
+                    hx-swap="none">
+                {% csrf_token %}
+                <button type="submit" class="rounded p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors" title="{{ t.DELETE }}"><i class="ri-delete-bin-line text-base"></i></button>
+              </form>
+              {% endif %}
+              <a href="{% url 'sales:order_detail' o.pk %}" class="rounded p-1.5 text-slate-400 hover:bg-slate-100 hover:text-indigo-600 dark:hover:bg-slate-700 dark:hover:text-indigo-400 transition-colors" title="{{ t.VIEW }}"><i class="ri-eye-line text-base"></i></a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="px-4 py-12 text-center text-slate-400 dark:text-slate-500">{{ t.NO_ORDERS }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if page_obj.has_other_pages %}
+  <div class="flex items-center justify-between border-t border-slate-200 px-4 py-3 dark:border-slate-700">
+    <p class="text-xs text-slate-500 dark:text-slate-400">{{ t.PAGE_X_OF_Y }}</p>
+    <div class="flex gap-1">
+      {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" class="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700">&laquo; {{ t.PREV }}</a>{% endif %}
+      {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700">{{ t.NEXT_BTN }} &raquo;</a>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

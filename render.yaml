@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: most-erp
+    runtime: python
+    buildCommand: ./build.sh
+    startCommand: gunicorn erp.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.13"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: "*"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: most-erp-db
+          property: connectionString
+      - key: EMAIL_BACKEND
+        value: "django.core.mail.backends.console.EmailBackend"
+      - key: TIMEZONE
+        value: "UTC"
+      - key: ADMIN_PASSWORD
+        generateValue: true
+      - key: COMPANY_NAME
+        value: "My Company"
+    healthCheckPath: /accounts/login/
+    autoDeploy: true
+
+databases:
+  - name: most-erp-db
+    plan: free
+    databaseName: most_erp

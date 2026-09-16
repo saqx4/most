@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}{{ t.JOURNAL_ENTRIES }}{% endblock %}
+{% block page_title %}{{ t.JOURNAL_ENTRIES }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+  <p class="text-sm text-slate-500 dark:text-slate-400">{{ entries|length }} {{ t.ENTRIES }}{% if company %} for {{ company.name }}{% endif %}</p>
+  <a href="{% url 'accounting:journal_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors">
+    <i class="ri-add-circle-line"></i> {{ t.NEW_ENTRY }}
+  </a>
+</div>
+
+<div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden dark:border-slate-700 dark:bg-slate-800">
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead>
+        <tr class="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400">
+          <th class="px-4 py-3 text-start font-medium">{{ t.REFERENCE }}</th>
+          <th class="px-4 py-3 text-start font-medium">{{ t.DATE }}</th>
+          <th class="px-4 py-3 text-start font-medium">{{ t.NOTES }}</th>
+          <th class="px-4 py-3 text-start font-medium">{{ t.SOURCE_REF }}</th>
+          <th class="px-4 py-3 text-start font-medium">{{ t.CREATED_BY }}</th>
+          <th class="px-4 py-3 text-start font-medium">{{ t.STATUS }}</th>
+          <th class="px-4 py-3 text-end font-medium">{{ t.DEBITS }}</th>
+          <th class="px-4 py-3 text-end font-medium">{{ t.CREDITS }}</th>
+          <th class="px-4 py-3 text-end font-medium">{{ t.ACTIONS }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+        {% for entry in entries %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+          <td class="whitespace-nowrap px-4 py-3">
+            <a href="{% url 'accounting:journal_detail' entry.pk %}" class="font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300">{{ entry }}</a>
+          </td>
+          <td class="whitespace-nowrap px-4 py-3 text-slate-600 dark:text-slate-400">{{ entry.date|date:'Y-m-d' }}</td>
+          <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ entry.memo|default:'—'|truncatechars:40 }}</td>
+          <td class="px-4 py-3 text-slate-500 dark:text-slate-400">{{ entry.reference|default:'—' }}</td>
+          <td class="px-4 py-3 text-slate-500 dark:text-slate-400">{% if entry.created_by %}{{ entry.created_by.get_full_name|default:entry.created_by.username }}{% else %}—{% endif %}</td>
+          <td class="whitespace-nowrap px-4 py-3">
+            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+              {% if entry.status == 'posted' %}bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400
+              {% elif entry.status == 'void' %}bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400
+              {% else %}bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400{% endif %}">{{ entry.get_status_display }}</span>
+          </td>
+          <td class="whitespace-nowrap px-4 py-3 text-end text-slate-700 dark:text-slate-300">{{ entry.debit_total|floatformat:2 }}</td>
+          <td class="whitespace-nowrap px-4 py-3 text-end text-slate-700 dark:text-slate-300">{{ entry.credit_total|floatformat:2 }}</td>
+          <td class="whitespace-nowrap px-4 py-3 text-end">
+            <div class="inline-flex items-center gap-1">
+              <a href="{% url 'accounting:journal_detail' entry.pk %}" title="{{ t.VIEW_BTN }}" class="rounded p-1.5 text-slate-400 hover:bg-slate-100 hover:text-indigo-600 dark:hover:bg-slate-700 dark:hover:text-indigo-400 transition-colors"><i class="ri-eye-line text-base"></i></a>
+              {% if entry.status == 'draft' %}
+              <form method="post" action="{% url 'accounting:journal_post' entry.pk %}" class="inline"
+                    hx-post="{% url 'accounting:journal_post' entry.pk %}"
+                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                    hx-confirm="{{ t.POST_THIS_ENTRY }}"
+                    hx-swap="none">
+                {% csrf_token %}
+                <button type="submit" title="{{ t.POST_BTN }}" class="rounded p-1.5 text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/20 dark:hover:text-emerald-400 transition-colors"><i class="ri-check-double-line text-base"></i></button>
+              </form>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="9" class="px-4 py-12 text-center text-slate-400 dark:text-slate-500">{{ t.NO_JOURNAL_ENTRIES }} <a href="{% url 'accounting:journal_create' %}" class="text-indigo-500 hover:underline dark:text-indigo-400">{{ t.CREATE_ONE }}</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

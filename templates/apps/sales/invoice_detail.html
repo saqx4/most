@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}{{ invoice.number }}{% endblock %}
+{% block page_title %}Invoice {{ invoice.number }}{% endblock %}
+{% block content %}
+<div class="mb-4 flex items-center justify-between">
+  <a href="{% url 'sales:invoice_list' %}" class="text-sm text-indigo-600 hover:underline"><i class="ri-arrow-left-line"></i> {{ t.BACK_TO_INVOICES }}</a>
+  <div class="flex items-center gap-3">
+    {% if invoice.status != 'paid' and invoice.status != 'void' %}
+    <form method="post" action="{% url 'sales:invoice_mark_paid' invoice.pk %}">{% csrf_token %}
+      <button class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"><i class="ri-check-double-line mr-1"></i>{{ t.MARK_PAID }}</button>
+    </form>
+    {% endif %}
+    <a href="{% url 'sales:invoice_pdf' invoice.pk %}" target="_blank" class="rounded-lg bg-slate-600 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700"><i class="ri-file-pdf-line mr-1"></i>PDF</a>
+    {% if invoice.customer.email %}
+    <form method="post" action="{% url 'sales:invoice_send_email' invoice.pk %}">{% csrf_token %}
+      <button class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"><i class="ri-mail-send-line mr-1"></i>Send by Email</button>
+    </form>
+    {% endif %}
+    <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium {% if invoice.status == 'paid' %}bg-emerald-50 text-emerald-700{% elif invoice.status == 'posted' %}bg-amber-50 text-amber-700{% elif invoice.status == 'void' %}bg-red-50 text-red-600{% else %}bg-slate-100 text-slate-600{% endif %}">{{ invoice.get_status_display }}</span>
+  </div>
+</div>
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <div class="lg:col-span-2 space-y-6">
+    <div class="rounded-2xl border border-slate-200 bg-white p-6">
+      <dl class="grid grid-cols-3 gap-4 text-sm">
+        <div><dt class="text-slate-500">{{ t.CUSTOMER }}</dt><dd class="font-medium text-slate-900">{{ invoice.customer }}</dd></div>
+        <div><dt class="text-slate-500">{{ t.DATE }}</dt><dd class="font-medium text-slate-900">{{ invoice.invoice_date }}</dd></div>
+        <div><dt class="text-slate-500">{{ t.DUE_DATE }}</dt><dd class="font-medium {% if invoice.status != 'paid' %}text-red-600{% else %}text-slate-900{% endif %}">{{ invoice.due_date|default:"-" }}</dd></div>
+        <div><dt class="text-slate-500">{{ t.ORDER }}</dt><dd class="font-medium text-slate-900">{% if invoice.order %}<a href="{% url 'sales:order_detail' invoice.order.pk %}" class="text-indigo-600 hover:underline">{{ invoice.order.number }}</a>{% else %}-{% endif %}</dd></div>
+        <div><dt class="text-slate-500">{{ t.CURRENCY }}</dt><dd class="font-medium text-slate-900">{{ invoice.currency|default:"-" }}</dd></div>
+        <div><dt class="text-slate-500">{{ t.NOTES }}</dt><dd class="text-slate-700">{{ invoice.memo|default:"-" }}</dd></div>
+      </dl>
+    </div>
+    <div class="rounded-2xl border border-slate-200 bg-white p-6">
+      <h2 class="mb-4 text-sm font-semibold text-slate-900">{{ t.LINE_ITEMS }}</h2>
+      <table class="w-full text-sm">
+        <thead><tr class="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+          <th class="py-2 font-medium">{{ t.PRODUCT }}</th><th class="py-2 font-medium">{{ t.DESCRIPTION }}</th><th class="py-2 text-right font-medium">{{ t.QUANTITY }}</th><th class="py-2 text-right font-medium">{{ t.UNIT_PRICE }}</th><th class="py-2 text-right font-medium">{{ t.DISCOUNT }}</th><th class="py-2 text-right font-medium">{{ t.TOTAL }}</th>
+        </tr></thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for line in invoice.lines.all %}
+          <tr>
+            <td class="py-2 font-medium text-slate-900">{{ line.product }}</td>
+            <td class="py-2 text-slate-600">{{ line.description|default:"-" }}</td>
+            <td class="py-2 text-right">{{ line.quantity }}</td>
+            <td class="py-2 text-right">{{ line.price|floatformat:2 }}</td>
+            <td class="py-2 text-right">{{ line.discount_percent|floatformat:1 }}%</td>
+            <td class="py-2 text-right font-medium text-slate-900">{{ line.line_total|floatformat:2 }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="py-6 text-center text-slate-400">{{ t.NO_LINES }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if payments %}
+    <div class="rounded-2xl border border-slate-200 bg-white p-6">
+      <h2 class="mb-4 text-sm font-semibold text-slate-900">{{ t.PAYMENTS_ALLOCATED }}</h2>
+      <table class="w-full text-sm">
+        <thead><tr class="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+          <th class="py-2 font-medium">{{ t.PAYMENT_NUM }}</th><th class="py-2 font-medium">{{ t.DATE }}</th><th class="py-2 text-right font-medium">{{ t.PAYMENT }}</th>
+        </tr></thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for a in payments %}
+          <tr>
+            <td class="py-2 font-medium text-slate-900">{{ a.payment.number }}</td>
+            <td class="py-2 text-slate-600">{{ a.payment.date }}</td>
+            <td class="py-2 text-right font-medium text-emerald-600">{{ a.allocated|floatformat:2 }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  </div>
+  <div class="space-y-6">
+    <div class="rounded-2xl border border-slate-200 bg-white p-6">
+      <h2 class="mb-3 text-sm font-semibold text-slate-900">{{ t.INVOICE_SUMMARY }}</h2>
+      <dl class="space-y-2 text-sm">
+        <div class="flex justify-between"><dt class="text-slate-500">{{ t.TOTAL }}</dt><dd class="font-bold text-lg text-slate-900">{{ invoice.total|floatformat:2 }}</dd></div>
+        <div class="flex justify-between"><dt class="text-slate-500">Paid</dt><dd class="text-emerald-600">{{ invoice.paid_total|floatformat:2 }}</dd></div>
+        <div class="flex justify-between"><dt class="font-semibold text-slate-900">Amount Due</dt><dd class="font-bold text-lg {% if invoice.amount_due > 0 %}text-red-600{% else %}text-emerald-600{% endif %}">{{ invoice.amount_due|floatformat:2 }}</dd></div>
+      </dl>
+    </div>
+    {% if stock_movements %}
+    <div class="rounded-2xl border border-slate-200 bg-white p-6">
+      <h2 class="mb-3 text-sm font-semibold text-slate-900">Stock Movements</h2>
+      <ul class="space-y-2">
+        {% for m in stock_movements %}
+        <li class="flex items-center justify-between text-sm"><span class="text-slate-600">{{ m.product }} &times; {{ m.quantity }}</span><span class="font-medium text-slate-700">{{ m.movement_type|title }}</span></li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

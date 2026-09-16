@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block page_title %}{{ bill.number }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+  <div class="flex items-center gap-3">
+    <a href="{% url 'purchasing:bill_list' %}" class="text-slate-500 hover:text-slate-700"><i class="ri-arrow-left-line text-lg"></i></a>
+    <h2 class="text-xl font-bold text-slate-900">{{ bill.number }}</h2>
+    <span class="rounded-full px-2 py-0.5 text-xs font-medium
+      {% if bill.status == 'posted' %}bg-amber-50 text-amber-700
+      {% elif bill.status == 'paid' %}bg-emerald-50 text-emerald-700
+      {% elif bill.status == 'void' %}bg-red-50 text-red-700
+      {% else %}bg-slate-100 text-slate-600{% endif %}">
+      {{ bill.get_status_display }}
+    </span>
+  </div>
+  <div class="flex gap-2">
+    {% if bill.status == 'draft' %}
+    <form method="post" action="{% url 'purchasing:bill_post' bill.pk %}">{% csrf_token %}
+      <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">{{ t.POST_BILL }}</button>
+    </form>
+    {% endif %}
+    {% if bill.status == 'posted' %}
+    <a href="{% url 'purchasing:payment_create' %}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm text-white hover:bg-indigo-700">{{ t.RECORD_PAYMENT }}</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3 mb-6">
+  <div class="rounded-xl bg-white border border-slate-100 shadow-sm p-5 lg:col-span-2">
+    <dl class="grid grid-cols-2 gap-3 text-sm">
+      <div><dt class="text-xs text-slate-500">{{ t.SUPPLIER }}</dt><dd class="font-medium"><a href="{% url 'purchasing:supplier_detail' bill.supplier.pk %}" class="text-indigo-600 hover:underline">{{ bill.supplier.name }}</a></dd></div>
+      <div><dt class="text-xs text-slate-500">{{ t.BILL_DATE }}</dt><dd class="font-medium">{{ bill.bill_date }}</dd></div>
+      <div><dt class="text-xs text-slate-500">{{ t.DUE_DATE }}</dt><dd class="font-medium">{{ bill.due_date|default:'—' }}</dd></div>
+      <div><dt class="text-xs text-slate-500">{{ t.PO_REFERENCE }}</dt><dd class="font-medium">{% if bill.order %}<a href="{% url 'purchasing:po_detail' bill.order.pk %}" class="text-indigo-600 hover:underline">{{ bill.order.number }}</a>{% else %}—{% endif %}</dd></div>
+      {% if bill.memo %}<div class="col-span-2"><dt class="text-xs text-slate-500">{{ t.NOTES }}</dt><dd>{{ bill.memo }}</dd></div>{% endif %}
+    </dl>
+  </div>
+  <div class="rounded-xl bg-white border border-slate-100 shadow-sm p-5">
+    <p class="text-xs text-slate-500">{{ t.TOTAL }}</p>
+    <p class="text-3xl font-bold text-slate-800 mt-1">{{ bill.total|floatformat:2 }}</p>
+    <p class="mt-3 text-xs text-slate-500">{{ t.PAID }}</p>
+    <p class="text-xl font-semibold text-emerald-600">{{ bill.paid_total|floatformat:2 }}</p>
+    <p class="mt-2 text-xs text-slate-500">{{ t.BALANCE_DUE }}</p>
+    <p class="text-xl font-bold text-red-600">{{ bill.total|add:"-"|add:bill.paid_total|floatformat:2 }}</p>
+  </div>
+</div>
+
+<div class="rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden mb-6">
+  <div class="px-5 py-4 border-b border-slate-100"><h3 class="font-semibold text-slate-800">{{ t.BILL_LINES_TITLE }}</h3></div>
+  <table class="min-w-full text-sm">
+    <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
+      <tr>
+        <th class="px-4 py-3 text-left">{{ t.PRODUCT_COL }}</th>
+        <th class="px-4 py-3 text-left">{{ t.DESCRIPTION }}</th>
+        <th class="px-4 py-3 text-right">{{ t.QUANTITY }}</th>
+        <th class="px-4 py-3 text-right">{{ t.UNIT_PRICE_COL }}</th>
+        <th class="px-4 py-3 text-right">{{ t.SUBTOTAL_COL }}</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      {% for line in lines %}
+      <tr class="hover:bg-slate-50">
+        <td class="px-4 py-3 font-medium">{{ line.product.name }}</td>
+        <td class="px-4 py-3 text-slate-600">{{ line.description|default:'—' }}</td>
+        <td class="px-4 py-3 text-right">{{ line.quantity }}</td>
+        <td class="px-4 py-3 text-right">{{ line.unit_price|floatformat:2 }}</td>
+        <td class="px-4 py-3 text-right font-medium">{{ line.subtotal|floatformat:2 }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if allocations %}
+<div class="rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden">
+  <div class="px-5 py-4 border-b border-slate-100"><h3 class="font-semibold text-slate-800">{{ t.PAYMENT_ALLOCATIONS }}</h3></div>
+  <table class="min-w-full text-sm">
+    <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
+      <tr><th class="px-4 py-3 text-left">{{ t.PAYMENT }}</th><th class="px-4 py-3 text-left">{{ t.DATE }}</th><th class="px-4 py-3 text-right">{{ t.ALLOCATED_COL }}</th></tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      {% for alloc in allocations %}
+      <tr class="hover:bg-slate-50">
+        <td class="px-4 py-3 font-medium text-indigo-600">{{ alloc.payment.number }}</td>
+        <td class="px-4 py-3 text-slate-600">{{ alloc.payment.date }}</td>
+        <td class="px-4 py-3 text-right font-medium">{{ alloc.allocated|floatformat:2 }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

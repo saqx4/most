@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}{{ periodic.number }}{% endblock %}
+{% block page_title %}Periodic Invoice {{ periodic.number }}{% endblock %}
+{% block content %}
+<div class="mb-4 flex items-center justify-between">
+  <a href="{% url 'sales:periodic_list' %}" class="text-sm text-indigo-600 hover:underline"><i class="ri-arrow-left-line"></i> {{ t.BACK_TO_PERIODIC_INVOICES }}</a>
+  <div class="flex items-center gap-3">
+    {% if periodic.status == 'active' or periodic.status == 'paused' %}
+    <form method="post" action="{% url 'sales:periodic_toggle' periodic.pk %}">{% csrf_token %}
+      {% if periodic.status == 'active' %}
+      <button class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700"><i class="ri-pause-line mr-1"></i>{{ t.PAUSE }}</button>
+      {% else %}
+      <button class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"><i class="ri-play-line mr-1"></i>{{ t.RESUME }}</button>
+      {% endif %}
+    </form>
+    {% endif %}
+    <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium {% if periodic.status == 'active' %}bg-emerald-50 text-emerald-700{% elif periodic.status == 'paused' %}bg-amber-50 text-amber-700{% else %}bg-slate-100 text-slate-600{% endif %}">{{ periodic.get_status_display }}</span>
+  </div>
+</div>
+<div class="mx-auto max-w-2xl rounded-2xl border border-slate-200 bg-white p-6">
+  <dl class="grid grid-cols-2 gap-6 text-sm">
+    <div><dt class="text-slate-500">{{ t.CUSTOMER }}</dt><dd class="font-medium text-slate-900">{{ periodic.customer }}</dd></div>
+    <div><dt class="text-slate-500">{{ t.FREQUENCY }}</dt><dd class="font-medium text-slate-900">{{ periodic.get_frequency_display }}</dd></div>
+    <div><dt class="text-slate-500">{{ t.NEXT_INVOICE_DATE }}</dt><dd class="font-medium text-slate-900">{{ periodic.next_date }}</dd></div>
+    <div><dt class="text-slate-500">{{ t.LAST_GENERATED }}</dt><dd class="font-medium text-slate-900">{{ periodic.last_generated|default:t.NEVER }}</dd></div>
+    <div class="sm:col-span-2"><dt class="text-slate-500">{{ t.NOTES }}</dt><dd class="text-slate-700">{{ periodic.notes|default:"-" }}</dd></div>
+  </dl>
+</div>
+{% endblock %}

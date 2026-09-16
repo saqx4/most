@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block page_title %}{{ t.STOCK_LEVELS_TITLE }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+  <h2 class="text-xl font-bold text-slate-900">{{ t.STOCK_LEVELS_TITLE }}</h2>
+  <div class="flex gap-2">
+    <a href="{% url 'inventory:stock_adjustment_create' %}" class="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50">
+      <i class="ri-edit-2-line"></i> {{ t.ADJUST_STOCK }}
+    </a>
+    <a href="{% url 'inventory:stock_transfer_create' %}" class="inline-flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-2 text-sm text-white hover:bg-indigo-700">
+      <i class="ri-arrow-right-line"></i> {{ t.TRANSFER_STOCK }}
+    </a>
+  </div>
+</div>
+
+<!-- KPI + filter -->
+<div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+  <div class="rounded-xl bg-white border border-slate-100 shadow-sm px-5 py-3 inline-flex items-center gap-4">
+    <div>
+      <p class="text-xs text-slate-500">{{ t.TOTAL_INVENTORY_VALUE }}</p>
+      <p class="text-2xl font-bold text-slate-800">{{ total_value|floatformat:2 }}</p>
+    </div>
+  </div>
+  <form method="get" class="flex gap-2">
+    <select name="warehouse" class="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none">
+      <option value="">{{ t.ALL_WAREHOUSES }}</option>
+      {% for w in warehouses %}
+      <option value="{{ w.pk }}" {% if warehouse_id == w.pk|stringformat:'s' %}selected{% endif %}>{{ w.name }}</option>
+      {% endfor %}
+    </select>
+    <button class="rounded-lg bg-slate-800 px-4 py-2 text-sm text-white hover:bg-slate-700">{{ t.APPLY }}</button>
+  </form>
+</div>
+
+<div class="rounded-xl bg-white shadow-sm border border-slate-100 overflow-hidden">
+  <table class="min-w-full text-sm">
+    <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
+      <tr>
+        <th class="px-4 py-3 text-left">{{ t.SKU }}</th>
+        <th class="px-4 py-3 text-left">{{ t.PRODUCT_COL }}</th>
+        <th class="px-4 py-3 text-left">{{ t.WAREHOUSE }}</th>
+        <th class="px-4 py-3 text-right">{{ t.QUANTITY }}</th>
+        <th class="px-4 py-3 text-right">{{ t.AVG_COST }}</th>
+        <th class="px-4 py-3 text-right">{{ t.VALUE }}</th>
+        <th class="px-4 py-3 text-left">{{ t.STATUS }}</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      {% for row in rows %}
+      <tr class="hover:bg-slate-50">
+        <td class="px-4 py-3 font-mono text-xs text-indigo-600">
+          <a href="{% url 'inventory:product_detail' row.product.pk %}" class="hover:underline">{{ row.product.sku }}</a>
+        </td>
+        <td class="px-4 py-3 font-medium text-slate-800">{{ row.product.name }}</td>
+        <td class="px-4 py-3 text-slate-600">{{ row.warehouse.name }}</td>
+        <td class="px-4 py-3 text-right {% if row.quantity <= row.product.reorder_point %}text-red-600 font-semibold{% else %}text-slate-700{% endif %}">
+          {{ row.quantity|floatformat:2 }}
+        </td>
+        <td class="px-4 py-3 text-right text-slate-600">{{ row.avg_cost|floatformat:2 }}</td>
+        <td class="px-4 py-3 text-right font-medium text-slate-800">{{ row.value|floatformat:2 }}</td>
+        <td class="px-4 py-3">
+          {% if row.quantity <= row.product.reorder_point %}
+            <span class="rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">{{ t.LOW_STOCK }}</span>
+          {% else %}
+            <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">{{ t.YES }}</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" class="px-4 py-8 text-center text-slate-400">{{ t.NO_STOCK_LEVELS_FOUND }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

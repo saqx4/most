@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: A4; margin: 20mm 15mm; }
+  * { box-sizing: border-box; }
+  body { font-family: Helvetica, Arial, sans-serif; font-size: 10pt; color: #1e293b; line-height: 1.5; margin: 0; padding: 0; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #059669; padding-bottom: 12px; margin-bottom: 20px; }
+  .company-name { font-size: 18pt; font-weight: bold; color: #059669; margin: 0; }
+  .company-details { font-size: 8pt; color: #64748b; text-align: right; }
+  .doc-title { font-size: 22pt; font-weight: bold; color: #059669; margin: 0 0 10px 0; }
+  .info-grid { display: flex; justify-content: space-between; margin-bottom: 20px; }
+  .info-box { width: 48%; }
+  .info-box h3 { font-size: 8pt; text-transform: uppercase; color: #64748b; margin: 0 0 4px 0; letter-spacing: 0.5px; }
+  .info-box p { margin: 2px 0; font-size: 9pt; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+  thead th { background: #059669; color: #ffffff; padding: 8px 6px; font-size: 8pt; text-transform: uppercase; text-align: left; letter-spacing: 0.5px; }
+  thead th.num { text-align: right; }
+  tbody td { padding: 7px 6px; border-bottom: 1px solid #e2e8f0; font-size: 9pt; }
+  tbody td.num { text-align: right; }
+  tbody tr:nth-child(even) { background: #f8fafc; }
+  .totals { width: 50%; margin-left: auto; }
+  .totals table { margin-bottom: 0; }
+  .totals td { padding: 5px 6px; font-size: 9pt; }
+  .totals td:first-child { font-weight: 600; color: #475569; }
+  .totals td:last-child { text-align: right; }
+  .totals tr.total-row td { border-top: 2px solid #059669; font-size: 11pt; font-weight: bold; color: #059669; padding-top: 8px; }
+  .footer { margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+  .footer h3 { font-size: 8pt; text-transform: uppercase; color: #64748b; margin: 0 0 4px 0; }
+  .footer p { margin: 2px 0; font-size: 8pt; color: #475569; }
+  .status-badge { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 8pt; font-weight: bold; text-transform: uppercase; }
+  .status-draft { background: #f1f5f9; color: #475569; }
+  .status-confirmed { background: #dbeafe; color: #1e40af; }
+  .status-received { background: #d1fae5; color: #065f46; }
+  .status-cancelled { background: #fee2e2; color: #991b1b; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <p class="company-name">{{ company.name }}</p>
+    <p style="font-size:8pt;color:#64748b;margin:2px 0;">{{ company.legal_name }}</p>
+    <p style="font-size:8pt;color:#64748b;margin:2px 0;">{{ company.address }}</p>
+    <p style="font-size:8pt;color:#64748b;margin:2px 0;">{{ company.phone }} | {{ company.email }}</p>
+  </div>
+  <div class="company-details">
+    <p class="doc-title">PURCHASE ORDER</p>
+    <p style="font-size:9pt;margin:2px 0;"><strong>{{ po.number }}</strong></p>
+    <p style="margin:2px 0;"><span class="status-badge status-{{ po.status }}">{{ po.get_status_display }}</span></p>
+  </div>
+</div>
+
+<div class="info-grid">
+  <div class="info-box">
+    <h3>Supplier</h3>
+    <p style="font-weight:bold;">{{ po.supplier.name }}</p>
+    <p>{{ po.supplier.address }}</p>
+    <p>{{ po.supplier.email }}</p>
+    <p>{{ po.supplier.phone }}</p>
+    {% if po.supplier.tax_id %}<p>Tax ID: {{ po.supplier.tax_id }}</p>{% endif %}
+  </div>
+  <div class="info-box">
+    <h3>Order Details</h3>
+    <table style="margin-bottom:0;">
+      <tr><td style="font-weight:600;color:#64748b;border:none;padding:3px 6px;">Order Date</td><td style="border:none;padding:3px 6px;">{{ po.order_date }}</td></tr>
+      <tr><td style="font-weight:600;color:#64748b;border:none;padding:3px 6px;">Expected Delivery</td><td style="border:none;padding:3px 6px;">{{ po.expected_delivery|default:"-" }}</td></tr>
+      {% if po.currency %}<tr><td style="font-weight:600;color:#64748b;border:none;padding:3px 6px;">Currency</td><td style="border:none;padding:3px 6px;">{{ po.currency }}</td></tr>{% endif %}
+      {% if po.delivery_address %}<tr><td style="font-weight:600;color:#64748b;border:none;padding:3px 6px;">Delivery Address</td><td style="border:none;padding:3px 6px;">{{ po.delivery_address }}</td></tr>{% endif %}
+    </table>
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:5%;">#</th>
+      <th style="width:30%;">Description</th>
+      <th class="num" style="width:12%;">Qty</th>
+      <th class="num" style="width:15%;">Unit Price</th>
+      <th class="num" style="width:12%;">Discount</th>
+      <th class="num" style="width:16%;">Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for line in po.lines.all %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td><strong>{{ line.product }}</strong>{% if line.description %}<br><span style="font-size:8pt;color:#64748b;">{{ line.description }}</span>{% endif %}</td>
+      <td class="num">{{ line.quantity }}</td>
+      <td class="num">{{ line.unit_price|floatformat:2 }}</td>
+      <td class="num">{% if line.discount_percent %}{{ line.discount_percent|floatformat:1 }}%{% else %}-{% endif %}</td>
+      <td class="num" style="font-weight:600;">{{ line.subtotal|floatformat:2 }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="totals">
+  <table>
+    {% if po.tax %}<tr><td>Tax ({{ po.tax.code }} {{ po.tax.rate }}%)</td><td></td></tr>{% endif %}
+    <tr class="total-row"><td>Total</td><td>{{ po.total|floatformat:2 }}</td></tr>
+  </table>
+</div>
+
+{% if po.notes %}
+<div class="footer">
+  <h3>Notes</h3>
+  <p>{{ po.notes }}</p>
+</div>
+{% endif %}
+
+<div class="footer">
+  <h3>Terms &amp; Conditions</h3>
+  <p>This purchase order is subject to the company's standard terms and conditions. Please confirm acceptance by returning a signed copy.</p>
+</div>
+
+</body>
+</html>

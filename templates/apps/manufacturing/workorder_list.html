@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block page_title %}{{ t.MANUFACTURING_ORDERS_TITLE }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+  <h2 class="text-xl font-bold text-slate-900">{{ t.MANUFACTURING_ORDERS_TITLE }}</h2>
+  <a href="{% url 'manufacturing:workorder_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+    <i class="ri-add-line"></i> {{ t.NEW_MANUFACTURING_ORDER }}
+  </a>
+</div>
+
+<div class="mb-4 flex flex-wrap gap-2">
+  <a href="{% url 'manufacturing:workorder_list' %}" class="rounded-full px-3 py-1 text-xs font-medium border {% if not status %}bg-indigo-600 text-white border-indigo-600{% else %}bg-white border-slate-300 text-slate-600 hover:bg-slate-50{% endif %}">{{ t.ALL }}</a>
+  {% for val, label in status_choices %}
+  <a href="?status={{ val }}" class="rounded-full px-3 py-1 text-xs font-medium border {% if status == val %}bg-indigo-600 text-white border-indigo-600{% else %}bg-white border-slate-300 text-slate-600 hover:bg-slate-50{% endif %}">{{ label }}</a>
+  {% endfor %}
+</div>
+
+<div class="rounded-xl bg-white shadow-sm border border-slate-100 overflow-hidden">
+  <table class="min-w-full text-sm">
+    <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
+      <tr>
+        <th class="px-4 py-3 text-left">{{ t.NUMBER }}</th>
+        <th class="px-4 py-3 text-left">{{ t.PRODUCT_COL }}</th>
+        <th class="px-4 py-3 text-right">{{ t.QUANTITY }}</th>
+        <th class="px-4 py-3 text-left">{{ t.WAREHOUSE }}</th>
+        <th class="px-4 py-3 text-left">{{ t.START }}</th>
+        <th class="px-4 py-3 text-left">{{ t.DUE_DATE }}</th>
+        <th class="px-4 py-3 text-left">{{ t.STATUS }}</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      {% for wo in page_obj %}
+      <tr class="hover:bg-slate-50">
+        <td class="px-4 py-3 font-medium"><a href="{% url 'manufacturing:workorder_detail' wo.pk %}" class="text-indigo-600 hover:underline">{{ wo.number }}</a></td>
+        <td class="px-4 py-3 text-slate-700">{{ wo.product.name }}</td>
+        <td class="px-4 py-3 text-right">{{ wo.quantity }}</td>
+        <td class="px-4 py-3 text-slate-600">{{ wo.warehouse.name }}</td>
+        <td class="px-4 py-3 text-slate-600">{{ wo.start_date }}</td>
+        <td class="px-4 py-3 text-slate-600">{{ wo.due_date|default:'—' }}</td>
+        <td class="px-4 py-3">
+          <span class="rounded-full px-2 py-0.5 text-xs font-medium
+            {% if wo.status == 'in_progress' %}bg-blue-50 text-blue-700
+            {% elif wo.status == 'done' %}bg-emerald-50 text-emerald-700
+            {% elif wo.status == 'cancelled' %}bg-red-50 text-red-700
+            {% else %}bg-slate-100 text-slate-600{% endif %}">
+            {{ wo.get_status_display }}
+          </span>
+        </td>
+        <td class="px-4 py-3 text-end">
+          <div class="flex items-center justify-end gap-1">
+            {% if wo.status == 'draft' %}
+            <a href="{% url 'manufacturing:workorder_edit' wo.pk %}" class="rounded p-1.5 text-slate-400 hover:bg-slate-100 hover:text-indigo-600 dark:hover:bg-slate-700 dark:hover:text-indigo-400 transition-colors" title="{{ t.EDIT }}"><i class="ri-edit-line text-base"></i></a>
+            <form method="post" action="{% url 'manufacturing:workorder_delete' wo.pk %}" class="inline"
+                  hx-post="{% url 'manufacturing:workorder_delete' wo.pk %}"
+                  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                  hx-confirm="{{ t.CONFIRM_DELETE_WORK_ORDER }}"
+                  hx-swap="none">
+              {% csrf_token %}
+              <button type="submit" class="rounded p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors" title="{{ t.DELETE }}"><i class="ri-delete-bin-line text-base"></i></button>
+            </form>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" class="px-4 py-8 text-center text-slate-400">{{ t.NO_WORK_ORDERS_YET }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if page_obj.has_other_pages %}
+  <div class="flex items-center justify-between border-t border-slate-100 px-4 py-3 text-sm text-slate-600">
+    <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    <div class="flex gap-2">
+      {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&status={{ status }}" class="rounded px-3 py-1 hover:bg-slate-100">← Prev</a>{% endif %}
+      {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&status={{ status }}" class="rounded px-3 py-1 hover:bg-slate-100">Next →</a>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

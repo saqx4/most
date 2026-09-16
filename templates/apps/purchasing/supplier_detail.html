@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block page_title %}{{ supplier.name }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+  <div class="flex items-center gap-3">
+    <a href="{% url 'purchasing:supplier_list' %}" class="inline-flex items-center gap-1 text-sm text-indigo-600 hover:underline dark:text-indigo-400"><i class="ri-arrow-left-line"></i> {{ t.BACK_TO_SUPPLIERS }}</a>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100">{{ supplier.name }}</h2>
+    {% if supplier.is_active %}
+      <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">{{ t.ACTIVE_STATUS }}</span>
+    {% else %}
+      <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-500 dark:bg-slate-700 dark:text-slate-400">{{ t.INACTIVE_STATUS }}</span>
+    {% endif %}
+  </div>
+  <div class="flex gap-2">
+    <a href="{% url 'purchasing:supplier_edit' supplier.pk %}" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700">
+      <i class="ri-edit-line"></i> {{ t.EDIT }}
+    </a>
+    <form method="post" action="{% url 'purchasing:supplier_delete' supplier.pk %}" class="inline"
+          hx-post="{% url 'purchasing:supplier_delete' supplier.pk %}"
+          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+          hx-confirm="{{ t.CONFIRM_DELETE_SUPPLIER }}"
+          hx-swap="none">
+      {% csrf_token %}
+      <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-red-300 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">
+        <i class="ri-delete-bin-line"></i> {{ t.DELETE }}
+      </button>
+    </form>
+    <a href="{% url 'purchasing:po_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors">
+      <i class="ri-add-line"></i> {{ t.NEW_PO }}
+    </a>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2 dark:border-slate-700 dark:bg-slate-800">
+    <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">{{ t.CONTACT_INFORMATION }}</h3>
+    <dl class="grid grid-cols-2 gap-4 text-sm">
+      <div><dt class="text-xs text-slate-500 dark:text-slate-400">{{ t.CONTACT_PERSON }}</dt><dd class="mt-0.5 font-medium text-slate-900 dark:text-slate-100">{{ supplier.contact_person|default:'—' }}</dd></div>
+      <div><dt class="text-xs text-slate-500 dark:text-slate-400">{{ t.EMAIL }}</dt><dd class="mt-0.5 font-medium text-slate-900 dark:text-slate-100">{{ supplier.email|default:'—' }}</dd></div>
+      <div><dt class="text-xs text-slate-500 dark:text-slate-400">{{ t.PHONE }}</dt><dd class="mt-0.5 font-medium text-slate-900 dark:text-slate-100">{{ supplier.phone|default:'—' }}</dd></div>
+      <div><dt class="text-xs text-slate-500 dark:text-slate-400">{{ t.WEBSITE }}</dt><dd class="mt-0.5 font-medium text-slate-900 dark:text-slate-100">{{ supplier.website|default:'—' }}</dd></div>
+      <div class="sm:col-span-2"><dt class="text-xs text-slate-500 dark:text-slate-400">{{ t.ADDRESS }}</dt><dd class="mt-0.5 font-medium text-slate-900 dark:text-slate-100">{{ supplier.address|default:'—' }}</dd></div>
+      <div><dt class="text-xs text-slate-500 dark:text-slate-400">{{ t.TAX_ID }}</dt><dd class="mt-0.5 font-medium text-slate-900 dark:text-slate-100">{{ supplier.tax_id|default:'—' }}</dd></div>
+    </dl>
+  </div>
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+    <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">{{ t.BALANCE }}</h3>
+    <p class="text-3xl font-bold text-red-600 dark:text-red-400">{{ balance|floatformat:2 }}</p>
+    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ t.TOTAL_OUTSTANDING_PAYABLE }}</p>
+    <div class="mt-4">
+      <a href="{% url 'purchasing:payment_create' %}" class="block w-full text-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors">{{ t.RECORD_PAYMENT }}</a>
+    </div>
+  </div>
+</div>
+
+<div class="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden dark:border-slate-700 dark:bg-slate-800">
+  <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-700">
+    <h3 class="font-semibold text-slate-800 dark:text-slate-200">{{ t.PURCHASE_ORDERS_TITLE }}</h3>
+    <a href="{% url 'purchasing:po_list' %}" class="text-xs text-indigo-600 hover:underline dark:text-indigo-400">{{ t.VIEW_ALL }}</a>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead class="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400">
+        <tr>
+          <th class="px-4 py-3 text-start font-medium">{{ t.NUMBER }}</th>
+          <th class="px-4 py-3 text-start font-medium">{{ t.DATE }}</th>
+          <th class="px-4 py-3 text-start font-medium">{{ t.STATUS }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+        {% for po in pos %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+          <td class="px-4 py-3"><a href="{% url 'purchasing:po_detail' po.pk %}" class="text-indigo-600 hover:underline dark:text-indigo-400 font-medium">{{ po.number }}</a></td>
+          <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ po.order_date }}</td>
+          <td class="px-4 py-3"><span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-400">{{ po.get_status_display }}</span></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" class="px-4 py-12 text-center text-slate-400 dark:text-slate-500">{{ t.NO_PURCHASE_ORDERS_FOUND }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden dark:border-slate-700 dark:bg-slate-800">
+  <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-700">
+    <h3 class="font-semibold text-slate-800 dark:text-slate-200">{{ t.SUPPLIER_BILLS_TITLE }}</h3>
+    <a href="{% url 'purchasing:bill_list' %}" class="text-xs text-indigo-600 hover:underline dark:text-indigo-400">{{ t.VIEW_ALL }}</a>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead class="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400">
+        <tr>
+          <th class="px-4 py-3 text-start font-medium">{{ t.NUMBER }}</th>
+          <th class="px-4 py-3 text-start font-medium">{{ t.DATE }}</th>
+          <th class="px-4 py-3 text-end font-medium">{{ t.TOTAL }}</th>
+          <th class="px-4 py-3 text-start font-medium">{{ t.STATUS }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+        {% for bill in bills %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+          <td class="px-4 py-3"><a href="{% url 'purchasing:bill_detail' bill.pk %}" class="text-indigo-600 hover:underline dark:text-indigo-400 font-medium">{{ bill.number }}</a></td>
+          <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ bill.bill_date }}</td>
+          <td class="px-4 py-3 text-end font-medium text-slate-700 dark:text-slate-300">{{ bill.total|floatformat:2 }}</td>
+          <td class="px-4 py-3"><span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-400">{{ bill.get_status_display }}</span></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="px-4 py-12 text-center text-slate-400 dark:text-slate-500">{{ t.NO_BILLS_FOUND }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

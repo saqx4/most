@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}{{ t.LEAVE_REQUESTS_TITLE }}{% endblock %}
+{% block page_title %}{{ t.LEAVE_REQUESTS_TITLE }}{% endblock %}
+{% block content %}
+<div class="mb-4 flex items-center gap-2">
+  <form method="get" class="flex items-center gap-2">
+    <select name="status" class="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+      <option value="">{{ t.ALL_STATUSES }}</option>
+      <option value="pending" {% if status == 'pending' %}selected{% endif %}>{{ t.PENDING_STATUS }}</option>
+      <option value="approved" {% if status == 'approved' %}selected{% endif %}>{{ t.APPROVED_STATUS }}</option>
+      <option value="rejected" {% if status == 'rejected' %}selected{% endif %}>{{ t.REJECTED_STATUS }}</option>
+      <option value="cancelled" {% if status == 'cancelled' %}selected{% endif %}>{{ t.CANCELLED_STATUS }}</option>
+    </select>
+    <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">{{ t.APPLY }}</button>
+    {% if status %}<a href="{% url 'hr:leave_list' %}" class="text-sm font-medium text-slate-500">{{ t.RESET }}</a>{% endif %}
+  </form>
+</div>
+
+<div class="rounded-2xl border border-slate-200 bg-white p-6">
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+          <th class="py-2 pr-4 font-medium">{{ t.EMPLOYEES }}</th>
+          <th class="py-2 pr-4 font-medium">{{ t.TYPE }}</th>
+          <th class="py-2 pr-4 font-medium">{{ t.START }}</th>
+          <th class="py-2 pr-4 font-medium">{{ t.END }}</th>
+          <th class="py-2 pr-4 text-right font-medium">{{ t.DAYS }}</th>
+          <th class="py-2 font-medium">{{ t.STATUS }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for leave in leaves %}
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 pr-4 font-medium text-slate-900"><a class="text-indigo-600 hover:underline" href="{% url 'hr:employee_detail' leave.employee.pk %}">{{ leave.employee.full_name }}</a></td>
+          <td class="py-3 pr-4 text-slate-600">{{ leave.get_leave_type_display }}</td>
+          <td class="py-3 pr-4 text-slate-600">{{ leave.start_date }}</td>
+          <td class="py-3 pr-4 text-slate-600">{{ leave.end_date }}</td>
+          <td class="py-3 pr-4 text-right text-slate-700">{{ leave.days }}</td>
+          <td class="py-3">
+            <span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium
+              {% if leave.status == 'approved' %}bg-emerald-50 text-emerald-700
+              {% elif leave.status == 'rejected' %}bg-red-50 text-red-700
+              {% elif leave.status == 'cancelled' %}bg-slate-100 text-slate-500
+              {% else %}bg-amber-50 text-amber-700{% endif %}">{{ leave.get_status_display }}</span>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="py-8 text-center text-slate-400">{{ t.NO_LEAVE_REQUESTS_LIST }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

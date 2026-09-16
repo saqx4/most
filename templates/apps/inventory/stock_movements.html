@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block page_title %}{{ t.STOCK_MOVEMENTS }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+  <h2 class="text-xl font-bold text-slate-900">{{ t.STOCK_MOVEMENTS }}</h2>
+  <div class="flex gap-2">
+    <a href="{% url 'inventory:stock_adjustment_create' %}" class="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50"><i class="ri-edit-2-line"></i> {{ t.ADJUST_STOCK }}</a>
+    <a href="{% url 'inventory:stock_transfer_create' %}" class="inline-flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-2 text-sm text-white hover:bg-indigo-700"><i class="ri-arrow-right-line"></i> {{ t.TRANSFER_STOCK }}</a>
+  </div>
+</div>
+
+<!-- Type filter -->
+<div class="mb-4 flex flex-wrap gap-2">
+  <a href="{% url 'inventory:stock_movements' %}" class="rounded-full px-3 py-1 text-xs font-medium border {% if not mtype %}bg-indigo-600 text-white border-indigo-600{% else %}bg-white border-slate-300 text-slate-600 hover:bg-slate-50{% endif %}">{{ t.ALL }}</a>
+  {% for val, label in types %}
+  <a href="?type={{ val }}" class="rounded-full px-3 py-1 text-xs font-medium border {% if mtype == val %}bg-indigo-600 text-white border-indigo-600{% else %}bg-white border-slate-300 text-slate-600 hover:bg-slate-50{% endif %}">{{ label }}</a>
+  {% endfor %}
+</div>
+
+<div class="rounded-xl bg-white shadow-sm border border-slate-100 overflow-hidden">
+  <table class="min-w-full text-sm">
+    <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
+      <tr>
+        <th class="px-4 py-3 text-left">{{ t.TYPE_COL }}</th>
+        <th class="px-4 py-3 text-left">{{ t.PRODUCT_COL }}</th>
+        <th class="px-4 py-3 text-left">{{ t.WAREHOUSE }}</th>
+        <th class="px-4 py-3 text-right">{{ t.QUANTITY }}</th>
+        <th class="px-4 py-3 text-right">{{ t.UNIT_COST }}</th>
+        <th class="px-4 py-3 text-left">{{ t.REFERENCE }}</th>
+        <th class="px-4 py-3 text-left">{{ t.DATE }}</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      {% for m in page_obj %}
+      <tr class="hover:bg-slate-50">
+        <td class="px-4 py-3">
+          <span class="rounded-full px-2 py-0.5 text-xs font-medium
+            {% if 'out' in m.type or m.quantity < 0 %}bg-red-50 text-red-700
+            {% elif 'adjust' in m.type %}bg-amber-50 text-amber-700
+            {% else %}bg-emerald-50 text-emerald-700{% endif %}">
+            {{ m.get_type_display }}
+          </span>
+        </td>
+        <td class="px-4 py-3 font-medium text-slate-800">
+          <a href="{% url 'inventory:product_detail' m.product.pk %}" class="text-indigo-600 hover:underline">{{ m.product.name }}</a>
+        </td>
+        <td class="px-4 py-3 text-slate-600">{{ m.warehouse.name }}</td>
+        <td class="px-4 py-3 text-right {% if m.quantity < 0 %}text-red-600 font-semibold{% else %}text-emerald-600 font-semibold{% endif %}">
+          {{ m.quantity|floatformat:2 }}
+        </td>
+        <td class="px-4 py-3 text-right text-slate-600">{{ m.unit_cost|floatformat:2 }}</td>
+        <td class="px-4 py-3 text-xs text-slate-500">{{ m.reference_number|default:'—' }}</td>
+        <td class="px-4 py-3 text-xs text-slate-500">{{ m.date|date:"Y-m-d" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" class="px-4 py-8 text-center text-slate-400">{{ t.NO_MOVEMENTS_FOUND }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if page_obj.has_other_pages %}
+  <div class="flex items-center justify-between border-t border-slate-100 px-4 py-3 text-sm text-slate-600">
+    <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    <div class="flex gap-2">
+      {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&type={{ mtype }}" class="rounded px-3 py-1 hover:bg-slate-100">← Prev</a>{% endif %}
+      {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&type={{ mtype }}" class="rounded px-3 py-1 hover:bg-slate-100">Next →</a>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

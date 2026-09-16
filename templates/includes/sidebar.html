@@ -1,0 +1,296 @@
+<aside id="sidebar" class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col overflow-y-auto bg-white border-r border-slate-200 text-slate-700 transition-transform duration-200 lg:translate-x-0">
+
+  <!-- Brand -->
+  <div class="flex items-center gap-3 border-b border-slate-200 px-5 py-4">
+    <span class="grid h-9 w-9 place-items-center rounded-lg bg-indigo-600 text-white"><i class="ri-dashboard-3-line text-lg"></i></span>
+    <div class="leading-tight">
+      <p class="text-sm font-bold text-slate-800 uppercase tracking-wide">{{ company.name|default:'OptiCore' }}</p>
+      <p class="text-[11px] text-slate-400">ERP Suite</p>
+    </div>
+  </div>
+
+  <nav class="flex-1 space-y-0.5 px-2 py-3 text-[13px]">
+
+    <!-- Control Panel -->
+    <div class="nav-group" data-group="control">
+      <button class="nav-group-btn" onclick="toggleGroup('control')">
+        <div class="flex items-center gap-2 font-semibold text-slate-800">
+          <i class="ri-home-4-line text-base text-slate-500"></i>
+          <span>Control panel</span>
+        </div>
+        <i id="icon-control" class="ri-arrow-down-s-line transition-transform duration-200 text-slate-400"></i>
+      </button>
+      <div id="items-control" class="nav-group-items">
+        <a href="{% url 'reports:dashboard' %}" class="nav-link"><i class="ri-dashboard-line"></i> Dashboard</a>
+      </div>
+    </div>
+
+    <!-- Sales -->
+    <div class="nav-group" data-group="sales">
+      <button class="nav-group-btn" onclick="toggleGroup('sales')">
+        <div class="flex items-center gap-2 font-semibold text-slate-800">
+          <i class="ri-receipt-line text-base text-slate-500"></i>
+          <span>Sales</span>
+        </div>
+        <i id="icon-sales" class="ri-arrow-down-s-line transition-transform duration-200 text-slate-400"></i>
+      </button>
+      <div id="items-sales" class="nav-group-items hidden">
+        <a href="{% url 'sales:billing_management' %}" class="nav-link">Billing Management</a>
+        <a href="{% url 'sales:invoice_list' %}" class="nav-link">Create an invoice</a>
+        <a href="{% url 'sales:quote_list' %}" class="nav-link">Manage quotes</a>
+        <a href="{% url 'sales:quote_create' %}" class="nav-link">Create a quote</a>
+        <a href="{% url 'sales:creditnote_list' %}" class="nav-link">Creditor notices</a>
+        <a href="{% url 'sales:creditnote_list' %}" class="nav-link">Returned invoices</a>
+        <a href="{% url 'sales:periodic_list' %}" class="nav-link">Periodic invoices</a>
+        <a href="{% url 'sales:payment_list' %}" class="nav-link">Customer payments</a>
+        <a href="{% url 'sales:sales_settings' %}" class="nav-link">Sales settings</a>
+      </div>
+    </div>
+
+    <!-- Manufacturing -->
+    <div class="nav-group" data-group="manufacturing">
+      <button class="nav-group-btn" onclick="toggleGroup('manufacturing')">
+        <div class="flex items-center gap-2 font-semibold text-slate-800">
+          <i class="ri-tools-line text-base text-slate-500"></i>
+          <span>Manufacturing</span>
+        </div>
+        <i id="icon-manufacturing" class="ri-arrow-down-s-line transition-transform duration-200 text-slate-400"></i>
+      </button>
+      <div id="items-manufacturing" class="nav-group-items hidden">
+        <a href="#bom" class="nav-link">Lists of production materials</a>
+        <a href="#plans" class="nav-link">Production plans</a>
+        <a href="#orders" class="nav-link">Manufacturing orders</a>
+        <a href="#costs" class="nav-link">Indirect costs</a>
+        <a href="#workstations" class="nav-link">Workstations</a>
+        <a href="#mfg-settings" class="nav-link">Settings</a>
+      </div>
+    </div>
+
+    <!-- Target Sales & Commissions -->
+    <div class="nav-group" data-group="commissions">
+      <button class="nav-group-btn" onclick="toggleGroup('commissions')">
+        <div class="flex items-center gap-2 font-semibold text-slate-800">
+          <i class="ri-money-cny-circle-line text-base text-slate-500"></i>
+          <span>Target sales and commissions</span>
+        </div>
+        <i id="icon-commissions" class="ri-arrow-down-s-line transition-transform duration-200 text-slate-400"></i>
+      </button>
+      <div id="items-commissions" class="nav-group-items hidden">
+        <a href="#commission-rules" class="nav-link">Commission rules</a>
+        <a href="#sales-commissions" class="nav-link">Sales commissions</a>
+        <a href="#sales-periods" class="nav-link">Sales periods</a>
+      </div>
+    </div>
+
+    <!-- Customers -->
+    <div class="nav-group" data-group="customers">
+      <button class="nav-group-btn" onclick="toggleGroup('customers')">
+        <div class="flex items-center gap-2 font-semibold text-slate-800">
+          <i class="ri-user-3-line text-base text-slate-500"></i>
+          <span>Customers</span>
+        </div>
+        <i id="icon-customers" class="ri-arrow-down-s-line transition-transform duration-200 text-slate-400"></i>
+      </button>
+      <div id="items-customers" class="nav-group-items hidden">
+        <a href="{% url 'sales:customer_list' %}" class="nav-link">Customer Management</a>
+        <a href="{% url 'sales:customer_create' %}" class="nav-link">Add a new client</a>
+        <a href="#appointments" class="nav-link">Appointments</a>
+        <a href="#contact-list" class="nav-link">Contact list</a>
+        <a href="#crm" class="nav-link">Customer Relationship Management</a>
+        <a href="#client-settings" class="nav-link">Client Settings</a>
+      </div>
+    </div>
+
+    <!-- Inventory -->
+    <div class="nav-group" data-group="inventory">
+      <button class="nav-group-btn" onclick="toggleGroup('inventory')">
+        <div class="flex items-center gap-2 font-semibold text-slate-800">
+          <i class="ri-box-3-line text-base text-slate-500"></i>
+          <span>Inventory</span>
+        </div>
+        <i id="icon-inventory" class="ri-arrow-down-s-line transition-transform duration-200 text-slate-400"></i>
+      </button>
+      <div id="items-inventory" class="nav-group-items hidden">
+        <a href="{% url 'inventory:product_list' %}" class="nav-link">Products and Services</a>
+        <a href="{% url 'inventory:stock_levels' %}" class="nav-link">Storage permit management</a>
+        <a href="#price-lists" class="nav-link">Price lists</a>
+        <a href="#warehouses" class="nav-link">Warehouses</a>
+        <a href="{% url 'inventory:stock_movements' %}" class="nav-link">Inventory management</a>
+        <a href="#inv-settings" class="nav-link">Inventory and product settings</a>
+      </div>
+    </div>
+
+    <!-- Purchases -->
+    <div class="nav-group" data-group="purchases">
+      <button class="nav-group-btn" onclick="toggleGroup('purchases')">
+        <div class="flex items-center gap-2 font-semibold text-slate-800">
+          <i class="ri-truck-line text-base text-slate-500"></i>
+          <span>Purchases</span>
+        </div>
+        <i id="icon-purchases" class="ri-arrow-down-s-line transition-transform duration-200 text-slate-400"></i>
+      </button>
+      <div id="items-purchases" class="nav-group-items hidden">
+        <a href="#po-list" class="nav-link">Purchase orders</a>
+        <a href="#quote-requests" class="nav-link">Quote requests</a>
+        <a href="#purchase-quotes" class="nav-link">Purchase quotes</a>
+        <a href="#purchase-orders" class="nav-link">Purchase orders</a>
+        <a href="#purchase-invoices" class="nav-link">Purchase invoices</a>
+        <a href="#purchase-returns" class="nav-link">Purchase returns</a>
+        <a href="#city-notices" class="nav-link">City Notices</a>
+        <a href="#supplier-mgmt" class="nav-link">Supplier management</a>
+        <a href="#supplier-payments" class="nav-link">Supplier payments</a>
+        <a href="#purchase-settings" class="nav-link">Purchase settings</a>
+      </div>
+    </div>
+
+    <!-- Al Maliya (Finance) -->
+    <div class="nav-group" data-group="almaliya">
+      <button class="nav-group-btn" onclick="toggleGroup('almaliya')">
+        <div class="flex items-center gap-2 font-semibold text-slate-800">
+          <i class="ri-safe-line text-base text-slate-500"></i>
+          <span>Al Maliya</span>
+        </div>
+        <i id="icon-almaliya" class="ri-arrow-down-s-line transition-transform duration-200 text-slate-400"></i>
+      </button>
+      <div id="items-almaliya" class="nav-group-items hidden">
+        <a href="{% url 'accounting:dashboard' %}" class="nav-link">Accounting Dashboard</a>
+        <a href="{% url 'accounting:journal_list' %}" class="nav-link">Journal Entries</a>
+        <a href="{% url 'accounting:general_ledger' %}" class="nav-link">General Ledger</a>
+        <a href="{% url 'accounting:ar_ledger' %}" class="nav-link">Accounts Receivable</a>
+        <a href="#ap-ledger" class="nav-link">Accounts Payable</a>
+      </div>
+    </div>
+
+    <!-- General Accounts -->
+    <div class="nav-group" data-group="general-accounts">
+      <button class="nav-group-btn" onclick="toggleGroup('general-accounts')">
+        <div class="flex items-center gap-2 font-semibold text-slate-800">
+          <i class="ri-bank-line text-base text-slate-500"></i>
+          <span>General accounts</span>
+        </div>
+        <i id="icon-general-accounts" class="ri-arrow-down-s-line transition-transform duration-200 text-slate-400"></i>
+      </button>
+      <div id="items-general-accounts" class="nav-group-items hidden">
+        <a href="{% url 'reports:trial_balance' %}" class="nav-link">Trial Balance</a>
+        <a href="{% url 'reports:income_statement' %}" class="nav-link">Income Statement</a>
+        <a href="{% url 'reports:balance_sheet' %}" class="nav-link">Balance Sheet</a>
+        <a href="{% url 'reports:account_balances' %}" class="nav-link">Account Balances</a>
+      </div>
+    </div>
+
+    <!-- Employees -->
+    <div class="nav-group" data-group="employees">
+      <button class="nav-group-btn" onclick="toggleGroup('employees')">
+        <div class="flex items-center gap-2 font-semibold text-slate-800">
+          <i class="ri-team-line text-base text-slate-500"></i>
+          <span>Employees</span>
+        </div>
+        <i id="icon-employees" class="ri-arrow-down-s-line transition-transform duration-200 text-slate-400"></i>
+      </button>
+      <div id="items-employees" class="nav-group-items hidden">
+        <a href="{% url 'hr:employee_list' %}" class="nav-link">Employee Management</a>
+        <a href="{% url 'hr:employee_create' %}" class="nav-link">Add employee</a>
+      </div>
+    </div>
+
+    <!-- Organizational Structure -->
+    <div class="nav-group" data-group="org">
+      <button class="nav-group-btn" onclick="toggleGroup('org')">
+        <div class="flex items-center gap-2 font-semibold text-slate-800">
+          <i class="ri-organization-chart text-base text-slate-500"></i>
+          <span>Organizational structure</span>
+        </div>
+        <i id="icon-org" class="ri-arrow-down-s-line transition-transform duration-200 text-slate-400"></i>
+      </button>
+      <div id="items-org" class="nav-group-items hidden">
+        <a href="{% url 'hr:department_list' %}" class="nav-link">Departments</a>
+      </div>
+    </div>
+
+    <!-- Attendance -->
+    <div class="nav-group" data-group="attendance">
+      <button class="nav-group-btn" onclick="toggleGroup('attendance')">
+        <div class="flex items-center gap-2 font-semibold text-slate-800">
+          <i class="ri-calendar-check-line text-base text-slate-500"></i>
+          <span>Attendance</span>
+        </div>
+        <i id="icon-attendance" class="ri-arrow-down-s-line transition-transform duration-200 text-slate-400"></i>
+      </button>
+      <div id="items-attendance" class="nav-group-items hidden">
+        <a href="{% url 'hr:attendance_list' %}" class="nav-link">Attendance records</a>
+        <a href="{% url 'hr:leave_list' %}" class="nav-link">Leave requests</a>
+      </div>
+    </div>
+
+    <!-- Salaries -->
+    <div class="nav-group" data-group="salaries">
+      <button class="nav-group-btn" onclick="toggleGroup('salaries')">
+        <div class="flex items-center gap-2 font-semibold text-slate-800">
+          <i class="ri-money-dollar-circle-line text-base text-slate-500"></i>
+          <span>Salaries</span>
+        </div>
+        <i id="icon-salaries" class="ri-arrow-down-s-line transition-transform duration-200 text-slate-400"></i>
+      </button>
+      <div id="items-salaries" class="nav-group-items hidden">
+        <a href="{% url 'hr:payslip_list' %}" class="nav-link">Payslips</a>
+        <a href="{% url 'hr:payslip_create' %}" class="nav-link">Create payslip</a>
+      </div>
+    </div>
+
+    <!-- Reports -->
+    <div class="nav-group" data-group="reports">
+      <button class="nav-group-btn" onclick="toggleGroup('reports')">
+        <div class="flex items-center gap-2 font-semibold text-slate-800">
+          <i class="ri-bar-chart-2-line text-base text-slate-500"></i>
+          <span>Reports</span>
+        </div>
+        <i id="icon-reports" class="ri-arrow-down-s-line transition-transform duration-200 text-slate-400"></i>
+      </button>
+      <div id="items-reports" class="nav-group-items hidden">
+        <a href="{% url 'reports:trial_balance' %}" class="nav-link">Trial Balance</a>
+        <a href="{% url 'reports:income_statement' %}" class="nav-link">Income Statement</a>
+        <a href="{% url 'reports:balance_sheet' %}" class="nav-link">Balance Sheet</a>
+        <a href="{% url 'reports:account_balances' %}" class="nav-link">Account Balances</a>
+      </div>
+    </div>
+
+    <!-- Branches -->
+    <div class="nav-group" data-group="branches">
+      <button class="nav-group-btn" onclick="toggleGroup('branches')">
+        <div class="flex items-center gap-2 font-semibold text-slate-800">
+          <i class="ri-map-pin-line text-base text-slate-500"></i>
+          <span>Branches</span>
+        </div>
+        <i id="icon-branches" class="ri-arrow-down-s-line transition-transform duration-200 text-slate-400"></i>
+      </button>
+      <div id="items-branches" class="nav-group-items hidden">
+        <a href="#branches-list" class="nav-link">Branch list</a>
+        <a href="#branch-create" class="nav-link">Add branch</a>
+      </div>
+    </div>
+
+    <!-- Templates -->
+    <div class="nav-group" data-group="templates">
+      <button class="nav-group-btn" onclick="toggleGroup('templates')">
+        <div class="flex items-center gap-2 font-semibold text-slate-800">
+          <i class="ri-file-copy-2-line text-base text-slate-500"></i>
+          <span>Templates</span>
+        </div>
+        <i id="icon-templates" class="ri-arrow-down-s-line transition-transform duration-200 text-slate-400"></i>
+      </button>
+      <div id="items-templates" class="nav-group-items hidden">
+        <a href="#doc-templates" class="nav-link">Document templates</a>
+      </div>
+    </div>
+
+  </nav>
+
+  <!-- Footer / Sign out -->
+  <div class="border-t border-slate-200 px-4 py-3">
+    <a href="{% url 'core:profile' %}" class="flex items-center gap-2 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-100 text-[13px]"><i class="ri-user-settings-line"></i> My Profile</a>
+    <form method="post" action="{% url 'logout' %}">{% csrf_token %}
+      <button type="submit" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-red-500 hover:bg-red-50 text-[13px]"><i class="ri-logout-box-r-line"></i> Sign out</button>
+    </form>
+  </div>
+
+</aside>

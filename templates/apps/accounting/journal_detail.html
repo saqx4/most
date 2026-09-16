@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}{{ t.JOURNAL_ENTRIES }} — {{ entry }}{% endblock %}
+{% block page_title %}{{ t.JOURNAL_ENTRIES }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+  <a href="{% url 'accounting:journal_list' %}" class="inline-flex items-center gap-1 text-sm text-indigo-600 hover:underline dark:text-indigo-400"><i class="ri-arrow-left-line"></i> {{ t.BACK_TO_JOURNAL }}</a>
+  <div class="flex items-center gap-2">
+    {% if entry.status == 'draft' %}
+    <a href="{% url 'accounting:journal_edit' entry.pk %}" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700">
+      <i class="ri-edit-line"></i> {{ t.EDIT }}
+    </a>
+    <form method="post" action="{% url 'accounting:journal_delete' entry.pk %}" class="inline"
+          hx-post="{% url 'accounting:journal_delete' entry.pk %}"
+          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+          hx-confirm="{{ t.CONFIRM_DELETE_DRAFT }}"
+          hx-swap="none">
+      {% csrf_token %}
+      <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-red-300 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">
+        <i class="ri-delete-bin-line"></i> {{ t.DELETE }}
+      </button>
+    </form>
+    <form method="post" action="{% url 'accounting:journal_post' entry.pk %}" class="inline"
+          hx-post="{% url 'accounting:journal_post' entry.pk %}"
+          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+          hx-confirm="{{ t.POST_ENTRY_CANNOT_UNDO }}"
+          hx-swap="none">
+      {% csrf_token %}
+      <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors">
+        <i class="ri-check-double-line"></i> {{ t.POST_ENTRY_BTN }}
+      </button>
+    </form>
+    <form method="post" action="{% url 'accounting:journal_void' entry.pk %}" class="inline"
+          hx-post="{% url 'accounting:journal_void' entry.pk %}"
+          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+          hx-confirm="{{ t.VOID_DRAFT_ENTRY }}"
+          hx-swap="none">
+      {% csrf_token %}
+      <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700">
+        <i class="ri-forbid-line"></i> {{ t.VOID_BTN }}
+      </button>
+    </form>
+    {% elif entry.status == 'posted' %}
+    <form method="post" action="{% url 'accounting:journal_void' entry.pk %}" class="inline"
+          hx-post="{% url 'accounting:journal_void' entry.pk %}"
+          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+          hx-confirm="{{ t.VOID_POSTED_ENTRY }}"
+          hx-swap="none">
+      {% csrf_token %}
+      <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-red-300 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">
+        <i class="ri-forbid-line"></i> {{ t.VOID_ENTRY_BTN }}
+      </button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2 dark:border-slate-700 dark:bg-slate-800">
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">{{ entry }}</h2>
+      <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium
+        {% if entry.status == 'posted' %}bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400
+        {% elif entry.status == 'void' %}bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400
+        {% else %}bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400{% endif %}">{{ entry.get_status_display }}</span>
+    </div>
+    <dl class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div><dt class="text-xs text-slate-500 dark:text-slate-400">{{ t.DATE }}</dt><dd class="mt-0.5 text-sm font-medium text-slate-900 dark:text-slate-100">{{ entry.date|date:'Y-m-d' }}</dd></div>
+      <div><dt class="text-xs text-slate-500 dark:text-slate-400">{{ t.FISCAL_YEAR }}</dt><dd class="mt-0.5 text-sm font-medium text-slate-900 dark:text-slate-100">{% if entry.fiscal_year %}{{ entry.fiscal_year.name }}{% else %}—{% endif %}</dd></div>
+      <div><dt class="text-xs text-slate-500 dark:text-slate-400">{{ t.NOTES }}</dt><dd class="mt-0.5 text-sm text-slate-700 dark:text-slate-300">{{ entry.memo|default:'—' }}</dd></div>
+      <div><dt class="text-xs text-slate-500 dark:text-slate-400">{{ t.SOURCE_REFERENCE }}</dt><dd class="mt-0.5 text-sm text-slate-700 dark:text-slate-300">{{ entry.reference|default:'—' }}</dd></div>
+      <div><dt class="text-xs text-slate-500 dark:text-slate-400">{{ t.CREATED_BY }}</dt><dd class="mt-0.5 text-sm text-slate-700 dark:text-slate-300">{% if entry.created_by %}{{ entry.created_by.get_full_name|default:entry.created_by.username }}{% else %}—{% endif %}</dd></div>
+      <div><dt class="text-xs text-slate-500 dark:text-slate-400">{{ t.LAST_UPDATED }}</dt><dd class="mt-0.5 text-sm text-slate-700 dark:text-slate-300">{{ entry.updated_at|date:'Y-m-d H:i' }}</dd></div>
+    </dl>
+  </div>
+
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+    <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ t.BALANCE_CHECK }}</h3>
+    <dl class="mt-4 space-y-3 text-sm">
+      <div class="flex items-center justify-between"><dt class="text-slate-500 dark:text-slate-400">{{ t.TOTAL_DEBITS }}</dt><dd class="font-semibold text-slate-900 dark:text-slate-100">{{ entry.debit_total|floatformat:2 }}</dd></div>
+      <div class="flex items-center justify-between"><dt class="text-slate-500 dark:text-slate-400">{{ t.TOTAL_CREDITS }}</dt><dd class="font-semibold text-slate-900 dark:text-slate-100">{{ entry.credit_total|floatformat:2 }}</dd></div>
+      <div class="flex items-center justify-between border-t border-slate-100 pt-3 dark:border-slate-700">
+        <dt class="text-slate-500 dark:text-slate-400">{{ t.STATUS }}</dt>
+        <dd>
+          <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+            {% if entry.is_balanced %}bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400{% else %}bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400{% endif %}">
+            {% if entry.is_balanced %}<i class="ri-checkbox-circle-line"></i> {{ t.BALANCED }}{% else %}<i class="ri-error-warning-line"></i> {{ t.NOT_BALANCED }}{% endif %}
+          </span>
+        </dd>
+      </div>
+    </dl>
+  </div>
+</div>
+
+<div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden dark:border-slate-700 dark:bg-slate-800">
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead>
+        <tr class="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400">
+          <th class="px-4 py-3 text-start font-medium">{{ t.ACCOUNT }}</th>
+          <th class="px-4 py-3 text-start font-medium">{{ t.TYPE_COL }}</th>
+          <th class="px-4 py-3 text-start font-medium">{{ t.DESCRIPTION }}</th>
+          <th class="px-4 py-3 text-end font-medium">{{ t.DEBIT }}</th>
+          <th class="px-4 py-3 text-end font-medium">{{ t.CREDIT }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+        {% for line in entry.lines.all %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+          <td class="px-4 py-3"><span class="font-semibold text-slate-900 dark:text-slate-100">{{ line.account.code }}</span> <span class="text-slate-600 dark:text-slate-400">{{ line.account.name }}</span></td>
+          <td class="px-4 py-3 text-slate-500 dark:text-slate-400">{{ line.account.get_type_display }}</td>
+          <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ line.description|default:'—' }}</td>
+          <td class="whitespace-nowrap px-4 py-3 text-end text-slate-700 dark:text-slate-300">{% if line.debit %}{{ line.debit|floatformat:2 }}{% endif %}</td>
+          <td class="whitespace-nowrap px-4 py-3 text-end text-slate-700 dark:text-slate-300">{% if line.credit %}{{ line.credit|floatformat:2 }}{% endif %}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="px-4 py-12 text-center text-slate-400 dark:text-slate-500">{{ t.THIS_ENTRY_HAS_NO_LINES }}</td></tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="border-t border-slate-200 bg-slate-50 font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-100">
+          <td colspan="3" class="px-4 py-3 text-end">{{ t.TOTALS }}</td>
+          <td class="whitespace-nowrap px-4 py-3 text-end">{{ entry.debit_total|floatformat:2 }}</td>
+          <td class="whitespace-nowrap px-4 py-3 text-end">{{ entry.credit_total|floatformat:2 }}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+{% endblock %}

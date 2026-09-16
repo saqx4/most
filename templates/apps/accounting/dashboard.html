@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% block title %}{{ t.ACCOUNTING_DASHBOARD_TITLE }}{% endblock %}
+{% block page_title %}{{ t.ACCOUNTING_DASHBOARD_TITLE }}{% endblock %}
+{% block content %}
+<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="flex items-center justify-between">
+      <p class="text-xs font-medium text-slate-500">{{ t.DUE_NOW }}</p>
+      <span class="grid h-8 w-8 place-items-center rounded-lg bg-red-50 text-red-600"><i class="ri-alarm-warning-line"></i></span>
+    </div>
+    <p class="mt-2 text-2xl font-bold text-slate-900">{{ due_now|default:'0.00'|floatformat:2 }} <span class="text-sm font-medium text-slate-400">{{ company.base_currency|default:'USD' }}</span></p>
+    <p class="mt-1 text-xs text-slate-400">{{ t.OPEN_POSTED_INVOICES }}</p>
+  </div>
+  <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="flex items-center justify-between">
+      <p class="text-xs font-medium text-slate-500">{{ t.ORDERS_THIS_MONTH }}</p>
+      <span class="grid h-8 w-8 place-items-center rounded-lg bg-indigo-50 text-indigo-600"><i class="ri-shopping-cart-line"></i></span>
+    </div>
+    <p class="mt-2 text-2xl font-bold text-slate-900">{{ orders_this_month|default:0 }}</p>
+    <a href="{% url 'accounting:journal_list' %}" class="mt-1 inline-flex items-center gap-1 text-xs text-indigo-600">{{ t.VIEW_JOURNAL }} <i class="ri-arrow-right-line"></i></a>
+  </div>
+  <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="flex items-center justify-between">
+      <p class="text-xs font-medium text-slate-500">{{ t.LOW_STOCK_ITEMS }}</p>
+      <span class="grid h-8 w-8 place-items-center rounded-lg bg-amber-50 text-amber-600"><i class="ri-archive-drawer-line"></i></span>
+    </div>
+    <p class="mt-2 text-2xl font-bold text-slate-900">{{ low_stock|length }}</p>
+    <p class="mt-1 text-xs text-slate-400">{{ t.AT_OR_BELOW_REORDER }}</p>
+  </div>
+  <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="flex items-center justify-between">
+      <p class="text-xs font-medium text-slate-500">{{ t.OPEN_INVOICES_TITLE }}</p>
+      <span class="grid h-8 w-8 place-items-center rounded-lg bg-emerald-50 text-emerald-600"><i class="ri-file-list-3-line"></i></span>
+    </div>
+    <p class="mt-2 text-2xl font-bold text-slate-900">{{ recent_invoices|length }}</p>
+    <a href="{% url 'accounting:journal_create' %}" class="mt-1 inline-flex items-center gap-1 text-xs text-indigo-600">{{ t.NEW_JOURNAL_ENTRY }} <i class="ri-arrow-right-line"></i></a>
+  </div>
+</div>
+
+<div class="mb-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <h2 class="mb-4 text-sm font-semibold text-slate-900">{{ t.RECEIVABLES_OVERVIEW }}</h2>
+    <canvas id="dashboardChart" height="180"></canvas>
+  </div>
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <h2 class="mb-4 text-sm font-semibold text-slate-900">{{ t.QUICK_ACTIONS }}</h2>
+    <ul class="space-y-2 text-sm">
+      <li><a href="{% url 'accounting:general_ledger' %}" class="flex items-center gap-2 text-indigo-600 hover:text-indigo-700"><i class="ri-book-2-line"></i> {{ t.GENERAL_LEDGER_LINK }}</a></li>
+      <li><a href="{% url 'accounting:ar_ledger' %}" class="flex items-center gap-2 text-indigo-600 hover:text-indigo-700"><i class="ri-money-dollar-circle-line"></i> {{ t.AR_LEDGER_LINK }}</a></li>
+      <li><a href="{% url 'accounting:journal_list' %}" class="flex items-center gap-2 text-indigo-600 hover:text-indigo-700"><i class="ri-file-list-3-line"></i> {{ t.JOURNAL_ENTRIES_LINK }}</a></li>
+      <li><a href="{% url 'accounting:journal_create' %}" class="flex items-center gap-2 text-indigo-600 hover:text-indigo-700"><i class="ri-add-circle-line"></i> {{ t.NEW_JOURNAL_ENTRY_LINK }}</a></li>
+      <li><a href="{% url 'reports:trial_balance' %}" class="flex items-center gap-2 text-indigo-600 hover:text-indigo-700"><i class="ri-scale-3-line"></i> {{ t.TRIAL_BALANCE_LINK }}</a></li>
+    </ul>
+  </div>
+</div>
+
+<div class="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+  <div class="mb-4 flex items-center justify-between">
+    <h2 class="text-sm font-semibold text-slate-900">{{ t.LOW_STOCK }}</h2>
+    <span class="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">{{ low_stock|length }} {{ t.ITEMS }}</span>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+          <th class="py-2 pr-4 font-medium">{{ t.SKU }}</th>
+          <th class="py-2 pr-4 font-medium">{{ t.PRODUCT_COL }}</th>
+          <th class="py-2 pr-4 text-right font-medium">{{ t.ON_HAND }}</th>
+          <th class="py-2 pr-4 text-right font-medium">{{ t.REORDER_PT }}</th>
+          <th class="py-2 text-right font-medium">{{ t.SALE_PRICE_COL }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for p in low_stock %}
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 pr-4 font-medium text-slate-900">{{ p.sku }}</td>
+          <td class="py-3 pr-4 text-slate-600">{{ p.name }}</td>
+          <td class="py-3 pr-4 text-right text-red-600">{{ p.on_hand|default:'0' }}</td>
+          <td class="py-3 pr-4 text-right text-slate-600">{{ p.reorder_point|default:'0' }}</td>
+          <td class="py-3 text-right text-slate-700">{{ p.sale_price|default:'0.00'|floatformat:2 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="py-8 text-center text-slate-400">{{ t.NO_LOW_STOCK }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+  <div class="mb-4 flex items-center justify-between">
+    <h2 class="text-sm font-semibold text-slate-900">{{ t.RECENT_INVOICES }}</h2>
+    <span class="text-xs text-slate-400">{{ company.base_currency|default:'USD' }}</span>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+          <th class="py-2 pr-4 font-medium">{{ t.NUMBER }}</th>
+          <th class="py-2 pr-4 font-medium">{{ t.CUSTOMER }}</th>
+          <th class="py-2 pr-4 font-medium">{{ t.DATE }}</th>
+          <th class="py-2 pr-4 text-right font-medium">{{ t.TOTAL }}</th>
+          <th class="py-2 pr-4 text-right font-medium">{{ t.AMOUNT_DUE }}</th>
+          <th class="py-2 text-right font-medium">{{ t.STATUS }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for inv in recent_invoices %}
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 pr-4 font-medium text-slate-900">{{ inv.number }}</td>
+          <td class="py-3 pr-4 text-slate-600">{{ inv.customer.name }}</td>
+          <td class="py-3 pr-4 text-slate-600">{{ inv.invoice_date|date:'Y-m-d' }}</td>
+          <td class="py-3 pr-4 text-right text-slate-700">{{ inv.total|default:'0.00'|floatformat:2 }}</td>
+          <td class="py-3 pr-4 text-right font-medium text-slate-900">{{ inv.amount_due|default:'0.00'|floatformat:2 }}</td>
+          <td class="py-3 text-right">
+            <span class="{% if inv.status == 'posted' %}bg-amber-50 text-amber-700{% elif inv.status == 'paid' %}bg-emerald-50 text-emerald-700{% else %}bg-slate-100 text-slate-500{% endif %} rounded-full px-2.5 py-0.5 text-xs font-medium">{{ inv.get_status_display }}</span>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="py-8 text-center text-slate-400">{{ t.NO_INVOICES_YET_DASH }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var el = document.getElementById('dashboardChart');
+    if (el && window.Chart) {
+      new Chart(el, {
+        type: 'bar',
+        data: {
+          labels: ['Due now', 'Orders this month', 'Low stock items'],
+          datasets: [{
+            label: 'Current period',
+            data: [{{ due_now|default:'0' }}, {{ orders_this_month|default:0 }}, {{ low_stock|length }}],
+            backgroundColor: ['#ef4444', '#6366f1', '#f59e0b'],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}
