@@ -4,6 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from apps.core.models import Role, User
 
 FIELD_CLS = 'w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none'
+SELECT_CLS = 'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none'
 
 
 def style_form(form):
@@ -12,6 +13,8 @@ def style_form(form):
             field.widget.attrs.setdefault('class', 'h-4 w-4 rounded border-slate-300 text-indigo-600')
         elif isinstance(field.widget, (forms.SelectDateWidget, forms.HiddenInput)):
             continue
+        elif isinstance(field.widget, forms.Select):
+            field.widget.attrs.setdefault('class', SELECT_CLS)
         else:
             field.widget.attrs.setdefault('class', FIELD_CLS)
 

@@ -7,6 +7,7 @@ from apps.purchasing.models import (PurchaseOrder, PurchaseOrderLine,
                                     SupplierPayment)
 
 FIELD_CLS = 'w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none'
+SELECT_CLS = 'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none'
 
 
 def style_form(form):
@@ -15,6 +16,8 @@ def style_form(form):
             field.widget.attrs.setdefault('class', 'h-4 w-4 rounded border-slate-300 text-indigo-600')
         elif isinstance(field.widget, (forms.SelectDateWidget, forms.HiddenInput)):
             continue
+        elif isinstance(field.widget, forms.Select):
+            field.widget.attrs.setdefault('class', SELECT_CLS)
         else:
             field.widget.attrs.setdefault('class', FIELD_CLS)
 
@@ -31,8 +34,15 @@ class SupplierForm(forms.ModelForm):
         from apps.accounting.models import Account, Currency, PaymentTerm
         self.fields['currency'].required = False
         self.fields['currency'].queryset = Currency.objects.all()
+        self.fields['currency'].empty_label = 'Select currency (optional)'
         self.fields['payment_term'].required = False
         self.fields['payment_term'].queryset = PaymentTerm.objects.filter(company=company)
+        self.fields['payment_term'].empty_label = 'Select payment term (optional)'
+        self.fields['phone'].widget = forms.TextInput(attrs={
+            'type': 'tel',
+            'inputmode': 'tel',
+            'placeholder': '+20 100 000 0000',
+        })
         self.fields['ap_account'].required = False
         self.fields['ap_account'].queryset = Account.objects.filter(company=company, is_active=True)
         style_form(self)
