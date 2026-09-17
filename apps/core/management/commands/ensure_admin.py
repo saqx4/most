@@ -41,14 +41,25 @@ class Command(BaseCommand):
             )
         self.stdout.write('Roles ensured.')
 
-        # Admin user
-        if User.objects.filter(username='admin').exists():
-            self.stdout.write('Admin user already exists.')
-        else:
-            admin = User.objects.create_superuser('admin', 'admin@example.com', pw)
-            admin.role = Role.objects.get(code='admin')
-            admin.company = company
-            admin.save()
-            self.stdout.write(self.style.SUCCESS(
-                f'Admin created: username=admin password={pw}'
-            ))
+        # Admin user — always reset password so login works
+        admin, created = User.objects.get_or_create(
+            username='admin',
+            defaults={
+                'email': 'admin@example.com',
+                'is_staff': True,
+                'is_superuser': True,
+                'is_active': True,
+                'role': Role.objects.get(code='admin'),
+                'company': company,
+            },
+        )
+        admin.set_password(pw)
+        admin.is_staff = True
+        admin.is_superuser = True
+        admin.is_active = True
+        admin.role = Role.objects.get(code='admin')
+        admin.company = company
+        admin.save()
+        self.stdout.write(self.style.SUCCESS(
+            f'Admin ready: username=admin password={pw}'
+        ))
