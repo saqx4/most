@@ -31,8 +31,8 @@
       <thead>
         <tr class="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400">
           <th class="px-4 py-3 text-start font-medium">{{ t.NAME }}</th>
-          <th class="px-4 py-3 text-start font-medium">{{ t.EMAIL }}</th>
-          <th class="px-4 py-3 text-start font-medium">{{ t.PHONE }}</th>
+          <th class="px-4 py-3 text-start font-medium hide-mobile">{{ t.EMAIL }}</th>
+          <th class="px-4 py-3 text-start font-medium hide-mobile">{{ t.PHONE }}</th>
           <th class="px-4 py-3 text-end font-medium">{{ t.BALANCE }}</th>
           <th class="px-4 py-3 text-start font-medium">{{ t.STATUS }}</th>
           <th class="px-4 py-3 text-end font-medium">{{ t.ACTIONS }}</th>
@@ -42,8 +42,8 @@
         {% for c in page_obj %}
         <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
           <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">{{ c.name }}</td>
-          <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ c.email|default:"-" }}</td>
-          <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ c.phone|default:"-" }}</td>
+          <td class="px-4 py-3 text-slate-600 dark:text-slate-400 hide-mobile">{{ c.email|default:"-" }}</td>
+          <td class="px-4 py-3 text-slate-600 dark:text-slate-400 hide-mobile">{{ c.phone|default:"-" }}</td>
           <td class="whitespace-nowrap px-4 py-3 text-end text-slate-700 dark:text-slate-300">{{ c.balance|floatformat:2 }}</td>
           <td class="px-4 py-3">
             {% if c.is_active %}

@@ -2,9 +2,9 @@
 {% block title %}{{ quote.number }}{% endblock %}
 {% block page_title %}Quote {{ quote.number }}{% endblock %}
 {% block content %}
-<div class="mb-4 flex items-center justify-between">
+<div class="mb-4 action-bar justify-between">
   <a href="{% url 'sales:quote_list' %}" class="text-sm text-indigo-600 hover:underline"><i class="ri-arrow-left-line"></i> {{ t.BACK_TO_QUOTES }}</a>
-  <div class="flex items-center gap-3">
+  <div class="flex flex-wrap items-center gap-2 sm:gap-3">
     {% if quote.status == 'draft' %}
     <form method="post" action="{% url 'sales:quote_send' quote.pk %}">{% csrf_token %}
       <button class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"><i class="ri-send-plane-line mr-1"></i>{{ t.SEND_QUOTE }}</button>
@@ -30,7 +30,7 @@
 <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
   <div class="lg:col-span-2 space-y-6">
     <div class="rounded-2xl border border-slate-200 bg-white p-6">
-      <dl class="grid grid-cols-3 gap-4 text-sm">
+      <dl class="info-card gap-4 text-sm">
         <div><dt class="text-slate-500">{{ t.CUSTOMER }}</dt><dd class="font-medium text-slate-900">{{ quote.customer }}</dd></div>
         <div><dt class="text-slate-500">{{ t.QUOTE_DATE }}</dt><dd class="font-medium text-slate-900">{{ quote.quote_date }}</dd></div>
         <div><dt class="text-slate-500">{{ t.VALID_UNTIL }}</dt><dd class="font-medium text-slate-900">{{ quote.valid_until|default:"-" }}</dd></div>

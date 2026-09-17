@@ -23,12 +23,12 @@
           <th class="py-2 pr-4 font-medium">{{ t.EMPLOYEES }}</th>
           <th class="py-2 pr-4 font-medium">{{ t.PERIOD }}</th>
           <th class="py-2 pr-4 text-right font-medium">{{ t.GROSS }}</th>
-          <th class="py-2 pr-4 text-right font-medium">{{ t.DEDUCTIONS }}</th>
+          <th class="py-2 pr-4 text-right font-medium hide-mobile">{{ t.DEDUCTIONS }}</th>
           <th class="py-2 pr-4 text-right font-medium">{{ t.NET }}</th>
-          <th class="py-2 pr-4 font-medium">{{ t.ISSUED }}</th>
+          <th class="py-2 pr-4 font-medium hide-tablet">{{ t.ISSUED }}</th>
           <th class="py-2 font-medium">{{ t.STATUS }}</th>
-          <th class="py-2 font-medium">PDF</th>
-          <th class="py-2 font-medium">Email</th>
+          <th class="py-2 font-medium hide-mobile">PDF</th>
+          <th class="py-2 font-medium hide-mobile">Email</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-slate-100">
@@ -37,19 +37,19 @@
           <td class="py-3 pr-4 font-medium text-slate-900">{{ slip.employee.full_name }}</td>
           <td class="py-3 pr-4 text-slate-600">{{ slip.period }}</td>
           <td class="py-3 pr-4 text-right text-slate-700">{{ slip.gross|floatformat:2 }}</td>
-          <td class="py-3 pr-4 text-right text-slate-700">{{ slip.deductions|floatformat:2 }}</td>
+          <td class="py-3 pr-4 text-right text-slate-700 hide-mobile">{{ slip.deductions|floatformat:2 }}</td>
           <td class="py-3 pr-4 text-right font-semibold text-slate-900">{{ slip.net|floatformat:2 }}</td>
-          <td class="py-3 pr-4 text-slate-600">{{ slip.issued_on|default:'—' }}</td>
+          <td class="py-3 pr-4 text-slate-600 hide-tablet">{{ slip.issued_on|default:'—' }}</td>
           <td class="py-3">
             <span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium
               {% if slip.status == 'paid' %}bg-emerald-50 text-emerald-700
               {% elif slip.status == 'issued' %}bg-indigo-50 text-indigo-700
               {% else %}bg-amber-50 text-amber-700{% endif %}">{{ slip.get_status_display }}</span>
           </td>
-          <td class="py-3">
+          <td class="py-3 hide-mobile">
             <a href="{% url 'hr:payslip_pdf' slip.pk %}" target="_blank" class="text-slate-500 hover:text-slate-700" title="Download PDF"><i class="ri-file-pdf-line"></i></a>
           </td>
-          <td class="py-3">
+          <td class="py-3 hide-mobile">
             {% if slip.employee.email %}
             <form method="post" action="{% url 'hr:payslip_send_email' slip.pk %}" class="inline">{% csrf_token %}
               <button type="submit" class="text-blue-500 hover:text-blue-700" title="Send by Email"><i class="ri-mail-send-line"></i></button>

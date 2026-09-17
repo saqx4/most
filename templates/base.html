@@ -77,6 +77,17 @@
 
     /* Sidebar */
     .sidebar { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .sidebar-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 35;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(2px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .sidebar-backdrop.active { opacity: 1; pointer-events: auto; }
     .nav-item {
       display: flex;
       align-items: center;
@@ -160,6 +171,42 @@
     .htmx-indicator { opacity: 0; }
     .htmx-request .htmx-indicator { opacity: 1; }
     .htmx-request.htmx-indicator { opacity: 1; }
+
+    /* Responsive tables */
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .table-scroll table { min-width: 640px; }
+
+    /* Responsive action bars — wrap buttons on mobile */
+    .action-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+    @media (min-width: 640px) { .action-bar { flex-wrap: nowrap; } }
+
+    /* Responsive detail grids */
+    .detail-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    @media (min-width: 1024px) { .detail-grid { grid-template-columns: 1fr 1fr 1fr; } }
+    .detail-grid .detail-main { grid-column: span 1; }
+    @media (min-width: 1024px) { .detail-grid .detail-main { grid-column: span 2; } }
+
+    /* Hide less-important table columns on small screens */
+    @media (max-width: 767px) {
+      .hide-mobile { display: none !important; }
+    }
+    @media (max-width: 1023px) {
+      .hide-tablet { display: none !important; }
+    }
+
+    /* Responsive KPI grid */
+    .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (min-width: 1024px) { .kpi-grid { grid-template-columns: repeat(4, 1fr); } }
+
+    /* Card stack for detail pages on mobile */
+    .info-card { display: grid; grid-template-columns: 1fr; gap: 0.75rem; }
+    @media (min-width: 640px) { .info-card { grid-template-columns: 1fr 1fr; } }
+    @media (min-width: 1024px) { .info-card { grid-template-columns: 1fr 1fr 1fr; } }
+
+    /* Mobile form inputs: full width */
+    @media (max-width: 639px) {
+      .form-grid > * { grid-column: span 1 !important; }
+    }
   </style>
   {% block extra_head %}{% endblock %}
 </head>
@@ -319,6 +366,7 @@
       </form>
     </div>
   </aside>
+  <div id="sidebarBackdrop" class="sidebar-backdrop lg:hidden" onclick="closeSidebar()"></div>
   {% endblock %}
 {% endif %}
 
@@ -408,8 +456,25 @@
   }
 
   document.getElementById('sidebarToggle')?.addEventListener('click', function () {
-    document.getElementById('sidebar')?.classList.toggle('-translate-x-full');
+    var sidebar = document.getElementById('sidebar');
+    var backdrop = document.getElementById('sidebarBackdrop');
+    if (sidebar) {
+      var isOpen = !sidebar.classList.contains('-translate-x-full');
+      if (isOpen) {
+        closeSidebar();
+      } else {
+        sidebar.classList.remove('-translate-x-full');
+        if (backdrop) backdrop.classList.add('active');
+      }
+    }
   });
+
+  function closeSidebar() {
+    var sidebar = document.getElementById('sidebar');
+    var backdrop = document.getElementById('sidebarBackdrop');
+    if (sidebar) sidebar.classList.add('-translate-x-full');
+    if (backdrop) backdrop.classList.remove('active');
+  }
 
   var menuBtn = document.getElementById('userMenuButton');
   var userMenu = document.getElementById('userMenu');

@@ -16,12 +16,12 @@
         <tr class="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400">
           <th class="px-4 py-3 text-start font-medium">{{ t.REFERENCE }}</th>
           <th class="px-4 py-3 text-start font-medium">{{ t.DATE }}</th>
-          <th class="px-4 py-3 text-start font-medium">{{ t.NOTES }}</th>
-          <th class="px-4 py-3 text-start font-medium">{{ t.SOURCE_REF }}</th>
-          <th class="px-4 py-3 text-start font-medium">{{ t.CREATED_BY }}</th>
+          <th class="px-4 py-3 text-start font-medium hide-mobile">{{ t.NOTES }}</th>
+          <th class="px-4 py-3 text-start font-medium hide-mobile">{{ t.SOURCE_REF }}</th>
+          <th class="px-4 py-3 text-start font-medium hide-mobile">{{ t.CREATED_BY }}</th>
           <th class="px-4 py-3 text-start font-medium">{{ t.STATUS }}</th>
           <th class="px-4 py-3 text-end font-medium">{{ t.DEBITS }}</th>
-          <th class="px-4 py-3 text-end font-medium">{{ t.CREDITS }}</th>
+          <th class="px-4 py-3 text-end font-medium hide-tablet">{{ t.CREDITS }}</th>
           <th class="px-4 py-3 text-end font-medium">{{ t.ACTIONS }}</th>
         </tr>
       </thead>
@@ -32,9 +32,9 @@
             <a href="{% url 'accounting:journal_detail' entry.pk %}" class="font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300">{{ entry }}</a>
           </td>
           <td class="whitespace-nowrap px-4 py-3 text-slate-600 dark:text-slate-400">{{ entry.date|date:'Y-m-d' }}</td>
-          <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ entry.memo|default:'—'|truncatechars:40 }}</td>
-          <td class="px-4 py-3 text-slate-500 dark:text-slate-400">{{ entry.reference|default:'—' }}</td>
-          <td class="px-4 py-3 text-slate-500 dark:text-slate-400">{% if entry.created_by %}{{ entry.created_by.get_full_name|default:entry.created_by.username }}{% else %}—{% endif %}</td>
+          <td class="px-4 py-3 text-slate-600 dark:text-slate-400 hide-mobile">{{ entry.memo|default:'—'|truncatechars:40 }}</td>
+          <td class="px-4 py-3 text-slate-500 dark:text-slate-400 hide-mobile">{{ entry.reference|default:'—' }}</td>
+          <td class="px-4 py-3 text-slate-500 dark:text-slate-400 hide-mobile">{% if entry.created_by %}{{ entry.created_by.get_full_name|default:entry.created_by.username }}{% else %}—{% endif %}</td>
           <td class="whitespace-nowrap px-4 py-3">
             <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
               {% if entry.status == 'posted' %}bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400
@@ -42,7 +42,7 @@
               {% else %}bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400{% endif %}">{{ entry.get_status_display }}</span>
           </td>
           <td class="whitespace-nowrap px-4 py-3 text-end text-slate-700 dark:text-slate-300">{{ entry.debit_total|floatformat:2 }}</td>
-          <td class="whitespace-nowrap px-4 py-3 text-end text-slate-700 dark:text-slate-300">{{ entry.credit_total|floatformat:2 }}</td>
+          <td class="whitespace-nowrap px-4 py-3 text-end text-slate-700 dark:text-slate-300 hide-tablet">{{ entry.credit_total|floatformat:2 }}</td>
           <td class="whitespace-nowrap px-4 py-3 text-end">
             <div class="inline-flex items-center gap-1">
               <a href="{% url 'accounting:journal_detail' entry.pk %}" title="{{ t.VIEW_BTN }}" class="rounded p-1.5 text-slate-400 hover:bg-slate-100 hover:text-indigo-600 dark:hover:bg-slate-700 dark:hover:text-indigo-400 transition-colors"><i class="ri-eye-line text-base"></i></a>

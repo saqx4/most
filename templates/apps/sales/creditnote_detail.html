@@ -2,9 +2,9 @@
 {% block title %}{{ credit_note.number }}{% endblock %}
 {% block page_title %}Credit Note {{ credit_note.number }}{% endblock %}
 {% block content %}
-<div class="mb-4 flex items-center justify-between">
+<div class="mb-4 action-bar justify-between">
   <a href="{% url 'sales:creditnote_list' %}" class="text-sm text-indigo-600 hover:underline"><i class="ri-arrow-left-line"></i> {{ t.BACK_TO_CREDIT_NOTES }}</a>
-  <div class="flex items-center gap-3">
+  <div class="flex flex-wrap items-center gap-2 sm:gap-3">
     {% if credit_note.status == 'draft' %}
     <form method="post" action="{% url 'sales:creditnote_post' credit_note.pk %}">{% csrf_token %}
       <button class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"><i class="ri-check-line mr-1"></i>{{ t.POST_CREDIT_NOTE }}</button>
@@ -16,7 +16,7 @@
 <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
   <div class="lg:col-span-2 space-y-6">
     <div class="rounded-2xl border border-slate-200 bg-white p-6">
-      <dl class="grid grid-cols-3 gap-4 text-sm">
+      <dl class="info-card gap-4 text-sm">
         <div><dt class="text-slate-500">{{ t.CUSTOMER }}</dt><dd class="font-medium text-slate-900">{{ credit_note.customer }}</dd></div>
         <div><dt class="text-slate-500">{{ t.CREDIT_DATE }}</dt><dd class="font-medium text-slate-900">{{ credit_note.credit_date }}</dd></div>
         <div><dt class="text-slate-500">{{ t.ORIGINAL_INVOICE }}</dt><dd class="font-medium text-slate-900">{{ credit_note.original_invoice|default:"-" }}</dd></div>

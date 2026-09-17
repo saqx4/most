@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block page_title %}{{ bill.number }}{% endblock %}
 {% block content %}
-<div class="mb-6 flex items-center justify-between">
+<div class="mb-6 action-bar justify-between">
   <div class="flex items-center gap-3">
     <a href="{% url 'purchasing:bill_list' %}" class="text-slate-500 hover:text-slate-700"><i class="ri-arrow-left-line text-lg"></i></a>
     <h2 class="text-xl font-bold text-slate-900">{{ bill.number }}</h2>
@@ -13,7 +13,7 @@
       {{ bill.get_status_display }}
     </span>
   </div>
-  <div class="flex gap-2">
+  <div class="flex flex-wrap gap-2">
     {% if bill.status == 'draft' %}
     <form method="post" action="{% url 'purchasing:bill_post' bill.pk %}">{% csrf_token %}
       <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">{{ t.POST_BILL }}</button>
@@ -27,7 +27,7 @@
 
 <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 mb-6">
   <div class="rounded-xl bg-white border border-slate-100 shadow-sm p-5 lg:col-span-2">
-    <dl class="grid grid-cols-2 gap-3 text-sm">
+    <dl class="info-card gap-3 text-sm">
       <div><dt class="text-xs text-slate-500">{{ t.SUPPLIER }}</dt><dd class="font-medium"><a href="{% url 'purchasing:supplier_detail' bill.supplier.pk %}" class="text-indigo-600 hover:underline">{{ bill.supplier.name }}</a></dd></div>
       <div><dt class="text-xs text-slate-500">{{ t.BILL_DATE }}</dt><dd class="font-medium">{{ bill.bill_date }}</dd></div>
       <div><dt class="text-xs text-slate-500">{{ t.DUE_DATE }}</dt><dd class="font-medium">{{ bill.due_date|default:'—' }}</dd></div>
@@ -47,6 +47,7 @@
 
 <div class="rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden mb-6">
   <div class="px-5 py-4 border-b border-slate-100"><h3 class="font-semibold text-slate-800">{{ t.BILL_LINES_TITLE }}</h3></div>
+  <div class="table-scroll">
   <table class="min-w-full text-sm">
     <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
       <tr>
@@ -69,6 +70,7 @@
       {% endfor %}
     </tbody>
   </table>
+  </div>
 </div>
 
 {% if allocations %}

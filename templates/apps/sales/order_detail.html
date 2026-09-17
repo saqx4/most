@@ -2,9 +2,9 @@
 {% block title %}{{ order.number }}{% endblock %}
 {% block page_title %}Order {{ order.number }}{% endblock %}
 {% block content %}
-<div class="mb-4 flex items-center justify-between">
+<div class="mb-4 action-bar justify-between">
   <a href="{% url 'sales:order_list' %}" class="text-sm text-indigo-600 hover:underline"><i class="ri-arrow-left-line"></i> {{ t.BACK_TO_ORDERS }}</a>
-  <div class="flex gap-2">
+  <div class="flex flex-wrap items-center gap-2 sm:gap-3">
     {% if order.status == 'draft' %}
     <form method="post" action="{% url 'sales:order_confirm' order.pk %}">{% csrf_token %}
       <button class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"><i class="ri-check-line mr-1"></i>{{ t.CONFIRM_ORDER }}</button>
@@ -16,7 +16,7 @@
 <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
   <div class="lg:col-span-2 space-y-6">
     <div class="rounded-2xl border border-slate-200 bg-white p-6">
-      <dl class="grid grid-cols-3 gap-4 text-sm">
+      <dl class="info-card gap-4 text-sm">
         <div><dt class="text-slate-500">{{ t.CUSTOMER }}</dt><dd class="font-medium text-slate-900">{{ order.customer }}</dd></div>
         <div><dt class="text-slate-500">{{ t.DATE }}</dt><dd class="font-medium text-slate-900">{{ order.order_date }}</dd></div>
         <div><dt class="text-slate-500">{{ t.WAREHOUSE }}</dt><dd class="font-medium text-slate-900">{{ order.warehouse }}</dd></div>
