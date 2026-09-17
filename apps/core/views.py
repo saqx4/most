@@ -55,16 +55,19 @@ def user_create(request):
 @login_required
 @roles_required('admin', 'manager')
 def user_edit(request, pk):
-    user = User.objects.get(pk=pk)
+    target = User.objects.get(pk=pk)
+    if target.is_superuser:
+        messages.error(request, 'Cannot edit superuser accounts.')
+        return redirect('core:user_list')
     if request.method == 'POST':
-        form = UserEditForm(request.POST, instance=user)
+        form = UserEditForm(request.POST, instance=target)
         if form.is_valid():
             form.save()
-            messages.success(request, f'User "{user.username}" updated successfully.')
+            messages.success(request, f'User "{target.username}" updated successfully.')
             return redirect('core:user_list')
     else:
-        form = UserEditForm(instance=user)
-    return render(request, 'core/user_form.html', {'form': form, 'title': f'Edit User: {user.username}', 'edit_user': user})
+        form = UserEditForm(instance=target)
+    return render(request, 'core/user_form.html', {'form': form, 'title': f'Edit User: {target.username}', 'edit_user': target})
 
 
 @login_required
@@ -91,6 +94,9 @@ def user_toggle_active(request, pk):
     target = User.objects.get(pk=pk)
     if target.pk == request.user.pk:
         messages.error(request, 'You cannot deactivate your own account.')
+        return redirect('core:user_list')
+    if target.is_superuser:
+        messages.error(request, 'Cannot deactivate superuser accounts.')
         return redirect('core:user_list')
     target.is_active = not target.is_active
     target.save(update_fields=['is_active'])
