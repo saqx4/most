@@ -8,7 +8,7 @@
       <p class="text-xs font-medium text-slate-500">{{ t.DUE_NOW }}</p>
       <span class="grid h-8 w-8 place-items-center rounded-lg bg-red-50 text-red-600"><i class="ri-alarm-warning-line"></i></span>
     </div>
-    <p class="mt-2 text-2xl font-bold text-slate-900">{{ due_now|default:'0.00'|floatformat:2 }} <span class="text-sm font-medium text-slate-400">{{ company.base_currency|default:'USD' }}</span></p>
+    <p class="mt-2 text-2xl font-bold text-slate-900">{{ due_now|default:'0.00'|floatformat:2 }} <span class="text-sm font-medium text-slate-400">{{ company.base_currency|default:'EGP' }}</span></p>
     <p class="mt-1 text-xs text-slate-400">{{ t.OPEN_POSTED_INVOICES }}</p>
   </div>
   <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -90,7 +90,7 @@
 <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
   <div class="mb-4 flex items-center justify-between">
     <h2 class="text-sm font-semibold text-slate-900">{{ t.RECENT_INVOICES }}</h2>
-    <span class="text-xs text-slate-400">{{ company.base_currency|default:'USD' }}</span>
+    <span class="text-xs text-slate-400">{{ company.base_currency|default:'EGP' }}</span>
   </div>
   <div class="overflow-x-auto">
     <table class="w-full text-sm">

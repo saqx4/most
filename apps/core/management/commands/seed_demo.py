@@ -41,7 +41,7 @@ class Command(BaseCommand):
                 'phone': '+1 555 0100',
                 'email': 'info@acmedemo.example',
                 'website': 'https://acmedemo.example',
-                'base_currency': 'USD',
+                'base_currency': 'EGP',
                 'fiscal_year_start': timezone.localdate().replace(month=1, day=1),
                 'is_default': True,
                 'is_active': True,

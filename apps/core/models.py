@@ -32,7 +32,7 @@ class Company(TimeStampMixin):
     phone = models.CharField(max_length=50, blank=True)
     email = models.EmailField(blank=True)
     website = models.URLField(blank=True)
-    base_currency = models.CharField(max_length=3, default='USD')
+    base_currency = models.CharField(max_length=3, default='EGP')
     fiscal_year_start = models.DateField(null=True, blank=True)
     is_default = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)

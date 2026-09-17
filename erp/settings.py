@@ -27,7 +27,7 @@ env = environ.Env(
     SESSION_COOKIE_SECURE=(bool, False),
     CSRF_COOKIE_SECURE=(bool, False),
     SECURE_HSTS_SECONDS=(int, 0),
-    TIMEZONE=(str, 'UTC'),
+    TIMEZONE=(str, 'Africa/Cairo'),
 )
 environ.Env.read_env(BASE_DIR / '.env')
 

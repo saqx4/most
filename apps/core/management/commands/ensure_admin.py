@@ -25,7 +25,7 @@ class Command(BaseCommand):
             name='My Company',
             defaults={
                 'legal_name': 'My Company',
-                'base_currency': 'USD',
+                'base_currency': 'EGP',
                 'is_default': True,
                 'is_active': True,
             },
