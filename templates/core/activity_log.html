@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Activity Log{% endblock %}
+{% block page_title %}Activity Log{% endblock %}
+{% block content %}
+<div class="space-y-4">
+  <form method="get" class="flex flex-wrap gap-3 items-end">
+    <div>
+      <label class="block text-xs font-medium text-gray-500 mb-1">Model</label>
+      <select name="model" class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
+        <option value="">All Models</option>
+        <option value="SalesInvoice" {% if model_filter == 'SalesInvoice' %}selected{% endif %}>Sales Invoice</option>
+        <option value="SalesOrder" {% if model_filter == 'SalesOrder' %}selected{% endif %}>Sales Order</option>
+        <option value="SalesQuote" {% if model_filter == 'SalesQuote' %}selected{% endif %}>Sales Quote</option>
+        <option value="CustomerPayment" {% if model_filter == 'CustomerPayment' %}selected{% endif %}>Customer Payment</option>
+        <option value="JournalEntry" {% if model_filter == 'JournalEntry' %}selected{% endif %}>Journal Entry</option>
+        <option value="Product" {% if model_filter == 'Product' %}selected{% endif %}>Product</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-gray-500 mb-1">Action</label>
+      <select name="action" class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
+        <option value="">All Actions</option>
+        <option value="create" {% if action_filter == 'create' %}selected{% endif %}>Create</option>
+        <option value="post" {% if action_filter == 'post' %}selected{% endif %}>Post</option>
+        <option value="confirm" {% if action_filter == 'confirm' %}selected{% endif %}>Confirm</option>
+        <option value="pay" {% if action_filter == 'pay' %}selected{% endif %}>Pay</option>
+        <option value="delete" {% if action_filter == 'delete' %}selected{% endif %}>Delete</option>
+      </select>
+    </div>
+    <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-indigo-700">Filter</button>
+  </form>
+  <div class="rounded-xl border border-gray-200 bg-white shadow-glass dark:border-gray-800 dark:bg-gray-900 overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead><tr class="border-b border-gray-100 dark:border-gray-800">
+        <th class="px-4 py-3 text-left font-medium text-gray-500">Date</th>
+        <th class="px-4 py-3 text-left font-medium text-gray-500">User</th>
+        <th class="px-4 py-3 text-left font-medium text-gray-500">Action</th>
+        <th class="px-4 py-3 text-left font-medium text-gray-500">Model</th>
+        <th class="px-4 py-3 text-left font-medium text-gray-500">Object ID</th>
+        <th class="px-4 py-3 text-left font-medium text-gray-500">Details</th>
+      </tr></thead>
+      <tbody class="divide-y divide-gray-50 dark:divide-gray-800">
+        {% for log in page_obj %}
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+          <td class="px-4 py-2.5 whitespace-nowrap text-gray-600 dark:text-gray-400">{{ log.created_at|date:"Y-m-d H:i" }}</td>
+          <td class="px-4 py-2.5 whitespace-nowrap">{{ log.user|default:"-" }}</td>
+          <td class="px-4 py-2.5"><span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium
+            {% if log.action == 'post' %}bg-emerald-50 text-emerald-700{% elif log.action == 'delete' %}bg-red-50 text-red-700{% elif log.action == 'confirm' %}bg-blue-50 text-blue-700{% else %}bg-gray-100 text-gray-700{% endif %}">{{ log.action }}</span></td>
+          <td class="px-4 py-2.5 whitespace-nowrap text-gray-600 dark:text-gray-400">{{ log.model }}</td>
+          <td class="px-4 py-2.5 whitespace-nowrap text-gray-600 dark:text-gray-400">{{ log.object_id }}</td>
+          <td class="px-4 py-2.5 text-gray-500 dark:text-gray-500 max-w-xs truncate">{{ log.details }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="px-4 py-8 text-center text-gray-400">No activity logs found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if page_obj.has_other_pages %}
+  <div class="flex items-center justify-between text-sm text-gray-500">
+    <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    <div class="flex gap-2">
+      {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&model={{ model_filter }}&action={{ action_filter }}" class="rounded-lg border px-3 py-1 hover:bg-gray-50">Prev</a>{% endif %}
+      {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&model={{ model_filter }}&action={{ action_filter }}" class="rounded-lg border px-3 py-1 hover:bg-gray-50">Next</a>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

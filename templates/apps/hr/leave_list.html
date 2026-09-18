@@ -2,8 +2,8 @@
 {% block title %}{{ t.LEAVE_REQUESTS_TITLE }}{% endblock %}
 {% block page_title %}{{ t.LEAVE_REQUESTS_TITLE }}{% endblock %}
 {% block content %}
-<div class="mb-4 flex items-center gap-2">
-  <form method="get" class="flex items-center gap-2">
+<div class="mb-4 flex flex-wrap items-center gap-2">
+  <form method="get" class="flex flex-wrap items-center gap-2">
     <select name="status" class="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
       <option value="">{{ t.ALL_STATUSES }}</option>
       <option value="pending" {% if status == 'pending' %}selected{% endif %}>{{ t.PENDING_STATUS }}</option>

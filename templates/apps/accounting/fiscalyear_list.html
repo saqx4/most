@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Fiscal Years{% endblock %}
+{% block page_title %}Fiscal Years{% endblock %}
+{% block content %}
+<div class="space-y-4">
+  <div class="flex items-center justify-between">
+    <p class="text-sm text-gray-500">Manage fiscal years for journal entries</p>
+    <a href="{% url 'accounting:fiscalyear_create' %}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">+ New Fiscal Year</a>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-white shadow-glass dark:border-gray-800 dark:bg-gray-900 overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead><tr class="border-b border-gray-100 dark:border-gray-800">
+        <th class="px-4 py-3 text-left font-medium text-gray-500">Name</th>
+        <th class="px-4 py-3 text-left font-medium text-gray-500">Start Date</th>
+        <th class="px-4 py-3 text-left font-medium text-gray-500">End Date</th>
+        <th class="px-4 py-3 text-left font-medium text-gray-500">Status</th>
+        <th class="px-4 py-3 text-right font-medium text-gray-500">Actions</th>
+      </tr></thead>
+      <tbody class="divide-y divide-gray-50 dark:divide-gray-800">
+        {% for fy in years %}
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+          <td class="px-4 py-2.5 font-medium">{{ fy.name }}</td>
+          <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400">{{ fy.start_date }}</td>
+          <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400">{{ fy.end_date }}</td>
+          <td class="px-4 py-2.5">{% if fy.is_closed %}<span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">Closed</span>{% else %}<span class="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">Open</span>{% endif %}</td>
+          <td class="px-4 py-2.5 text-right space-x-2">
+            <a href="{% url 'accounting:fiscalyear_edit' pk=fy.pk %}" class="text-indigo-600 hover:underline text-xs">Edit</a>
+            <form method="post" action="{% url 'accounting:fiscalyear_delete' pk=fy.pk %}" class="inline" onsubmit="return confirm('Delete this fiscal year?')">{% csrf_token %}<button type="submit" class="text-red-500 hover:underline text-xs">Delete</button></form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="px-4 py-8 text-center text-gray-400">No fiscal years yet. Create one to enable journal entries.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

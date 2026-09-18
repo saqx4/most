@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Currencies{% endblock %}
+{% block page_title %}Currencies{% endblock %}
+{% block content %}
+<div class="space-y-4">
+  <div class="flex items-center justify-between">
+    <p class="text-sm text-gray-500">Manage currencies and exchange rates</p>
+    <a href="{% url 'accounting:currency_create' %}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">+ New Currency</a>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-white shadow-glass dark:border-gray-800 dark:bg-gray-900 overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead><tr class="border-b border-gray-100 dark:border-gray-800">
+        <th class="px-4 py-3 text-left font-medium text-gray-500">Code</th>
+        <th class="px-4 py-3 text-left font-medium text-gray-500">Name</th>
+        <th class="px-4 py-3 text-left font-medium text-gray-500">Symbol</th>
+        <th class="px-4 py-3 text-left font-medium text-gray-500">Rate</th>
+        <th class="px-4 py-3 text-left font-medium text-gray-500">Base</th>
+        <th class="px-4 py-3 text-right font-medium text-gray-500">Actions</th>
+      </tr></thead>
+      <tbody class="divide-y divide-gray-50 dark:divide-gray-800">
+        {% for c in currencies %}
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+          <td class="px-4 py-2.5 font-medium">{{ c.code }}</td>
+          <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400">{{ c.name }}</td>
+          <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400">{{ c.symbol }}</td>
+          <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400">{{ c.rate }}</td>
+          <td class="px-4 py-2.5">{% if c.is_base %}<span class="text-emerald-600 font-medium">Yes</span>{% else %}No{% endif %}</td>
+          <td class="px-4 py-2.5 text-right space-x-2">
+            <a href="{% url 'accounting:currency_edit' pk=c.pk %}" class="text-indigo-600 hover:underline text-xs">Edit</a>
+            <form method="post" action="{% url 'accounting:currency_delete' pk=c.pk %}" class="inline" onsubmit="return confirm('Delete this currency?')">{% csrf_token %}<button type="submit" class="text-red-500 hover:underline text-xs">Delete</button></form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="px-4 py-8 text-center text-gray-400">No currencies yet. Create one to enable multi-currency support.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

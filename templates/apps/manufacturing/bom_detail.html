@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% block page_title %}BOM {{ bom.number }}{% endblock %}
 {% block content %}
-<div class="mb-6 flex items-center justify-between">
-  <div class="flex items-center gap-3">
+<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+  <div class="flex flex-wrap items-center gap-3">
     <a href="{% url 'manufacturing:bom_list' %}" class="text-slate-500 hover:text-slate-700"><i class="ri-arrow-left-line text-lg"></i></a>
     <h2 class="text-xl font-bold text-slate-900">{{ bom.number }}</h2>
     {% if bom.is_active %}
@@ -11,7 +11,7 @@
       <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">{{ t.INACTIVE_STATUS }}</span>
     {% endif %}
   </div>
-  <div class="flex gap-2">
+  <div class="flex flex-wrap gap-2">
     <a href="{% url 'manufacturing:bom_edit' bom.pk %}" class="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50"><i class="ri-edit-line"></i> {{ t.EDIT }}</a>
     <form method="post" action="{% url 'manufacturing:bom_delete' bom.pk %}" class="inline"
           hx-post="{% url 'manufacturing:bom_delete' bom.pk %}"
@@ -44,7 +44,7 @@
 </div>
 
 <!-- Component Lines -->
-<div class="rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden mb-6">
+<div class="rounded-xl bg-white border border-slate-100 shadow-sm overflow-x-auto mb-6">
   <div class="px-5 py-4 border-b border-slate-100"><h3 class="font-semibold text-slate-800">{{ t.COMPONENTS }}</h3></div>
   <table class="min-w-full text-sm">
     <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
@@ -76,7 +76,7 @@
 
 <!-- Work Orders -->
 {% if work_orders %}
-<div class="rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden">
+<div class="rounded-xl bg-white border border-slate-100 shadow-sm overflow-x-auto">
   <div class="px-5 py-4 border-b border-slate-100"><h3 class="font-semibold text-slate-800">{{ t.WORK_ORDERS }}</h3></div>
   <table class="min-w-full text-sm">
     <thead class="bg-slate-50 text-xs text-slate-500 uppercase">

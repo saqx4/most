@@ -2,8 +2,8 @@
 {% block title %}{{ t.PERIODIC_INVOICES }}{% endblock %}
 {% block page_title %}{{ t.PERIODIC_INVOICES_LIST }}{% endblock %}
 {% block content %}
-<div class="mb-4 flex items-center justify-between">
-  <div class="flex gap-2">
+<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+  <div class="flex flex-wrap gap-2">
     <a href="{% url 'sales:periodic_list' %}" class="rounded-lg px-3 py-1.5 text-sm font-medium {% if not status %}bg-indigo-100 text-indigo-700{% else %}text-slate-600 hover:bg-slate-100{% endif %}">{{ t.ALL }}</a>
     {% for val,label in statuses %}<a href="?status={{ val }}" class="rounded-lg px-3 py-1.5 text-sm font-medium {% if status == val %}bg-indigo-100 text-indigo-700{% else %}text-slate-600 hover:bg-slate-100{% endif %}">{{ label }}</a>{% endfor %}
   </div>

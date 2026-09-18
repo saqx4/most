@@ -6,14 +6,14 @@ from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db import models
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from apps.accounting import forms
 from apps.accounting import services as acc
-from apps.accounting.models import Account, FiscalYear, JournalEntry, JournalLine
+from apps.accounting.models import Account, Currency, FiscalYear, JournalEntry, JournalLine, PaymentTerm
 from apps.core.decorators import roles_required
 from apps.core.models import Company, CompanyScoped, User
 from apps.core.services import get_company
@@ -88,7 +88,6 @@ def journal_list(request):
 @login_required
 @roles_required('accountant', 'admin')
 def journal_detail(request, entry_id):
-    from django.shortcuts import get_object_or_404
     company = _company(request)
     entry = get_object_or_404(JournalEntry, pk=entry_id, company=company)
     debits = entry.lines.filter(debit__gt=0)
@@ -128,7 +127,6 @@ def journal_create(request):
 @login_required
 @roles_required('accountant', 'admin')
 def journal_edit(request, entry_id):
-    from django.shortcuts import get_object_or_404
     company = _company(request)
     entry = get_object_or_404(JournalEntry, pk=entry_id, company=company)
     if entry.status != JournalEntry.Status.DRAFT:
@@ -162,7 +160,6 @@ def journal_edit(request, entry_id):
 @require_POST
 @roles_required('accountant', 'admin')
 def journal_delete(request, entry_id):
-    from django.shortcuts import get_object_or_404
     company = _company(request)
     entry = get_object_or_404(JournalEntry, pk=entry_id, company=company)
     if entry.status != JournalEntry.Status.DRAFT:
@@ -176,7 +173,6 @@ def journal_delete(request, entry_id):
 @login_required
 @roles_required('accountant', 'admin')
 def journal_post(request, entry_id):
-    from django.shortcuts import get_object_or_404
     company = _company(request)
     entry = get_object_or_404(JournalEntry, pk=entry_id, company=company)
     try:
@@ -191,7 +187,6 @@ def journal_post(request, entry_id):
 @require_POST
 @roles_required('accountant', 'admin')
 def close_year(request, fy_id):
-    from django.shortcuts import get_object_or_404
     company = _company(request)
     fy = get_object_or_404(FiscalYear, pk=fy_id, company=company)
     if fy.is_closed:
@@ -217,3 +212,162 @@ def journal_void(request, entry_id):
         entry.save(update_fields=['status', 'updated_at'])
         messages.success(request, f'{entry} voided.')
     return redirect('accounting:journal_detail', entry_id=entry.pk)
+
+
+# ---------------------------------------------------------------------------
+# Currency Management
+# ---------------------------------------------------------------------------
+@login_required
+@roles_required('admin', 'accountant')
+def currency_list(request):
+    currencies = Currency.objects.all().order_by('code')
+    return render(request, 'apps/accounting/currency_list.html', {'currencies': currencies})
+
+
+@login_required
+@roles_required('admin', 'accountant')
+def currency_create(request):
+    if request.method == 'POST':
+        form = forms.CurrencyForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Currency created.')
+            return redirect('accounting:currency_list')
+    else:
+        form = forms.CurrencyForm()
+    return render(request, 'apps/accounting/currency_form.html', {'form': form, 'title': 'New Currency'})
+
+
+@login_required
+@roles_required('admin', 'accountant')
+def currency_edit(request, pk):
+    currency = get_object_or_404(Currency, pk=pk)
+    if request.method == 'POST':
+        form = forms.CurrencyForm(request.POST, instance=currency)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Currency updated.')
+            return redirect('accounting:currency_list')
+    else:
+        form = forms.CurrencyForm(instance=currency)
+    return render(request, 'apps/accounting/currency_form.html', {'form': form, 'title': f'Edit {currency.code}'})
+
+
+@login_required
+@require_POST
+@roles_required('admin', 'accountant')
+def currency_delete(request, pk):
+    currency = get_object_or_404(Currency, pk=pk)
+    currency.delete()
+    messages.success(request, f'Currency "{currency.code}" deleted.')
+    return redirect('accounting:currency_list')
+
+
+# ---------------------------------------------------------------------------
+# Payment Terms Management
+# ---------------------------------------------------------------------------
+@login_required
+@roles_required('admin', 'accountant')
+def paymentterm_list(request):
+    company = _company(request)
+    terms = PaymentTerm.objects.filter(company=company).order_by('name')
+    return render(request, 'apps/accounting/paymentterm_list.html', {'terms': terms})
+
+
+@login_required
+@roles_required('admin', 'accountant')
+def paymentterm_create(request):
+    company = _company(request)
+    if request.method == 'POST':
+        form = forms.PaymentTermForm(request.POST, company=company)
+        if form.is_valid():
+            term = form.save(commit=False)
+            term.company = company
+            term.save()
+            messages.success(request, 'Payment term created.')
+            return redirect('accounting:paymentterm_list')
+    else:
+        form = forms.PaymentTermForm(company=company)
+    return render(request, 'apps/accounting/paymentterm_form.html', {'form': form, 'title': 'New Payment Term'})
+
+
+@login_required
+@roles_required('admin', 'accountant')
+def paymentterm_edit(request, pk):
+    company = _company(request)
+    term = get_object_or_404(PaymentTerm, pk=pk, company=company)
+    if request.method == 'POST':
+        form = forms.PaymentTermForm(request.POST, instance=term, company=company)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Payment term updated.')
+            return redirect('accounting:paymentterm_list')
+    else:
+        form = forms.PaymentTermForm(instance=term, company=company)
+    return render(request, 'apps/accounting/paymentterm_form.html', {'form': form, 'title': f'Edit {term.name}'})
+
+
+@login_required
+@require_POST
+@roles_required('admin', 'accountant')
+def paymentterm_delete(request, pk):
+    company = _company(request)
+    term = get_object_or_404(PaymentTerm, pk=pk, company=company)
+    term.delete()
+    messages.success(request, f'Payment term "{term.name}" deleted.')
+    return redirect('accounting:paymentterm_list')
+
+
+# ---------------------------------------------------------------------------
+# Fiscal Year Management
+# ---------------------------------------------------------------------------
+@login_required
+@roles_required('admin', 'accountant')
+def fiscalyear_list(request):
+    company = _company(request)
+    years = FiscalYear.objects.filter(company=company).order_by('-start_date')
+    return render(request, 'apps/accounting/fiscalyear_list.html', {'years': years})
+
+
+@login_required
+@roles_required('admin', 'accountant')
+def fiscalyear_create(request):
+    company = _company(request)
+    if request.method == 'POST':
+        form = forms.FiscalYearForm(request.POST)
+        if form.is_valid():
+            fy = form.save(commit=False)
+            fy.company = company
+            fy.save()
+            messages.success(request, 'Fiscal year created.')
+            return redirect('accounting:fiscalyear_list')
+    else:
+        form = forms.FiscalYearForm()
+    return render(request, 'apps/accounting/fiscalyear_form.html', {'form': form, 'title': 'New Fiscal Year'})
+
+
+@login_required
+@roles_required('admin', 'accountant')
+def fiscalyear_edit(request, pk):
+    company = _company(request)
+    fy = get_object_or_404(FiscalYear, pk=pk, company=company)
+    if request.method == 'POST':
+        form = forms.FiscalYearForm(request.POST, instance=fy)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Fiscal year updated.')
+            return redirect('accounting:fiscalyear_list')
+    else:
+        form = forms.FiscalYearForm(instance=fy)
+    return render(request, 'apps/accounting/fiscalyear_form.html', {'form': form, 'title': f'Edit {fy.name}'})
+
+
+@login_required
+@require_POST
+@roles_required('admin', 'accountant')
+def fiscalyear_delete(request, pk):
+    company = _company(request)
+    fy = get_object_or_404(FiscalYear, pk=pk, company=company)
+    fy.delete()
+    messages.success(request, f'Fiscal year "{fy.name}" deleted.')
+    return redirect('accounting:fiscalyear_list')

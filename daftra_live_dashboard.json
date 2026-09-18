@@ -1,0 +1,143 @@
+{
+  "url": "https://moustafazen90.daftra.com/",
+  "title": "لوحة التحكم - mostafa",
+  "menus": [],
+  "buttons": [
+    {
+      "text": "كل التطبيقات",
+      "href": ""
+    },
+    {
+      "text": "المبيعات",
+      "href": ""
+    },
+    {
+      "text": "إدارة علاقات العملاء",
+      "href": ""
+    },
+    {
+      "text": "الموارد البشرية",
+      "href": ""
+    },
+    {
+      "text": "المخزون و المشتريات",
+      "href": ""
+    },
+    {
+      "text": "التشغيل",
+      "href": ""
+    },
+    {
+      "text": "الحسابات العامة",
+      "href": ""
+    },
+    {
+      "text": "الاعدادات العامة",
+      "href": ""
+    },
+    {
+      "text": "العودة",
+      "href": ""
+    },
+    {
+      "text": "لاتوجد بيانات متاحة",
+      "href": ""
+    },
+    {
+      "text": "لاتوجد بيانات متاحة",
+      "href": ""
+    },
+    {
+      "text": "صرف النظر",
+      "href": "#"
+    },
+    {
+      "text": "عدم الظهور مرة أخرى",
+      "href": "#"
+    },
+    {
+      "text": "بحث",
+      "href": ""
+    },
+    {
+      "text": "بحث",
+      "href": ""
+    },
+    {
+      "text": "الفواتير",
+      "href": "#Revenue"
+    },
+    {
+      "text": "الربح والخسارة",
+      "href": "#Profit"
+    },
+    {
+      "text": "أحدث الفواتير",
+      "href": "#actions-tab1"
+    },
+    {
+      "text": "فواتير متأخرة عن الدفع",
+      "href": "#actions-tab2"
+    },
+    {
+      "text": "التفاصيل",
+      "href": "/owner/reports/revenue?report_type=period&date_from=2025-09-18&date_to=2026-09-18&period_type=daily&group_by=monthly"
+    },
+    {
+      "text": "لاتوجد بيانات متاحة",
+      "href": ""
+    },
+    {
+      "text": "لاتوجد بيانات متاحة",
+      "href": ""
+    },
+    {
+      "text": "التفاصيل",
+      "href": "/owner/reports/profit?type=monthly&income_type=payment&date_from=2025-10-18&currency=-1&"
+    },
+    {
+      "text": "مستحق",
+      "href": "javascript:void(0)"
+    },
+    {
+      "text": "نقدي",
+      "href": "javascript:void(0)"
+    },
+    {
+      "text": "إحصائيات",
+      "href": "#Payment"
+    },
+    {
+      "text": "أحدث المدفوعات",
+      "href": "#payments-tab-2"
+    },
+    {
+      "text": "التفاصيل",
+      "href": "/owner/reports/payments?group_by=monthly&date_from=2025-09-18&date_to=2026-09-18&is_summary=1&report_type=payment&type=payment&currency=-1"
+    },
+    {
+      "text": "لديك سؤال",
+      "href": ""
+    },
+    {
+      "text": "×",
+      "href": ""
+    },
+    {
+      "text": "نعم",
+      "href": ""
+    },
+    {
+      "text": "لا",
+      "href": ""
+    },
+    {
+      "text": "Clear",
+      "href": ""
+    },
+    {
+      "text": "Close",
+      "href": ""
+    }
+  ]
+}

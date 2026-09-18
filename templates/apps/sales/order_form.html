@@ -39,7 +39,56 @@
     <div class="mt-6 flex items-center gap-3">
       <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-700">{{ t.CREATE_ORDER_BTN }}</button>
       <a href="{% url 'sales:order_list' %}" class="rounded-lg border border-slate-300 px-5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">{{ t.CANCEL }}</a>
-    </div>
-  </form>
+  </div>
+</form>
 </div>
+
+<!-- Real-Time Totals Display Card -->
+<div class="mx-auto max-w-4xl mt-4 rounded-2xl border border-indigo-200 bg-indigo-50/50 p-4 shadow-sm flex items-center justify-between">
+  <span class="text-xs font-semibold text-slate-700">المبلغ الإجمالي التقريبي المحدث لحظياً:</span>
+  <span id="liveGrandTotal" class="text-lg font-bold text-indigo-700">0.00</span>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  function recalculateTotals() {
+    let subtotal = 0;
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+      const delCheckbox = row.querySelector('input[name$="-DELETE"]');
+      if (delCheckbox && delCheckbox.checked) return;
+
+      const qtyInput = row.querySelector('input[name$="-quantity"]');
+      const priceInput = row.querySelector('input[name$="-price"]');
+      const discPercentInput = row.querySelector('input[name$="-discount_percent"]');
+      const discAmountInput = row.querySelector('input[name$="-discount_amount"]');
+      const discTypeSelect = row.querySelector('select[name$="-discount_type"]');
+
+      const qty = parseFloat(qtyInput?.value) || 0;
+      const price = parseFloat(priceInput?.value) || 0;
+      let gross = qty * price;
+      let disc = 0;
+
+      if (discTypeSelect && discTypeSelect.value === 'fixed') {
+        disc = parseFloat(discAmountInput?.value) || 0;
+      } else {
+        const discPercent = parseFloat(discPercentInput?.value) || 0;
+        disc = gross * (discPercent / 100);
+      }
+
+      let net = Math.max(0, gross - disc);
+      subtotal += net;
+    });
+
+    const grandTotalEl = document.getElementById('liveGrandTotal');
+    if (grandTotalEl) {
+      grandTotalEl.innerText = Math.max(0, subtotal).toFixed(2);
+    }
+  }
+
+  document.addEventListener('input', recalculateTotals);
+  document.addEventListener('change', recalculateTotals);
+  recalculateTotals();
+});
+</script>
 {% endblock %}

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: 80mm auto; margin: 5mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Courier New', monospace; font-size: 9pt; color: #000; line-height: 1.4; width: 70mm; }
+  .center { text-align: center; }
+  .bold { font-weight: bold; }
+  .divider { border-top: 1px dashed #000; margin: 4px 0; }
+  .divider-double { border-top: 2px solid #000; margin: 4px 0; }
+  .row { display: flex; justify-content: space-between; }
+  .header { text-align: center; margin-bottom: 6px; }
+  .header .company { font-size: 12pt; font-weight: bold; }
+  .header .tax-id { font-size: 7pt; color: #555; }
+  .info-line { font-size: 8pt; margin: 1px 0; }
+  .item-row { margin: 3px 0; }
+  .item-desc { font-size: 8pt; color: #444; }
+  .totals { margin-top: 4px; }
+  .totals .row { padding: 1px 0; }
+  .grand-total { font-size: 10pt; font-weight: bold; border-top: 2px solid #000; padding-top: 3px; margin-top: 3px; }
+  .qr-section { text-align: center; margin-top: 8px; }
+  .qr-section img { width: 50mm; height: 50mm; }
+  .footer { text-align: center; font-size: 7pt; color: #555; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="company">{{ company.name }}</div>
+  {% if company.tax_id %}<div class="tax-id">Tax ID: {{ company.tax_id }}</div>{% endif %}
+  {% if company.phone %}<div class="tax-id">{{ company.phone }}</div>{% endif %}
+</div>
+
+<div class="divider-double"></div>
+
+<div class="center bold" style="font-size:11pt;">INVOICE</div>
+
+<div class="divider"></div>
+
+<div class="info-line"><span class="bold">No:</span> {{ invoice.number }}</div>
+<div class="info-line"><span class="bold">Date:</span> {{ invoice.invoice_date }}</div>
+{% if invoice.due_date %}<div class="info-line"><span class="bold">Due:</span> {{ invoice.due_date }}</div>{% endif %}
+<div class="info-line"><span class="bold">Customer:</span> {{ invoice.customer.name }}</div>
+
+<div class="divider"></div>
+
+<div class="row bold" style="font-size:8pt;">
+  <span>Item</span>
+  <span>Qty x Price</span>
+  <span>Total</span>
+</div>
+<div class="divider"></div>
+
+{% for line in invoice.lines.all %}
+<div class="item-row">
+  <div class="bold">{{ line.product }}</div>
+  {% if line.description %}<div class="item-desc">{{ line.description }}</div>{% endif %}
+  <div class="row">
+    <span>{{ line.quantity }} x {{ line.price|floatformat:2 }}</span>
+    <span class="bold">{{ line.line_total|floatformat:2 }}</span>
+  </div>
+  {% if line.discount_percent %}<div class="item-desc">Disc: {{ line.discount_percent|floatformat:1 }}%</div>{% endif %}
+</div>
+{% endfor %}
+
+<div class="divider-double"></div>
+
+<div class="totals">
+  <div class="row"><span>Subtotal:</span><span>{{ invoice.total|floatformat:2 }}</span></div>
+  {% if invoice.global_discount_value %}
+  <div class="row"><span>Discount:</span><span>-{{ invoice.global_discount_value|floatformat:2 }}</span></div>
+  {% endif %}
+  {% if invoice.shipping_amount %}
+  <div class="row"><span>Shipping:</span><span>+{{ invoice.shipping_amount|floatformat:2 }}</span></div>
+  {% endif %}
+  <div class="row grand-total"><span>TOTAL:</span><span>{{ invoice.total|floatformat:2 }}</span></div>
+  {% if invoice.paid_total %}
+  <div class="row"><span>Paid:</span><span>-{{ invoice.paid_total|floatformat:2 }}</span></div>
+  {% endif %}
+  <div class="row grand-total"><span>DUE:</span><span>{{ invoice.amount_due|floatformat:2 }}</span></div>
+</div>
+
+<div class="divider-double"></div>
+
+{% if qr_data_uri %}
+<div class="qr-section">
+  <img src="{{ qr_data_uri }}" alt="QR Code" />
+</div>
+{% endif %}
+
+{% if invoice.memo %}
+<div class="divider"></div>
+<div class="footer">{{ invoice.memo }}</div>
+{% endif %}
+
+<div class="divider"></div>
+<div class="footer">Thank you for your business!</div>
+
+</body>
+</html>

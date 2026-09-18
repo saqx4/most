@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Import Suppliers{% endblock %}
+{% block page_title %}Import Suppliers{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto">
+  <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-glass dark:border-gray-800 dark:bg-gray-900">
+    <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Import Suppliers from CSV/Excel</h2>
+    <p class="mb-4 text-sm text-gray-500">Upload a CSV or Excel file. Required column: <strong>name</strong>. Optional: contact_person, email, phone, tax_id.</p>
+    <form method="post" enctype="multipart/form-data" class="space-y-4">
+      {% csrf_token %}
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Select File</label>
+        <input type="file" name="file" accept=".csv,.xlsx,.xls" required class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none">
+      </div>
+      <div class="flex gap-3">
+        <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">Import</button>
+        <a href="{% url 'purchasing:supplier_list' %}" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

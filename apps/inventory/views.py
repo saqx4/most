@@ -10,7 +10,7 @@ from apps.core.decorators import roles_required
 from apps.core.services import get_company
 from apps.inventory.forms import (CategoryForm, ProductForm, StockAdjustmentForm,
                                   StockAdjustmentLineForm, StockTransferForm,
-                                  StockTransferLineForm, WarehouseForm)
+                                  StockTransferLineForm, UnitOfMeasureForm, WarehouseForm)
 from apps.inventory.models import (Category, Product, StockLevel, StockMovement,
                                    StockAdjustment, StockAdjustmentLine,
                                    StockTransfer, StockTransferLine, Warehouse)
@@ -197,6 +197,25 @@ def product_export(request):
     return export_to_csv(qs, fields, 'products.csv')
 
 
+@login_required
+@roles_required('warehouse', 'admin')
+def product_import(request):
+    company = _company(request)
+    if request.method == 'POST':
+        file = request.FILES.get('file')
+        if not file:
+            messages.error(request, 'Please upload a file.')
+            return redirect('inventory:product_list')
+        from apps.core.export import import_products_from_file
+        count, errors = import_products_from_file(file, company, user=request.user)
+        if errors:
+            for e in errors[:5]:
+                messages.warning(request, e)
+        messages.success(request, f'{count} product(s) imported successfully.')
+        return redirect('inventory:product_list')
+    return render(request, 'apps/inventory/product_import.html')
+
+
 # ---------------------------------------------------------------------------
 # Category Management
 # ---------------------------------------------------------------------------
@@ -314,3 +333,116 @@ def warehouse_delete(request, pk):
     wh.delete()
     messages.success(request, f'Warehouse "{wh.name}" deleted.')
     return redirect('inventory:warehouse_list')
+
+
+# ---------------------------------------------------------------------------
+# Daftra Stock Vouchers (أذون المخزن)
+# ---------------------------------------------------------------------------
+@login_required
+@roles_required('warehouse', 'admin')
+def stock_voucher_list(request):
+    company = _company(request)
+    from apps.inventory.models import StockVoucher
+    vouchers = StockVoucher.objects.filter(company=company).select_related('warehouse', 'to_warehouse')
+    v_type = request.GET.get('type')
+    if v_type:
+        vouchers = vouchers.filter(voucher_type=v_type)
+    return render(request, 'apps/inventory/voucher_list.html', {'vouchers': vouchers, 'v_type': v_type})
+
+
+@login_required
+@roles_required('warehouse', 'admin')
+def stock_voucher_create(request):
+    company = _company(request)
+    if company is None:
+        messages.error(request, 'No company configured yet.')
+        return redirect('inventory:stock_voucher_list')
+
+    from apps.inventory.models import StockVoucher, StockVoucherLine
+    from apps.inventory.forms import StockVoucherForm, StockVoucherLineForm
+    from django.forms import inlineformset_factory
+
+    LineFormSet = inlineformset_factory(StockVoucher, StockVoucherLine, form=StockVoucherLineForm, extra=2, can_delete=True, min_num=1, validate_min=True)
+
+    if request.method == 'POST':
+        form = StockVoucherForm(request.POST, company=company)
+        formset = LineFormSet(request.POST, form_kwargs={'company': company})
+        if form.is_valid() and formset.is_valid():
+            voucher = form.save(commit=False)
+            voucher.company = company
+            voucher.created_by = request.user
+            from apps.sales.services import next_number
+            voucher.number = next_number(company, 'VCH')
+            voucher.save()
+            formset.instance = voucher
+            formset.save()
+            messages.success(request, f'Stock voucher {voucher.number} created.')
+            return redirect('inventory:stock_voucher_detail', pk=voucher.pk)
+    else:
+        form = StockVoucherForm(company=company)
+        formset = LineFormSet(form_kwargs={'company': company})
+
+    return render(request, 'apps/inventory/voucher_form.html', {'form': form, 'formset': formset})
+
+
+@login_required
+@roles_required('warehouse', 'admin')
+def stock_voucher_detail(request, pk):
+    company = _company(request)
+    from apps.inventory.models import StockVoucher
+    voucher = get_object_or_404(StockVoucher.objects.select_related('warehouse', 'to_warehouse', 'created_by'), pk=pk, company=company)
+    lines = voucher.lines.select_related('product')
+    return render(request, 'apps/inventory/voucher_detail.html', {'voucher': voucher, 'lines': lines})
+
+
+# ---------------------------------------------------------------------------
+# Unit of Measure Management
+# ---------------------------------------------------------------------------
+@login_required
+@roles_required('warehouse', 'admin')
+def uom_list(request):
+    from apps.inventory.models import UnitOfMeasure
+    uoms = UnitOfMeasure.objects.all().order_by('code')
+    return render(request, 'apps/inventory/uom_list.html', {'uoms': uoms})
+
+
+@login_required
+@roles_required('warehouse', 'admin')
+def uom_create(request):
+    from apps.inventory.models import UnitOfMeasure
+    if request.method == 'POST':
+        form = UnitOfMeasureForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Unit of measure created.')
+            return redirect('inventory:uom_list')
+    else:
+        form = UnitOfMeasureForm()
+    return render(request, 'apps/inventory/uom_form.html', {'form': form, 'title': 'New Unit of Measure'})
+
+
+@login_required
+@roles_required('warehouse', 'admin')
+def uom_edit(request, pk):
+    from apps.inventory.models import UnitOfMeasure
+    uom = get_object_or_404(UnitOfMeasure, pk=pk)
+    if request.method == 'POST':
+        form = UnitOfMeasureForm(request.POST, instance=uom)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Unit of measure updated.')
+            return redirect('inventory:uom_list')
+    else:
+        form = UnitOfMeasureForm(instance=uom)
+    return render(request, 'apps/inventory/uom_form.html', {'form': form, 'title': f'Edit {uom.code}'})
+
+
+@login_required
+@require_POST
+@roles_required('warehouse', 'admin')
+def uom_delete(request, pk):
+    from apps.inventory.models import UnitOfMeasure
+    uom = get_object_or_404(UnitOfMeasure, pk=pk)
+    uom.delete()
+    messages.success(request, f'Unit of measure "{uom.code}" deleted.')
+    return redirect('inventory:uom_list')

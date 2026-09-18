@@ -2,9 +2,9 @@
 {% block title %}{{ periodic.number }}{% endblock %}
 {% block page_title %}Periodic Invoice {{ periodic.number }}{% endblock %}
 {% block content %}
-<div class="mb-4 flex items-center justify-between">
+<div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
   <a href="{% url 'sales:periodic_list' %}" class="text-sm text-indigo-600 hover:underline"><i class="ri-arrow-left-line"></i> {{ t.BACK_TO_PERIODIC_INVOICES }}</a>
-  <div class="flex items-center gap-3">
+  <div class="flex flex-wrap items-center gap-3">
     {% if periodic.status == 'active' or periodic.status == 'paused' %}
     <form method="post" action="{% url 'sales:periodic_toggle' periodic.pk %}">{% csrf_token %}
       {% if periodic.status == 'active' %}

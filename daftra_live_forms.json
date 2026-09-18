@@ -1,0 +1,2066 @@
+{
+  "create_invoice": {
+    "title": "فاتورة جديدة - mostafa",
+    "currentUrl": "https://moustafazen90.daftra.com/owner/invoices/add",
+    "fieldsCount": 82,
+    "fields": [
+      {
+        "name": "invoice_layout_id",
+        "type": "select-one",
+        "label": "قالب الفاتورة",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][is_offline]",
+        "type": "select-one",
+        "label": "الطريقة:",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_id]",
+        "type": "select-one",
+        "label": "العميل *",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][currency_code]",
+        "type": "select-one",
+        "label": "العملة *",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_type]",
+        "type": "radio",
+        "label": "فردي",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_type]",
+        "type": "radio",
+        "label": "تجاري",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_business_name]",
+        "type": "text",
+        "label": "الاسم التجاري *",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_first_name]",
+        "type": "text",
+        "label": "First name",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_last_name]",
+        "type": "text",
+        "label": "Last name",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_email]",
+        "type": "email",
+        "label": "البريد الإلكتروني",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_address1]",
+        "type": "text",
+        "label": "عنوان الشارع 1",
+        "placeholder": "عنوان الشارع 1"
+      },
+      {
+        "name": "data[Invoice][client_address2]",
+        "type": "text",
+        "label": "عنوان الشارع 2",
+        "placeholder": "عنوان الشارع 2"
+      },
+      {
+        "name": "data[Invoice][client_city]",
+        "type": "text",
+        "label": "مدينة العميل",
+        "placeholder": "المدينة"
+      },
+      {
+        "name": "data[Invoice][client_state]",
+        "type": "text",
+        "label": "محافظة/منطقة العميل",
+        "placeholder": "المنطقة"
+      },
+      {
+        "name": "data[Invoice][client_postal_code]",
+        "type": "text",
+        "label": "الرقم البريدي للعميل",
+        "placeholder": "الرمز البريدي"
+      },
+      {
+        "name": "data[Invoice][client_phone1]",
+        "type": "tel",
+        "label": "الهاتف",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_phone2]",
+        "type": "tel",
+        "label": "جوال",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_country_code]",
+        "type": "select-one",
+        "label": "البلد",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_bn1]",
+        "type": "text",
+        "label": "سجل تجاري (اختياري)",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_bn2]",
+        "type": "text",
+        "label": "الرقم الضريبي (اختياري)",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_active_secondary_address]",
+        "type": "checkbox",
+        "label": "إضافة عنوان شحن",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_secondary_name]",
+        "type": "text",
+        "label": "الاسم",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_secondary_address1]",
+        "type": "text",
+        "label": "عنوان الشارع 1",
+        "placeholder": "عنوان الشارع 1"
+      },
+      {
+        "name": "data[Invoice][client_secondary_address2]",
+        "type": "text",
+        "label": "عنوان الشارع 2",
+        "placeholder": "عنوان الشارع 2"
+      },
+      {
+        "name": "data[Invoice][client_secondary_city]",
+        "type": "text",
+        "label": "مدينة العميل الثاني",
+        "placeholder": "المدينة"
+      },
+      {
+        "name": "data[Invoice][client_secondary_state]",
+        "type": "text",
+        "label": "ولاية العميل الثاني",
+        "placeholder": "المنطقة"
+      },
+      {
+        "name": "data[Invoice][client_secondary_postal_code]",
+        "type": "text",
+        "label": "Client Secondary Postal Code",
+        "placeholder": "الرمز البريدي"
+      },
+      {
+        "name": "data[Invoice][client_secondary_country_code]",
+        "type": "select-one",
+        "label": "البلد",
+        "placeholder": ""
+      },
+      {
+        "name": "UpdateClientData",
+        "type": "checkbox",
+        "label": "تحديث معلومات العميل",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][no]",
+        "type": "text",
+        "label": "رقم الفاتورة",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][date]",
+        "type": "text",
+        "label": "تاريخ الفاتورة",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][sales_person_id]",
+        "type": "select-one",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][issue_date]",
+        "type": "text",
+        "label": "تاريخ الإصدار",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][due_after]",
+        "type": "number",
+        "label": "شروط الدفع",
+        "placeholder": ""
+      },
+      {
+        "name": "data[JournalAccountRoute][account_id]",
+        "type": "select-one",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[InvoiceItem][0][item]",
+        "type": "textarea",
+        "label": "",
+        "placeholder": "البند"
+      },
+      {
+        "name": "data[InvoiceItem][0][description]",
+        "type": "textarea",
+        "label": "",
+        "placeholder": "الوصف"
+      },
+      {
+        "name": "data[InvoiceItem][0][col_3]",
+        "type": "textarea",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[InvoiceItem][0][col_4]",
+        "type": "textarea",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[InvoiceItem][0][col_5]",
+        "type": "textarea",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[InvoiceItem][0][store_id]",
+        "type": "select-one",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[InvoiceItem][0][sales_person_id]",
+        "type": "select-one",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[InvoiceItem][0][unit_price]",
+        "type": "number",
+        "label": "",
+        "placeholder": "سعر الوحدة"
+      },
+      {
+        "name": "data[InvoiceItem][0][quantity]",
+        "type": "number",
+        "label": "",
+        "placeholder": "الكمية"
+      },
+      {
+        "name": "data[InvoiceItem][0][discount]",
+        "type": "number",
+        "label": "",
+        "placeholder": "الخصم"
+      },
+      {
+        "name": "data[InvoiceItem][0][discount_type]",
+        "type": "select-one",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[InvoiceItem][0][tax1]",
+        "type": "select-one",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[InvoiceItem][0][tax2]",
+        "type": "select-one",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][discount]",
+        "type": "number",
+        "label": "",
+        "placeholder": "0"
+      },
+      {
+        "name": "data[Invoice][discount_amount]",
+        "type": "number",
+        "label": "",
+        "placeholder": "0"
+      },
+      {
+        "name": "discount_type",
+        "type": "select-one",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][adjustment_label]",
+        "type": "text",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][adjustment_value]",
+        "type": "number",
+        "label": "",
+        "placeholder": "0.00"
+      },
+      {
+        "name": "data[JournalAccountAdjustmentRoute][account_id]",
+        "type": "select-one",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][shipping_options]",
+        "type": "select-one",
+        "label": "بيانات الشحن",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][shipping_amount]",
+        "type": "text",
+        "label": "مصاريف الشحن",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][store_id]",
+        "type": "select-one",
+        "label": "المستودع",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][show_item_stores]",
+        "type": "checkbox",
+        "label": "اختيار المستودع لكل بند",
+        "placeholder": ""
+      },
+      {
+        "name": "doc",
+        "type": "select-one",
+        "label": "المستند",
+        "placeholder": ""
+      },
+      {
+        "name": "",
+        "type": "text",
+        "label": "المستند",
+        "placeholder": "enter title"
+      },
+      {
+        "name": "data[Deposit][is_paid]",
+        "type": "checkbox",
+        "label": "(مدفوع بالفعل                                                   )",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][deposit]",
+        "type": "number",
+        "label": "",
+        "placeholder": "0"
+      },
+      {
+        "name": "data[Invoice][deposit_type]",
+        "type": "select-one",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Deposit][payment_method]",
+        "type": "select-one",
+        "label": "وسيلة دفع",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Deposit][transaction_id]",
+        "type": "text",
+        "label": "رقم المعرف",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][html_notes]",
+        "type": "textarea",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "",
+        "type": "text",
+        "label": "Text to display",
+        "placeholder": ""
+      },
+      {
+        "name": "",
+        "type": "text",
+        "label": "To what URL should this link go?",
+        "placeholder": ""
+      },
+      {
+        "name": "files",
+        "type": "file",
+        "label": "Select from files",
+        "placeholder": ""
+      },
+      {
+        "name": "",
+        "type": "text",
+        "label": "Image URL",
+        "placeholder": ""
+      },
+      {
+        "name": "",
+        "type": "text",
+        "label": "Video URL? (YouTube, Vimeo, Vine, Instagram, DailyMotion or Youku)",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Payment][is_paid]",
+        "type": "checkbox",
+        "label": "مدفوع بالفعل",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Payment][payment_method]",
+        "type": "select-one",
+        "label": "وسيلة دفع",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Payment][transaction_id]",
+        "type": "text",
+        "label": "رقم المعرف",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][name]",
+        "type": "text",
+        "label": "القالب",
+        "placeholder": ""
+      },
+      {
+        "name": "search_product",
+        "type": "text",
+        "label": "",
+        "placeholder": "البحث عن المنتجات"
+      },
+      {
+        "name": "clr-color-value",
+        "type": "text",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-hue-slider",
+        "type": "range",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-alpha-slider",
+        "type": "range",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-format",
+        "type": "radio",
+        "label": "Hex",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-format",
+        "type": "radio",
+        "label": "RGB",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-format",
+        "type": "radio",
+        "label": "HSL",
+        "placeholder": ""
+      }
+    ],
+    "buttons": [
+      "كل التطبيقات",
+      "المبيعات",
+      "إدارة علاقات العملاء",
+      "الموارد البشرية",
+      "المخزون و المشتريات",
+      "التشغيل",
+      "الحسابات العامة",
+      "الاعدادات العامة",
+      "العودة",
+      "طباعة",
+      "(اختر عميل)",
+      "EGP جنيه مصري",
+      "تحديث",
+      "الحساب الافتراضي",
+      "خيارات اخرى",
+      "الحساب الافتراضي",
+      "إضافة تذكير",
+      "Select Document",
+      "أرفق",
+      "بحث متقدم",
+      "11",
+      "Transparent",
+      "Reset to default",
+      "×",
+      "Insert Link",
+      "×",
+      "Insert Image",
+      "×",
+      "Insert Video",
+      "×",
+      "فردي",
+      "معاينة",
+      "Toggle Dropdown",
+      "حفظ كـ\nمسودة",
+      "حفظ وطباعة",
+      "حفظ وإرسال بريد",
+      "Toggle Dropdown",
+      "تعديل",
+      "{{Change}}",
+      "{{Ignore}}",
+      "لديك سؤال",
+      "×",
+      "نعم",
+      "لا",
+      "Clear",
+      "Close",
+      "100%",
+      "50%",
+      "25%"
+    ]
+  },
+  "create_estimate": {
+    "title": "عرض سعر جديد - mostafa",
+    "currentUrl": "https://moustafazen90.daftra.com/owner/invoices/add_estimate",
+    "fieldsCount": 72,
+    "fields": [
+      {
+        "name": "invoice_layout_id",
+        "type": "select-one",
+        "label": "قالب الفاتورة",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][is_offline]",
+        "type": "select-one",
+        "label": "الطريقة:",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_id]",
+        "type": "select-one",
+        "label": "العميل *",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][currency_code]",
+        "type": "select-one",
+        "label": "العملة *",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_type]",
+        "type": "radio",
+        "label": "فردي",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_type]",
+        "type": "radio",
+        "label": "تجاري",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_business_name]",
+        "type": "text",
+        "label": "الاسم التجاري *",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_first_name]",
+        "type": "text",
+        "label": "First name",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_last_name]",
+        "type": "text",
+        "label": "Last name",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_email]",
+        "type": "email",
+        "label": "البريد الإلكتروني",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_address1]",
+        "type": "text",
+        "label": "عنوان الشارع 1",
+        "placeholder": "عنوان الشارع 1"
+      },
+      {
+        "name": "data[Invoice][client_address2]",
+        "type": "text",
+        "label": "عنوان الشارع 2",
+        "placeholder": "عنوان الشارع 2"
+      },
+      {
+        "name": "data[Invoice][client_city]",
+        "type": "text",
+        "label": "مدينة العميل",
+        "placeholder": "المدينة"
+      },
+      {
+        "name": "data[Invoice][client_state]",
+        "type": "text",
+        "label": "محافظة/منطقة العميل",
+        "placeholder": "المنطقة"
+      },
+      {
+        "name": "data[Invoice][client_postal_code]",
+        "type": "text",
+        "label": "الرقم البريدي للعميل",
+        "placeholder": "الرمز البريدي"
+      },
+      {
+        "name": "data[Invoice][client_phone1]",
+        "type": "tel",
+        "label": "الهاتف",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_phone2]",
+        "type": "tel",
+        "label": "جوال",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_country_code]",
+        "type": "select-one",
+        "label": "البلد",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_bn1]",
+        "type": "text",
+        "label": "سجل تجاري (اختياري)",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_bn2]",
+        "type": "text",
+        "label": "الرقم الضريبي (اختياري)",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_active_secondary_address]",
+        "type": "checkbox",
+        "label": "إضافة عنوان شحن",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_secondary_name]",
+        "type": "text",
+        "label": "الاسم",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][client_secondary_address1]",
+        "type": "text",
+        "label": "عنوان الشارع 1",
+        "placeholder": "عنوان الشارع 1"
+      },
+      {
+        "name": "data[Invoice][client_secondary_address2]",
+        "type": "text",
+        "label": "عنوان الشارع 2",
+        "placeholder": "عنوان الشارع 2"
+      },
+      {
+        "name": "data[Invoice][client_secondary_city]",
+        "type": "text",
+        "label": "مدينة العميل الثاني",
+        "placeholder": "المدينة"
+      },
+      {
+        "name": "data[Invoice][client_secondary_state]",
+        "type": "text",
+        "label": "ولاية العميل الثاني",
+        "placeholder": "المنطقة"
+      },
+      {
+        "name": "data[Invoice][client_secondary_postal_code]",
+        "type": "text",
+        "label": "Client Secondary Postal Code",
+        "placeholder": "الرمز البريدي"
+      },
+      {
+        "name": "data[Invoice][client_secondary_country_code]",
+        "type": "select-one",
+        "label": "البلد",
+        "placeholder": ""
+      },
+      {
+        "name": "UpdateClientData",
+        "type": "checkbox",
+        "label": "تحديث معلومات العميل",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][no]",
+        "type": "text",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][date]",
+        "type": "text",
+        "label": "تاريخ عرض الأسعار",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][sales_person_id]",
+        "type": "select-one",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][issue_date]",
+        "type": "text",
+        "label": "تاريخ الإصدار",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][due_after]",
+        "type": "number",
+        "label": "صالح لمدة",
+        "placeholder": ""
+      },
+      {
+        "name": "data[InvoiceItem][0][item]",
+        "type": "textarea",
+        "label": "",
+        "placeholder": "البند"
+      },
+      {
+        "name": "data[InvoiceItem][0][description]",
+        "type": "textarea",
+        "label": "",
+        "placeholder": "الوصف"
+      },
+      {
+        "name": "data[InvoiceItem][0][col_3]",
+        "type": "textarea",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[InvoiceItem][0][col_4]",
+        "type": "textarea",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[InvoiceItem][0][col_5]",
+        "type": "textarea",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[InvoiceItem][0][store_id]",
+        "type": "select-one",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[InvoiceItem][0][sales_person_id]",
+        "type": "select-one",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[InvoiceItem][0][unit_price]",
+        "type": "number",
+        "label": "",
+        "placeholder": "سعر الوحدة"
+      },
+      {
+        "name": "data[InvoiceItem][0][quantity]",
+        "type": "number",
+        "label": "",
+        "placeholder": "الكمية"
+      },
+      {
+        "name": "data[InvoiceItem][0][discount]",
+        "type": "number",
+        "label": "",
+        "placeholder": "الخصم"
+      },
+      {
+        "name": "data[InvoiceItem][0][discount_type]",
+        "type": "select-one",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[InvoiceItem][0][tax1]",
+        "type": "select-one",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[InvoiceItem][0][tax2]",
+        "type": "select-one",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][discount]",
+        "type": "number",
+        "label": "",
+        "placeholder": "0"
+      },
+      {
+        "name": "data[Invoice][discount_amount]",
+        "type": "number",
+        "label": "",
+        "placeholder": "0"
+      },
+      {
+        "name": "discount_type",
+        "type": "select-one",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][adjustment_label]",
+        "type": "text",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][adjustment_value]",
+        "type": "number",
+        "label": "",
+        "placeholder": "0.00"
+      },
+      {
+        "name": "data[JournalAccountAdjustmentRoute][account_id]",
+        "type": "select-one",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][shipping_options]",
+        "type": "select-one",
+        "label": "بيانات الشحن",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][shipping_amount]",
+        "type": "text",
+        "label": "مصاريف الشحن",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][store_id]",
+        "type": "select-one",
+        "label": "المستودع",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Invoice][show_item_stores]",
+        "type": "checkbox",
+        "label": "اختيار المستودع لكل بند",
+        "placeholder": ""
+      },
+      {
+        "name": "doc",
+        "type": "select-one",
+        "label": "المستند",
+        "placeholder": ""
+      },
+      {
+        "name": "",
+        "type": "text",
+        "label": "المستند",
+        "placeholder": "enter title"
+      },
+      {
+        "name": "data[Invoice][html_notes]",
+        "type": "textarea",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "",
+        "type": "text",
+        "label": "Text to display",
+        "placeholder": ""
+      },
+      {
+        "name": "",
+        "type": "text",
+        "label": "To what URL should this link go?",
+        "placeholder": ""
+      },
+      {
+        "name": "files",
+        "type": "file",
+        "label": "Select from files",
+        "placeholder": ""
+      },
+      {
+        "name": "",
+        "type": "text",
+        "label": "Image URL",
+        "placeholder": ""
+      },
+      {
+        "name": "",
+        "type": "text",
+        "label": "Video URL? (YouTube, Vimeo, Vine, Instagram, DailyMotion or Youku)",
+        "placeholder": ""
+      },
+      {
+        "name": "search_product",
+        "type": "text",
+        "label": "",
+        "placeholder": "البحث عن المنتجات"
+      },
+      {
+        "name": "clr-color-value",
+        "type": "text",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-hue-slider",
+        "type": "range",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-alpha-slider",
+        "type": "range",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-format",
+        "type": "radio",
+        "label": "Hex",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-format",
+        "type": "radio",
+        "label": "RGB",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-format",
+        "type": "radio",
+        "label": "HSL",
+        "placeholder": ""
+      }
+    ],
+    "buttons": [
+      "كل التطبيقات",
+      "المبيعات",
+      "إدارة علاقات العملاء",
+      "الموارد البشرية",
+      "المخزون و المشتريات",
+      "التشغيل",
+      "الحسابات العامة",
+      "الاعدادات العامة",
+      "العودة",
+      "طباعة",
+      "(اختر عميل)",
+      "EGP جنيه مصري",
+      "تحديث",
+      "خيارات اخرى",
+      "الحساب الافتراضي",
+      "إضافة تذكير",
+      "Select Document",
+      "أرفق",
+      "بحث متقدم",
+      "11",
+      "Transparent",
+      "Reset to default",
+      "×",
+      "Insert Link",
+      "×",
+      "Insert Image",
+      "×",
+      "Insert Video",
+      "×",
+      "معاينة",
+      "Toggle Dropdown",
+      "حفظ كـ\nمسودة",
+      "حفظ وطباعة",
+      "حفظ وإرسال بريد",
+      "Toggle Dropdown",
+      "تعديل",
+      "{{Change}}",
+      "{{Ignore}}",
+      "لديك سؤال",
+      "×",
+      "نعم",
+      "لا",
+      "Clear",
+      "Close",
+      "100%",
+      "50%",
+      "25%"
+    ]
+  },
+  "create_credit_note": {
+    "title": "إشعارات دائنة - mostafa",
+    "currentUrl": "https://moustafazen90.daftra.com/owner/invoices/creditnotes/add",
+    "fieldsCount": 32,
+    "fields": [
+      {
+        "name": "select_all_chk",
+        "type": "checkbox",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "client_id",
+        "type": "select-one",
+        "label": "العميل",
+        "placeholder": ""
+      },
+      {
+        "name": "",
+        "type": "text",
+        "label": "العميل",
+        "placeholder": "enter name, email, phone, barcode..."
+      },
+      {
+        "name": "no",
+        "type": "text",
+        "label": "رقم الفاتورة",
+        "placeholder": ""
+      },
+      {
+        "name": "item",
+        "type": "text",
+        "label": "تحتوي على البند",
+        "placeholder": ""
+      },
+      {
+        "name": "currency_code",
+        "type": "select-one",
+        "label": "العملة",
+        "placeholder": ""
+      },
+      {
+        "name": "summary_total_from",
+        "type": "text",
+        "label": "الإجمالي أكبر من",
+        "placeholder": ""
+      },
+      {
+        "name": "summary_total_to",
+        "type": "text",
+        "label": "الإجمالي أقل من",
+        "placeholder": ""
+      },
+      {
+        "name": "date_selector",
+        "type": "select-one",
+        "label": "التاريخ",
+        "placeholder": ""
+      },
+      {
+        "name": "date_from",
+        "type": "text",
+        "label": "التاريخ",
+        "placeholder": "من"
+      },
+      {
+        "name": "date_to",
+        "type": "text",
+        "label": "التاريخ",
+        "placeholder": "إلى"
+      },
+      {
+        "name": "due_date_selector",
+        "type": "select-one",
+        "label": "تاريخ الاستحقاق",
+        "placeholder": ""
+      },
+      {
+        "name": "due_date_from",
+        "type": "text",
+        "label": "تاريخ الاستحقاق",
+        "placeholder": "من"
+      },
+      {
+        "name": "due_date_to",
+        "type": "text",
+        "label": "تاريخ الاستحقاق",
+        "placeholder": "إلى"
+      },
+      {
+        "name": "external_source[]",
+        "type": "select-multiple",
+        "label": "المصدر",
+        "placeholder": ""
+      },
+      {
+        "name": "custom_field",
+        "type": "text",
+        "label": "حقل مخصص",
+        "placeholder": ""
+      },
+      {
+        "name": "created_selector",
+        "type": "select-one",
+        "label": "تاريخ الإنشاء",
+        "placeholder": ""
+      },
+      {
+        "name": "created_from",
+        "type": "text",
+        "label": "تاريخ الإنشاء",
+        "placeholder": "من"
+      },
+      {
+        "name": "created_to",
+        "type": "text",
+        "label": "تاريخ الإنشاء",
+        "placeholder": "إلى"
+      },
+      {
+        "name": "type",
+        "type": "select-one",
+        "label": "نوع الفاتورة",
+        "placeholder": ""
+      },
+      {
+        "name": "client_type",
+        "type": "select-one",
+        "label": "نوع العميل",
+        "placeholder": ""
+      },
+      {
+        "name": "requisition_delivery_status[]",
+        "type": "select-multiple",
+        "label": "حالة التسليم",
+        "placeholder": ""
+      },
+      {
+        "name": "staff_id[]",
+        "type": "select-multiple",
+        "label": "أضيفت بواسطة",
+        "placeholder": ""
+      },
+      {
+        "name": "sales_person_id[]",
+        "type": "select-multiple",
+        "label": "مسئول مبيعات",
+        "placeholder": ""
+      },
+      {
+        "name": "pos_shift_id",
+        "type": "text",
+        "label": "جلسه",
+        "placeholder": ""
+      },
+      {
+        "name": "order_source_id",
+        "type": "select-one",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-color-value",
+        "type": "text",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-hue-slider",
+        "type": "range",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-alpha-slider",
+        "type": "range",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-format",
+        "type": "radio",
+        "label": "Hex",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-format",
+        "type": "radio",
+        "label": "RGB",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-format",
+        "type": "radio",
+        "label": "HSL",
+        "placeholder": ""
+      }
+    ],
+    "buttons": [
+      "كل التطبيقات",
+      "المبيعات",
+      "إدارة علاقات العملاء",
+      "الموارد البشرية",
+      "المخزون و المشتريات",
+      "التشغيل",
+      "الحسابات العامة",
+      "الاعدادات العامة",
+      "العودة",
+      "Toggle Dropdown",
+      "لا شئ",
+      "الكل (الصفحة الحالية)",
+      "الكل(جميع الصفحات)",
+      "الإجراءات",
+      "رفع بالذكاء الاصطناعي",
+      "إنشاء إشعار دائن",
+      "أي عميل",
+      "الكل",
+      "الكل",
+      "أى موظف",
+      "أى مسئول مبيعات",
+      "من فضلك اختر",
+      "إلغاء الفلتر",
+      "بحث",
+      "الترتيب حسب",
+      "لديك سؤال",
+      "×",
+      "نعم",
+      "لا",
+      "Clear",
+      "Close"
+    ]
+  },
+  "create_subscription": {
+    "title": "الفواتير الدورية - mostafa",
+    "currentUrl": "https://moustafazen90.daftra.com/owner/invoices/subscriptions/add",
+    "fieldsCount": 15,
+    "fields": [
+      {
+        "name": "name",
+        "type": "text",
+        "label": "اسم الاشتراك",
+        "placeholder": ""
+      },
+      {
+        "name": "client_id",
+        "type": "select-one",
+        "label": "العميل",
+        "placeholder": ""
+      },
+      {
+        "name": "",
+        "type": "text",
+        "label": "العميل",
+        "placeholder": "enter name, email, phone, barcode..."
+      },
+      {
+        "name": "date_selector",
+        "type": "select-one",
+        "label": "تاريخ الفاتورة اللاحقة",
+        "placeholder": ""
+      },
+      {
+        "name": "date_from",
+        "type": "text",
+        "label": "تاريخ الفاتورة اللاحقة",
+        "placeholder": "من"
+      },
+      {
+        "name": "date_to",
+        "type": "text",
+        "label": "تاريخ الفاتورة اللاحقة",
+        "placeholder": "إلى"
+      },
+      {
+        "name": "summary_total_from",
+        "type": "text",
+        "label": "الإجمالي أكبر من",
+        "placeholder": ""
+      },
+      {
+        "name": "summary_total_to",
+        "type": "text",
+        "label": "الإجمالي أقل من",
+        "placeholder": ""
+      },
+      {
+        "name": "client_type",
+        "type": "select-one",
+        "label": "نوع العميل",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-color-value",
+        "type": "text",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-hue-slider",
+        "type": "range",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-alpha-slider",
+        "type": "range",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-format",
+        "type": "radio",
+        "label": "Hex",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-format",
+        "type": "radio",
+        "label": "RGB",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-format",
+        "type": "radio",
+        "label": "HSL",
+        "placeholder": ""
+      }
+    ],
+    "buttons": [
+      "كل التطبيقات",
+      "المبيعات",
+      "إدارة علاقات العملاء",
+      "الموارد البشرية",
+      "المخزون و المشتريات",
+      "التشغيل",
+      "الحسابات العامة",
+      "الاعدادات العامة",
+      "العودة",
+      "اشتراك جديد",
+      "أي عميل",
+      "الكل",
+      "إلغاء الفلتر",
+      "بحث",
+      "لديك سؤال",
+      "×",
+      "نعم",
+      "لا",
+      "Clear",
+      "Close"
+    ]
+  },
+  "create_client": {
+    "title": "أضف عميل - mostafa",
+    "currentUrl": "https://moustafazen90.daftra.com/owner/clients/add",
+    "fieldsCount": 47,
+    "fields": [
+      {
+        "name": "data[Client][type]",
+        "type": "radio",
+        "label": "فردي",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Client][type]",
+        "type": "radio",
+        "label": "تجاري",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Client][business_name]",
+        "type": "text",
+        "label": "الاسم الكامل / الاسم التجاري *",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Client][first_name]",
+        "type": "text",
+        "label": "الاسم الأول",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Client][last_name]",
+        "type": "text",
+        "label": "الاسم الأخير",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Client][phone1]",
+        "type": "tel",
+        "label": "الهاتف",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Client][phone2]",
+        "type": "tel",
+        "label": "جوال",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Client][address1]",
+        "type": "text",
+        "label": "عنوان الشارع 1",
+        "placeholder": "عنوان الشارع 1"
+      },
+      {
+        "name": "data[Client][address2]",
+        "type": "text",
+        "label": "عنوان الشارع 2",
+        "placeholder": "عنوان الشارع 2"
+      },
+      {
+        "name": "data[Client][city]",
+        "type": "text",
+        "label": "المدينة",
+        "placeholder": "المدينة"
+      },
+      {
+        "name": "data[Client][state]",
+        "type": "text",
+        "label": "المنطقة",
+        "placeholder": "المنطقة"
+      },
+      {
+        "name": "data[Client][postal_code]",
+        "type": "text",
+        "label": "الرمز البريدي",
+        "placeholder": "الرمز البريدي"
+      },
+      {
+        "name": "data[Client][country_code]",
+        "type": "select-one",
+        "label": "البلد",
+        "placeholder": ""
+      },
+      {
+        "name": "",
+        "type": "text",
+        "label": "البلد",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Client][timezone]",
+        "type": "select-one",
+        "label": "المنطقة الزمنية",
+        "placeholder": ""
+      },
+      {
+        "name": "",
+        "type": "text",
+        "label": "البلد",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Client][bn1]",
+        "type": "text",
+        "label": "سجل تجاري (اختياري)",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Client][bn2]",
+        "type": "text",
+        "label": "الرقم الضريبي (اختياري)",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Client][active_secondary_address]",
+        "type": "checkbox",
+        "label": "إضافة عنوان ثانوي",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Client][secondary_address1]",
+        "type": "text",
+        "label": "عنوان الشارع 1",
+        "placeholder": "عنوان الشارع 1"
+      },
+      {
+        "name": "data[Client][secondary_address2]",
+        "type": "text",
+        "label": "عنوان الشارع 2",
+        "placeholder": "عنوان الشارع 2"
+      },
+      {
+        "name": "data[Client][secondary_city]",
+        "type": "text",
+        "label": "المدينة الثانوىة",
+        "placeholder": "المدينة"
+      },
+      {
+        "name": "data[Client][secondary_state]",
+        "type": "text",
+        "label": "الولاية الثانوىة",
+        "placeholder": "المنطقة"
+      },
+      {
+        "name": "data[Client][secondary_postal_code]",
+        "type": "text",
+        "label": "الرقم البريدي الثانوى",
+        "placeholder": "الرمز البريدي"
+      },
+      {
+        "name": "data[Client][secondary_country_code]",
+        "type": "select-one",
+        "label": "البلد",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Client][client_number]",
+        "type": "text",
+        "label": "رقم الكود *",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Client][is_offline]",
+        "type": "select-one",
+        "label": "طريقة الفوترة",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Client][default_currency_code]",
+        "type": "select-one",
+        "label": "العملة",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Client][email]",
+        "type": "email",
+        "label": "البريد الإلكتروني",
+        "placeholder": ""
+      },
+      {
+        "name": "",
+        "type": "text",
+        "label": "البريد الإلكتروني",
+        "placeholder": ""
+      },
+      {
+        "name": "",
+        "type": "text",
+        "label": "التصنيف",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Client][notes]",
+        "type": "textarea",
+        "label": "الملاحظات",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Client][language_code]",
+        "type": "select-one",
+        "label": "لغة العرض",
+        "placeholder": ""
+      },
+      {
+        "name": "data[JournalAccountRoute][account_id]",
+        "type": "select-one",
+        "label": "الحساب",
+        "placeholder": ""
+      },
+      {
+        "name": "",
+        "type": "text",
+        "label": "الحساب",
+        "placeholder": "أدخل الاسم أو الكود"
+      },
+      {
+        "name": "data[Client][send_notify]",
+        "type": "checkbox",
+        "label": "أرسل بيانات الدخول للعميل",
+        "placeholder": ""
+      },
+      {
+        "name": "data[ClientDetail][Tempid][first_name]",
+        "type": "text",
+        "label": "الاسم الأول",
+        "placeholder": ""
+      },
+      {
+        "name": "data[ClientDetail][Tempid][last_name]",
+        "type": "text",
+        "label": "الاسم الأخير",
+        "placeholder": ""
+      },
+      {
+        "name": "data[ClientDetail][Tempid][email]",
+        "type": "email",
+        "label": "البريد الإلكتروني",
+        "placeholder": ""
+      },
+      {
+        "name": "data[ClientDetail][Tempid][home_phone]",
+        "type": "tel",
+        "label": "الهاتف",
+        "placeholder": ""
+      },
+      {
+        "name": "data[ClientDetail][Tempid][mobile]",
+        "type": "tel",
+        "label": "جوال",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-color-value",
+        "type": "text",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-hue-slider",
+        "type": "range",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-alpha-slider",
+        "type": "range",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-format",
+        "type": "radio",
+        "label": "Hex",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-format",
+        "type": "radio",
+        "label": "RGB",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-format",
+        "type": "radio",
+        "label": "HSL",
+        "placeholder": ""
+      }
+    ],
+    "buttons": [
+      "كل التطبيقات",
+      "المبيعات",
+      "إدارة علاقات العملاء",
+      "الموارد البشرية",
+      "المخزون و المشتريات",
+      "التشغيل",
+      "الحسابات العامة",
+      "الاعدادات العامة",
+      "العودة",
+      "إلغاء",
+      "حفظ",
+      "مصر (EG)",
+      "اختر منطقة زمنية",
+      "الحساب الافتراضي",
+      "لديك سؤال",
+      "×",
+      "نعم",
+      "لا",
+      "Clear",
+      "Close"
+    ]
+  },
+  "create_product": {
+    "title": "أضف Product - mostafa",
+    "currentUrl": "https://moustafazen90.daftra.com/owner/products/add",
+    "fieldsCount": 29,
+    "fields": [
+      {
+        "name": "data[Product][name]",
+        "type": "text",
+        "label": "الاسم *",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Product][product_code]",
+        "type": "text",
+        "label": "الرقم التسلسلي SKU",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Product][description]",
+        "type": "textarea",
+        "label": "الوصف",
+        "placeholder": ""
+      },
+      {
+        "name": "",
+        "type": "text",
+        "label": "التصنيف",
+        "placeholder": ""
+      },
+      {
+        "name": "",
+        "type": "text",
+        "label": "الماركة",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Product][sales_account_id]",
+        "type": "select-one",
+        "label": "حساب المبيعات",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Product][sales_cost_account_id]",
+        "type": "select-one",
+        "label": "حساب تكلفة المبيعات",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Product][barcode]",
+        "type": "text",
+        "label": "باركود",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Product][buy_price]",
+        "type": "number",
+        "label": "سعر الشراء",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Product][unit_price]",
+        "type": "number",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Product][tax1]",
+        "type": "select-one",
+        "label": "الضريبة 1\nمتقدم",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Product][tax2]",
+        "type": "select-one",
+        "label": "الضريبة 2",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Product][purchasing_tax1]",
+        "type": "select-one",
+        "label": "ضريبة الشراء 1",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Product][purchasing_tax2]",
+        "type": "select-one",
+        "label": "ضريبة الشراء 2",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Product][minimum_price]",
+        "type": "number",
+        "label": "أقل سعر بيع",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Product][discount]",
+        "type": "number",
+        "label": "الخصم",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Product][discout_type]",
+        "type": "select-one",
+        "label": "نوع الخصم",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Product][profit_margin]",
+        "type": "number",
+        "label": "هامش الربح نسبة مئوية",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Product][track_stock]",
+        "type": "checkbox",
+        "label": "تتبع المخزون",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Product][low_stock_thershold]",
+        "type": "number",
+        "label": "نبهني عند وصول الكمية إلى أقل من",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Product][notes]",
+        "type": "textarea",
+        "label": "ملاحظات داخلية",
+        "placeholder": ""
+      },
+      {
+        "name": "data[Product][status]",
+        "type": "select-one",
+        "label": "الحالة",
+        "placeholder": ""
+      },
+      {
+        "name": "data[priceList][group_price_id]",
+        "type": "number",
+        "label": "112",
+        "placeholder": "use default price"
+      },
+      {
+        "name": "clr-color-value",
+        "type": "text",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-hue-slider",
+        "type": "range",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-alpha-slider",
+        "type": "range",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-format",
+        "type": "radio",
+        "label": "Hex",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-format",
+        "type": "radio",
+        "label": "RGB",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-format",
+        "type": "radio",
+        "label": "HSL",
+        "placeholder": ""
+      }
+    ],
+    "buttons": [
+      "كل التطبيقات",
+      "المبيعات",
+      "إدارة علاقات العملاء",
+      "الموارد البشرية",
+      "المخزون و المشتريات",
+      "التشغيل",
+      "الحسابات العامة",
+      "الاعدادات العامة",
+      "العودة",
+      "إلغاء",
+      "حفظ",
+      "Toggle Dropdown",
+      "لديك سؤال",
+      "×",
+      "نعم",
+      "لا",
+      "Clear",
+      "Close"
+    ]
+  },
+  "create_purchase_request": {
+    "title": "An Error Occurred: Method Not Allowed",
+    "currentUrl": "https://moustafazen90.daftra.com/v2/owner/entity/purchase_request/add",
+    "fieldsCount": 0,
+    "fields": [],
+    "buttons": []
+  },
+  "create_purchase_order": {
+    "title": "An Error Occurred: Method Not Allowed",
+    "currentUrl": "https://moustafazen90.daftra.com/v2/owner/entity/purchase_order/add",
+    "fieldsCount": 0,
+    "fields": [],
+    "buttons": []
+  },
+  "numbering_settings": {
+    "title": "Settings - mostafa",
+    "currentUrl": "https://moustafazen90.daftra.com/owner/numbering/settings/0",
+    "fieldsCount": 20,
+    "fields": [
+      {
+        "name": "preview",
+        "type": "text",
+        "label": "Preview Number",
+        "placeholder": ""
+      },
+      {
+        "name": "data[old_prefix]",
+        "type": "select-one",
+        "label": "الرقم التالي",
+        "placeholder": ""
+      },
+      {
+        "name": "old_prefix-selectized",
+        "type": "text",
+        "label": "الرقم التالي",
+        "placeholder": ""
+      },
+      {
+        "name": "data[next_number]",
+        "type": "text",
+        "label": "الرقم التالي",
+        "placeholder": ""
+      },
+      {
+        "name": "data[mode]",
+        "type": "select-one",
+        "label": "تنسيق الترقيم",
+        "placeholder": ""
+      },
+      {
+        "name": "mode-selectized",
+        "type": "text",
+        "label": "تنسيق الترقيم",
+        "placeholder": ""
+      },
+      {
+        "name": "data[char_no]",
+        "type": "number",
+        "label": "عدد الأحرف",
+        "placeholder": ""
+      },
+      {
+        "name": "data[digit_no]",
+        "type": "number",
+        "label": "عدد الأحرف",
+        "placeholder": ""
+      },
+      {
+        "name": "data[require_unique]",
+        "type": "checkbox",
+        "label": "غير مكرر",
+        "placeholder": ""
+      },
+      {
+        "name": "data[add_prefix]",
+        "type": "checkbox",
+        "label": "بادئة",
+        "placeholder": ""
+      },
+      {
+        "name": "data[prefix_format]",
+        "type": "text",
+        "label": "تخصيص البادئة",
+        "placeholder": ""
+      },
+      {
+        "name": "data[prefix_serial_option]",
+        "type": "radio",
+        "label": "خيارات تغيير البادئة (في حالة كون البادئة بصيغة متغيرة فقط)",
+        "placeholder": ""
+      },
+      {
+        "name": "data[prefix_serial_option]",
+        "type": "radio",
+        "label": "خيارات تغيير البادئة (في حالة كون البادئة بصيغة متغيرة فقط)",
+        "placeholder": ""
+      },
+      {
+        "name": "data[prefix_serial_option]",
+        "type": "radio",
+        "label": "خيارات تغيير البادئة (في حالة كون البادئة بصيغة متغيرة فقط)",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-color-value",
+        "type": "text",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-hue-slider",
+        "type": "range",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-alpha-slider",
+        "type": "range",
+        "label": "",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-format",
+        "type": "radio",
+        "label": "Hex",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-format",
+        "type": "radio",
+        "label": "RGB",
+        "placeholder": ""
+      },
+      {
+        "name": "clr-format",
+        "type": "radio",
+        "label": "HSL",
+        "placeholder": ""
+      }
+    ],
+    "buttons": [
+      "كل التطبيقات",
+      "المبيعات",
+      "إدارة علاقات العملاء",
+      "الموارد البشرية",
+      "المخزون و المشتريات",
+      "التشغيل",
+      "الحسابات العامة",
+      "الاعدادات العامة",
+      "العودة",
+      "تجاهل",
+      "حفظ",
+      "دليل المتغيرات",
+      "تجاهل",
+      "حفظ",
+      "لديك سؤال",
+      "×",
+      "نعم",
+      "لا",
+      "Clear",
+      "Close"
+    ]
+  }
+}

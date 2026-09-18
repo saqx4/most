@@ -43,6 +43,8 @@ urlpatterns = [
     path('invoices/<int:pk>/mark-paid/', views.invoice_mark_paid, name='invoice_mark_paid'),
     path('invoices/<int:pk>/send/', views.invoice_send_email, name='invoice_send_email'),
     path('customers/export/', views.customer_export, name='customer_export'),
+    path('customers/import/', views.customer_import, name='customer_import'),
+    path('customers/<int:pk>/statement/', views.customer_statement, name='customer_statement'),
 
     # Credit notes (Returned Invoices)
     path('credit-notes/', views.creditnote_list, name='creditnote_list'),

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Payment Terms{% endblock %}
+{% block page_title %}Payment Terms{% endblock %}
+{% block content %}
+<div class="space-y-4">
+  <div class="flex items-center justify-between">
+    <p class="text-sm text-gray-500">Manage payment terms for customers and suppliers</p>
+    <a href="{% url 'accounting:paymentterm_create' %}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">+ New Payment Term</a>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-white shadow-glass dark:border-gray-800 dark:bg-gray-900 overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead><tr class="border-b border-gray-100 dark:border-gray-800">
+        <th class="px-4 py-3 text-left font-medium text-gray-500">Name</th>
+        <th class="px-4 py-3 text-left font-medium text-gray-500">Net Days</th>
+        <th class="px-4 py-3 text-left font-medium text-gray-500">Discount Days</th>
+        <th class="px-4 py-3 text-left font-medium text-gray-500">Discount %</th>
+        <th class="px-4 py-3 text-right font-medium text-gray-500">Actions</th>
+      </tr></thead>
+      <tbody class="divide-y divide-gray-50 dark:divide-gray-800">
+        {% for t in terms %}
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+          <td class="px-4 py-2.5 font-medium">{{ t.name }}</td>
+          <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400">{{ t.net_days }}</td>
+          <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400">{{ t.cash_discount_days }}</td>
+          <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400">{{ t.cash_discount_percent }}%</td>
+          <td class="px-4 py-2.5 text-right space-x-2">
+            <a href="{% url 'accounting:paymentterm_edit' pk=t.pk %}" class="text-indigo-600 hover:underline text-xs">Edit</a>
+            <form method="post" action="{% url 'accounting:paymentterm_delete' pk=t.pk %}" class="inline" onsubmit="return confirm('Delete this payment term?')">{% csrf_token %}<button type="submit" class="text-red-500 hover:underline text-xs">Delete</button></form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="px-4 py-8 text-center text-gray-400">No payment terms yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

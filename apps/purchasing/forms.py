@@ -59,22 +59,37 @@ class SupplierForm(forms.ModelForm):
 class POForm(forms.ModelForm):
     class Meta:
         model = PurchaseOrder
-        fields = ['supplier', 'order_date', 'expected_delivery', 'delivery_address', 'tax', 'currency', 'notes']
+        fields = [
+            'supplier', 'order_date', 'expected_delivery', 'payment_terms_days',
+            'warehouse', 'tax', 'currency', 'has_shipping', 'shipping_amount',
+            'delivery_address', 'global_discount_type', 'global_discount_value',
+            'adjustment_label', 'adjustment_value', 'notes', 'terms_conditions'
+        ]
         widgets = {
-            'delivery_address': forms.Textarea(attrs={'rows': 2}),
-            'notes': forms.Textarea(attrs={'rows': 2}),
+            'delivery_address': forms.Textarea(attrs={'rows': 2, 'placeholder': 'عنوان استلام الشحنة...'}),
+            'notes': forms.Textarea(attrs={'rows': 2, 'placeholder': 'ملاحظات أمر الشراء...'}),
+            'terms_conditions': forms.Textarea(attrs={'rows': 2, 'placeholder': 'الشروط والأحكام...'}),
         }
 
     def __init__(self, *args, company=None, **kwargs):
         super().__init__(*args, **kwargs)
         from apps.accounting.models import Currency, TaxRate
+        from apps.inventory.models import Warehouse
+        self.fields['supplier'].queryset = Supplier.objects.filter(company=company, is_active=True)
         self.fields['expected_delivery'].required = False
+        self.fields['payment_terms_days'].required = False
+        self.fields['warehouse'].required = False
+        self.fields['warehouse'].queryset = Warehouse.objects.filter(company=company, is_active=True)
         self.fields['delivery_address'].required = False
         self.fields['tax'].required = False
         self.fields['tax'].queryset = TaxRate.objects.filter(company=company, is_active=True)
         self.fields['currency'].required = False
         self.fields['currency'].queryset = Currency.objects.all()
+        self.fields['shipping_amount'].required = False
+        self.fields['global_discount_value'].required = False
+        self.fields['adjustment_value'].required = False
         self.fields['notes'].required = False
+        self.fields['terms_conditions'].required = False
         style_form(self)
 
     def save(self, company=None, user=None, commit=True):

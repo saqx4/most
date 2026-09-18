@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% block page_title %}{{ t.STOCK_LEVELS_TITLE }}{% endblock %}
 {% block content %}
-<div class="mb-6 flex items-center justify-between">
+<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
   <h2 class="text-xl font-bold text-slate-900">{{ t.STOCK_LEVELS_TITLE }}</h2>
-  <div class="flex gap-2">
+  <div class="flex flex-wrap gap-2">
     <a href="{% url 'inventory:stock_adjustment_create' %}" class="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50">
       <i class="ri-edit-2-line"></i> {{ t.ADJUST_STOCK }}
     </a>
@@ -21,7 +21,7 @@
       <p class="text-2xl font-bold text-slate-800">{{ total_value|floatformat:2 }}</p>
     </div>
   </div>
-  <form method="get" class="flex gap-2">
+  <form method="get" class="flex flex-wrap gap-2">
     <select name="warehouse" class="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none">
       <option value="">{{ t.ALL_WAREHOUSES }}</option>
       {% for w in warehouses %}
@@ -32,7 +32,7 @@
   </form>
 </div>
 
-<div class="rounded-xl bg-white shadow-sm border border-slate-100 overflow-hidden">
+<div class="rounded-xl bg-white shadow-sm border border-slate-100 overflow-x-auto">
   <table class="min-w-full text-sm">
     <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
       <tr>

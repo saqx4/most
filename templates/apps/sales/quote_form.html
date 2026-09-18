@@ -1,45 +1,281 @@
 {% extends 'base.html' %}
-{% block title %}{{ t.NEW_QUOTE }}{% endblock %}
-{% block page_title %}{{ t.CREATE_SALES_QUOTE }}{% endblock %}
+{% block title %}{{ t.NEW_QUOTE|default:"عرض سعر جديد" }}{% endblock %}
+{% block page_title %}{{ t.CREATE_SALES_QUOTE|default:"إنشاء عرض سعر جديد" }}{% endblock %}
+
 {% block content %}
-<a href="{% url 'sales:quote_list' %}" class="mb-4 inline-flex items-center gap-1 text-sm text-indigo-600 hover:underline"><i class="ri-arrow-left-line"></i> {{ t.BACK }}</a>
-<div class="mx-auto max-w-4xl rounded-2xl border border-slate-200 bg-white p-6">
-  <h2 class="mb-6 text-lg font-semibold text-slate-900">{{ t.CREATE_QUOTE_BTN }}</h2>
-  <form method="post">{% csrf_token %}
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3 mb-6">
-      {% for field in form.visible_fields %}
-      <div>
-        <label class="mb-1 block text-sm font-medium text-slate-700">{{ field.label }}</label>
-        {{ field }}
-        {% if field.errors %}<p class="mt-1 text-xs text-red-600">{{ field.errors.0 }}</p>{% endif %}
-      </div>
-      {% endfor %}
+<div class="mb-6 flex items-center justify-between">
+  <div class="flex items-center gap-3">
+    <a href="{% url 'sales:quote_list' %}" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
+      <i class="ri-arrow-right-line"></i> {{ t.BACK|default:"العودة" }}
+    </a>
+    <h1 class="text-xl font-bold text-slate-900">عرض سعر جديد</h1>
+  </div>
+  <div class="flex items-center gap-2">
+    <span class="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-600/20">
+      <i class="ri-file-list-3-line"></i> ترقيم آلي
+    </span>
+  </div>
+</div>
+
+<form method="post" id="quoteForm" class="space-y-6">
+  {% csrf_token %}
+
+  <!-- 1. Customer & Header Details Card -->
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div class="mb-4 flex items-center justify-between border-b border-slate-100 pb-3">
+      <h2 class="text-base font-semibold text-slate-900 flex items-center gap-2">
+        <i class="ri-user-3-line text-indigo-600"></i> بيانات العميل وعرض السعر
+      </h2>
+      <a href="{% url 'sales:customer_create' %}" target="_blank" class="inline-flex items-center gap-1 text-xs font-medium text-indigo-600 hover:underline">
+        <i class="ri-user-add-line"></i> إضافة عميل جديد
+      </a>
     </div>
-    <h3 class="mb-3 text-sm font-semibold text-slate-900">{{ t.LINE_ITEMS }}</h3>
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">العميل <span class="text-red-500">*</span></label>
+        {{ form.customer }}
+        {% if form.customer.errors %}<p class="mt-1 text-xs text-red-600">{{ form.customer.errors.0 }}</p>{% endif %}
+      </div>
+
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">تاريخ عرض السعر</label>
+        {{ form.quote_date }}
+      </div>
+
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">صالح حتى تاريخ</label>
+        {{ form.valid_until }}
+      </div>
+
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">شروط الدفع (بالأيام)</label>
+        {{ form.payment_terms_days }}
+      </div>
+
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">المستودع الافتراضي</label>
+        {{ form.warehouse }}
+      </div>
+
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">مسؤول المبيعات</label>
+        {{ form.salesperson }}
+      </div>
+
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">العملة</label>
+        {{ form.currency }}
+      </div>
+
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">سعر الصرف</label>
+        {{ form.exchange_rate }}
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Shipping Details (Toggleable) -->
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <i class="ri-truck-line text-indigo-600"></i>
+        <label for="{{ form.has_shipping.id_for_label }}" class="text-sm font-semibold text-slate-900 cursor-pointer">
+          إضافة تفاصيل ومصاريف الشحن والتوصيل
+        </label>
+      </div>
+      <div>{{ form.has_shipping }}</div>
+    </div>
+
+    <div id="shippingSection" class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3 border-t border-slate-100 pt-4">
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">اسم المستلم</label>
+        {{ form.shipping_recipient }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">تكلفة الشحن المتوقعة</label>
+        {{ form.shipping_amount }}
+      </div>
+      <div class="sm:col-span-3">
+        <label class="mb-1 block text-xs font-medium text-slate-700">عنوان التوصيل المقترح</label>
+        {{ form.shipping_address_text }}
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Line Items Table -->
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div class="mb-4 flex items-center justify-between border-b border-slate-100 pb-3">
+      <h2 class="text-base font-semibold text-slate-900 flex items-center gap-2">
+        <i class="ri-shopping-cart-line text-indigo-600"></i> بنود عرض السعر
+      </h2>
+      <span class="text-xs text-slate-500">اختر المنتج والكمية والسعر والخصم والضرائب</span>
+    </div>
+
     {{ formset.management_form }}
     <div class="overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead><tr class="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
-          <th class="py-2 font-medium">{{ t.PRODUCT }}</th><th class="py-2 font-medium">{{ t.DESCRIPTION }}</th><th class="py-2 text-right font-medium">{{ t.QUANTITY }}</th><th class="py-2 text-right font-medium">{{ t.UNIT_PRICE }}</th><th class="py-2 text-right font-medium">{{ t.DISCOUNT }}</th><th class="py-2"></th>
-        </tr></thead>
+      <table class="w-full text-xs">
+        <thead>
+          <tr class="border-b border-slate-200 text-slate-600 bg-slate-50 text-right">
+            <th class="py-2.5 px-2 font-semibold">البند / المنتج *</th>
+            <th class="py-2.5 px-2 font-semibold">المستودع</th>
+            <th class="py-2.5 px-2 font-semibold">الوصف</th>
+            <th class="py-2.5 px-2 font-semibold w-20">الكمية</th>
+            <th class="py-2.5 px-2 font-semibold w-24">سعر الوحدة</th>
+            <th class="py-2.5 px-2 font-semibold w-24">نوع الخصم</th>
+            <th class="py-2.5 px-2 font-semibold w-20">الخصم</th>
+            <th class="py-2.5 px-2 font-semibold w-28">ضريبة 1</th>
+            <th class="py-2.5 px-2 font-semibold w-28">ضريبة 2</th>
+            <th class="py-2.5 px-2 text-center w-12">حذف</th>
+          </tr>
+        </thead>
         <tbody>
           {% for lf in formset.forms %}
-          <tr class="border-b border-slate-100">
-            <td class="py-2">{{ lf.product }}</td>
-            <td class="py-2">{{ lf.description }}</td>
-            <td class="py-2">{{ lf.quantity }}</td>
-            <td class="py-2">{{ lf.price }}</td>
-            <td class="py-2">{{ lf.discount_percent }}</td>
-            <td class="py-2 text-center">{{ lf.DELETE }}{{ lf.id }}</td>
+          <tr class="border-b border-slate-100 hover:bg-slate-50/50">
+            <td class="py-2 px-2">{{ lf.product }}</td>
+            <td class="py-2 px-2">{{ lf.warehouse }}</td>
+            <td class="py-2 px-2">{{ lf.description }}</td>
+            <td class="py-2 px-2">{{ lf.quantity }}</td>
+            <td class="py-2 px-2">{{ lf.price }}</td>
+            <td class="py-2 px-2">{{ lf.discount_type }}</td>
+            <td class="py-2 px-2">{{ lf.discount_percent }}</td>
+            <td class="py-2 px-2">{{ lf.tax }}</td>
+            <td class="py-2 px-2">{{ lf.tax2 }}</td>
+            <td class="py-2 px-2 text-center">
+              <span class="inline-flex items-center text-red-600 hover:text-red-800 cursor-pointer">
+                {{ lf.DELETE }}
+              </span>
+              {{ lf.id }}
+            </td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-    <div class="mt-6 flex items-center gap-3">
-      <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-700">{{ t.CREATE_QUOTE_BTN }}</button>
-      <a href="{% url 'sales:quote_list' %}" class="rounded-lg border border-slate-300 px-5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">{{ t.CANCEL }}</a>
+  </div>
+
+  <!-- 4. Notes & Totals Summary -->
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <!-- Left: Notes -->
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+      <h3 class="text-sm font-semibold text-slate-900 flex items-center gap-2">
+        <i class="ri-file-text-line text-indigo-600"></i> الملاحظات والشروط
+      </h3>
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">ملاحظات عرض السعر</label>
+        {{ form.notes }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-medium text-slate-700">الشروط والأحكام</label>
+        {{ form.terms_conditions }}
+      </div>
     </div>
-  </form>
-</div>
+
+    <!-- Right: Totals & Discounts -->
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+      <h3 class="text-sm font-semibold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2">
+        <i class="ri-calculator-line text-indigo-600"></i> ملخص الحساب والخصومات
+      </h3>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="mb-1 block text-xs font-medium text-slate-700">نوع الخصم الكلي</label>
+          {{ form.global_discount_type }}
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-medium text-slate-700">قيمة الخصم الكلي</label>
+          {{ form.global_discount_value }}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="mb-1 block text-xs font-medium text-slate-700">وصف التسوية / مصاريف إضافية</label>
+          {{ form.adjustment_label }}
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-medium text-slate-700">قيمة التسوية (+ أو -)</label>
+          {{ form.adjustment_value }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time Totals Display Card -->
+  <div class="rounded-2xl border border-indigo-200 bg-indigo-50/50 p-4 shadow-sm flex items-center justify-between">
+    <span class="text-xs font-semibold text-slate-700">المبلغ الإجمالي التقريبي المحدث لحظياً:</span>
+    <span id="liveGrandTotal" class="text-lg font-bold text-indigo-700">0.00</span>
+  </div>
+
+  <!-- Bottom Actions -->
+  <div class="sticky bottom-4 flex items-center justify-between rounded-2xl border border-slate-200 bg-white/95 p-4 backdrop-blur shadow-lg">
+    <div class="flex items-center gap-3">
+      <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700">
+        <i class="ri-check-line"></i> حفظ وإنشاء عرض السعر
+      </button>
+      <a href="{% url 'sales:quote_list' %}" class="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">
+        {{ t.CANCEL|default:"إلغاء" }}
+      </a>
+    </div>
+  </div>
+</form>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  function recalculateTotals() {
+    let subtotal = 0;
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+      const delCheckbox = row.querySelector('input[name$="-DELETE"]');
+      if (delCheckbox && delCheckbox.checked) return;
+
+      const qtyInput = row.querySelector('input[name$="-quantity"]');
+      const priceInput = row.querySelector('input[name$="-price"]');
+      const discPercentInput = row.querySelector('input[name$="-discount_percent"]');
+      const discAmountInput = row.querySelector('input[name$="-discount_amount"]');
+      const discTypeSelect = row.querySelector('select[name$="-discount_type"]');
+
+      const qty = parseFloat(qtyInput?.value) || 0;
+      const price = parseFloat(priceInput?.value) || 0;
+      let gross = qty * price;
+      let disc = 0;
+
+      if (discTypeSelect && discTypeSelect.value === 'fixed') {
+        disc = parseFloat(discAmountInput?.value) || 0;
+      } else {
+        const discPercent = parseFloat(discPercentInput?.value) || 0;
+        disc = gross * (discPercent / 100);
+      }
+
+      let net = Math.max(0, gross - disc);
+      subtotal += net;
+    });
+
+    const gDiscValInput = document.querySelector('input[name="global_discount_value"]');
+    const gDiscTypeSelect = document.querySelector('select[name="global_discount_type"]');
+    const shippingInput = document.querySelector('input[name="shipping_amount"]');
+    const adjInput = document.querySelector('input[name="adjustment_value"]');
+
+    let total = subtotal;
+    const gDiscVal = parseFloat(gDiscValInput?.value) || 0;
+    if (gDiscTypeSelect && gDiscTypeSelect.value === 'percent') {
+      total -= subtotal * (gDiscVal / 100);
+    } else {
+      total -= gDiscVal;
+    }
+
+    const shipping = parseFloat(shippingInput?.value) || 0;
+    const adjustment = parseFloat(adjInput?.value) || 0;
+    total += shipping + adjustment;
+
+    const grandTotalEl = document.getElementById('liveGrandTotal');
+    if (grandTotalEl) {
+      grandTotalEl.innerText = Math.max(0, total).toFixed(2);
+    }
+  }
+
+  document.addEventListener('input', recalculateTotals);
+  document.addEventListener('change', recalculateTotals);
+  recalculateTotals();
+});
+</script>
 {% endblock %}

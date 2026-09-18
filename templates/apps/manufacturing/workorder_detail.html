@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% block page_title %}{{ t.ORDER }} {{ wo.number }}{% endblock %}
 {% block content %}
-<div class="mb-6 flex items-center justify-between">
-  <div class="flex items-center gap-3">
+<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+  <div class="flex flex-wrap items-center gap-3">
     <a href="{% url 'manufacturing:workorder_list' %}" class="text-slate-500 hover:text-slate-700"><i class="ri-arrow-left-line text-lg"></i></a>
     <h2 class="text-xl font-bold text-slate-900">{{ wo.number }}</h2>
     <span class="rounded-full px-2 py-0.5 text-xs font-medium
@@ -13,7 +13,7 @@
       {{ wo.get_status_display }}
     </span>
   </div>
-  <div class="flex gap-2">
+  <div class="flex flex-wrap gap-2">
     {% if wo.status == 'draft' %}
     <form method="post" action="{% url 'manufacturing:workorder_start' wo.pk %}">{% csrf_token %}
       <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">{{ t.START_PRODUCTION }}</button>
@@ -59,7 +59,7 @@
 </div>
 
 <!-- Material Requirements -->
-<div class="rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden">
+<div class="rounded-xl bg-white border border-slate-100 shadow-sm overflow-x-auto">
   <div class="px-5 py-4 border-b border-slate-100"><h3 class="font-semibold text-slate-800">{{ t.MATERIAL_REQUIREMENTS }}</h3></div>
   <table class="min-w-full text-sm">
     <thead class="bg-slate-50 text-xs text-slate-500 uppercase">

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block page_title %}{{ t.MANUFACTURING_ORDERS_TITLE }}{% endblock %}
 {% block content %}
-<div class="mb-6 flex items-center justify-between">
+<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
   <h2 class="text-xl font-bold text-slate-900">{{ t.MANUFACTURING_ORDERS_TITLE }}</h2>
   <a href="{% url 'manufacturing:workorder_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
     <i class="ri-add-line"></i> {{ t.NEW_MANUFACTURING_ORDER }}
@@ -15,7 +15,7 @@
   {% endfor %}
 </div>
 
-<div class="rounded-xl bg-white shadow-sm border border-slate-100 overflow-hidden">
+<div class="rounded-xl bg-white shadow-sm border border-slate-100 overflow-x-auto">
   <table class="min-w-full text-sm">
     <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
       <tr>

@@ -2,7 +2,11 @@ from decimal import Decimal
 
 from django import forms
 
-from apps.accounting.models import Account, FiscalYear, JournalEntry, JournalLine
+FIELD_CLS = 'w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none'
+SELECT_CLS = 'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none'
+
+from apps.accounting.models import (Account, Currency, FiscalYear, JournalEntry,
+    JournalLine, PaymentTerm, TaxRate)
 
 
 class AccountForm(forms.ModelForm):
@@ -64,3 +68,51 @@ class AccountCreateForm(forms.ModelForm):
         if commit:
             account.save()
         return account
+
+
+class CurrencyForm(forms.ModelForm):
+    class Meta:
+        model = Currency
+        fields = ['code', 'name', 'symbol', 'rate', 'is_base']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            if isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.setdefault('class', 'h-4 w-4 rounded border-slate-300 text-indigo-600')
+            elif isinstance(field.widget, forms.Select):
+                field.widget.attrs.setdefault('class', SELECT_CLS)
+            else:
+                field.widget.attrs.setdefault('class', FIELD_CLS)
+
+
+class PaymentTermForm(forms.ModelForm):
+    class Meta:
+        model = PaymentTerm
+        fields = ['name', 'net_days', 'cash_discount_days', 'cash_discount_percent']
+
+    def __init__(self, *args, company=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            if isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.setdefault('class', 'h-4 w-4 rounded border-slate-300 text-indigo-600')
+            elif isinstance(field.widget, forms.Select):
+                field.widget.attrs.setdefault('class', SELECT_CLS)
+            else:
+                field.widget.attrs.setdefault('class', FIELD_CLS)
+
+
+class FiscalYearForm(forms.ModelForm):
+    class Meta:
+        model = FiscalYear
+        fields = ['name', 'start_date', 'end_date']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            if isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.setdefault('class', 'h-4 w-4 rounded border-slate-300 text-indigo-600')
+            elif isinstance(field.widget, forms.Select):
+                field.widget.attrs.setdefault('class', SELECT_CLS)
+            else:
+                field.widget.attrs.setdefault('class', FIELD_CLS)

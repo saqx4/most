@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: A4; margin: 15mm; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 10pt; color: #1e293b; line-height: 1.5; margin: 0; padding: 0; }
+  .header-bar {
+    background: linear-gradient(135deg, #4f46e5 0%, #2563eb 100%);
+    color: #fff;
+    padding: 24px 28px;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .header-bar .company-name { font-size: 20pt; font-weight: 700; margin: 0; }
+  .header-bar .company-details { font-size: 8pt; text-align: right; opacity: 0.9; }
+  .header-bar .doc-title { font-size: 24pt; font-weight: 800; letter-spacing: 2px; }
+  .body-section { padding: 0 28px 20px 28px; }
+  .info-grid {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+    gap: 20px;
+  }
+  .info-box { flex: 1; }
+  .info-box h3 {
+    font-size: 7pt;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #6366f1;
+    margin: 0 0 6px 0;
+    font-weight: 700;
+  }
+  .info-box p { margin: 2px 0; font-size: 9pt; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  thead th {
+    background: #eef2ff;
+    color: #4338ca;
+    padding: 10px 8px;
+    font-size: 7.5pt;
+    text-transform: uppercase;
+    text-align: left;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+  }
+  thead th.num { text-align: right; }
+  tbody td { padding: 9px 8px; border-bottom: 1px solid #f1f5f9; font-size: 9pt; }
+  tbody td.num { text-align: right; }
+  tbody tr:nth-child(even) { background: #fafbff; }
+  tbody tr:hover { background: #eef2ff; }
+  .totals-section {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+  }
+  .totals { width: 45%; }
+  .totals table { margin-bottom: 0; }
+  .totals td { padding: 5px 8px; font-size: 9pt; }
+  .totals td:first-child { font-weight: 600; color: #475569; }
+  .totals td:last-child { text-align: right; }
+  .totals tr.discount td { color: #dc2626; }
+  .totals tr.grand-total td {
+    border-top: 3px solid #4f46e5;
+    font-size: 12pt;
+    font-weight: 800;
+    color: #4f46e5;
+    padding-top: 8px;
+  }
+  .qr-section {
+    margin-top: 16px;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    display: inline-block;
+    background: #fafbff;
+  }
+  .qr-section img { width: 90px; height: 90px; display: block; }
+  .qr-label { font-size: 7pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6366f1; font-weight: 700; margin-bottom: 4px; }
+  .footer-section {
+    margin-top: 28px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 14px;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .footer-section .notes { flex: 1; }
+  .footer-section .stamp-area { flex: 1; text-align: center; }
+  .footer-section h3 {
+    font-size: 7pt;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #6366f1;
+    margin: 0 0 4px 0;
+    font-weight: 700;
+  }
+  .footer-section p { margin: 2px 0; font-size: 8pt; color: #475569; }
+  .stamp-box {
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 30px 20px;
+    color: #94a3b8;
+    font-size: 8pt;
+    margin-top: 6px;
+  }
+  .status-badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 12px;
+    font-size: 7.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .status-draft { background: #f1f5f9; color: #475569; }
+  .status-posted { background: #fef3c7; color: #92400e; }
+  .status-paid { background: #d1fae5; color: #065f46; }
+  .status-void { background: #fee2e2; color: #991b1b; }
+</style>
+</head>
+<body>
+
+<div class="header-bar">
+  <div>
+    <p class="company-name">{{ company.name }}</p>
+    <p style="font-size:8pt;margin:2px 0;opacity:0.85;">{{ company.legal_name }}</p>
+    <p style="font-size:8pt;margin:2px 0;opacity:0.85;">{{ company.address }}</p>
+    <p style="font-size:8pt;margin:2px 0;opacity:0.85;">{{ company.phone }} | {{ company.email }}</p>
+    {% if company.tax_id %}<p style="font-size:8pt;margin:2px 0;opacity:0.85;">Tax ID: {{ company.tax_id }}</p>{% endif %}
+  </div>
+  <div class="company-details">
+    <p class="doc-title">INVOICE</p>
+    <p style="font-size:10pt;font-weight:600;margin:4px 0;">{{ invoice.number }}</p>
+    <p><span class="status-badge status-{{ invoice.status }}">{{ invoice.get_status_display }}</span></p>
+  </div>
+</div>
+
+<div class="body-section">
+
+  <div class="info-grid">
+    <div class="info-box">
+      <h3>Bill To</h3>
+      <p style="font-weight:700;">{{ invoice.customer.name }}</p>
+      <p>{{ invoice.customer.billing_address }}</p>
+      <p>{{ invoice.customer.email }}</p>
+      <p>{{ invoice.customer.phone }}</p>
+      {% if invoice.customer.tax_id %}<p style="color:#64748b;">Tax ID: {{ invoice.customer.tax_id }}</p>{% endif %}
+    </div>
+    <div class="info-box">
+      <h3>Invoice Details</h3>
+      <table style="margin-bottom:0;">
+        <tr><td style="font-weight:600;color:#64748b;border:none;padding:3px 8px;">Invoice Date</td><td style="border:none;padding:3px 8px;">{{ invoice.invoice_date }}</td></tr>
+        <tr><td style="font-weight:600;color:#64748b;border:none;padding:3px 8px;">Due Date</td><td style="border:none;padding:3px 8px;">{{ invoice.due_date|default:"-" }}</td></tr>
+        {% if invoice.currency %}<tr><td style="font-weight:600;color:#64748b;border:none;padding:3px 8px;">Currency</td><td style="border:none;padding:3px 8px;">{{ invoice.currency }}</td></tr>{% endif %}
+        {% if invoice.order %}<tr><td style="font-weight:600;color:#64748b;border:none;padding:3px 8px;">Reference</td><td style="border:none;padding:3px 8px;">{{ invoice.order.number }}</td></tr>{% endif %}
+      </table>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:5%;">#</th>
+        <th style="width:30%;">Description</th>
+        <th class="num" style="width:12%;">Qty</th>
+        <th class="num" style="width:15%;">Unit Price</th>
+        <th class="num" style="width:12%;">Discount</th>
+        <th class="num" style="width:16%;">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for line in invoice.lines.all %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td><strong>{{ line.product }}</strong>{% if line.description %}<br><span style="font-size:8pt;color:#64748b;">{{ line.description }}</span>{% endif %}</td>
+        <td class="num">{{ line.quantity }}</td>
+        <td class="num">{{ line.price|floatformat:2 }}</td>
+        <td class="num">{% if line.discount_percent %}{{ line.discount_percent|floatformat:1 }}%{% else %}-{% endif %}</td>
+        <td class="num" style="font-weight:700;">{{ line.line_total|floatformat:2 }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="totals-section">
+    <div class="totals">
+      <table>
+        <tr><td>Subtotal</td><td>{{ invoice.total|floatformat:2 }}</td></tr>
+        {% if invoice.global_discount_value %}
+        <tr class="discount"><td>Discount</td><td>-{{ invoice.global_discount_value|floatformat:2 }}</td></tr>
+        {% endif %}
+        {% if invoice.shipping_amount %}
+        <tr><td>Shipping</td><td>+{{ invoice.shipping_amount|floatformat:2 }}</td></tr>
+        {% endif %}
+        {% if invoice.adjustment_value %}
+        <tr><td>{{ invoice.adjustment_label|default:"Adjustment" }}</td><td>{{ invoice.adjustment_value|floatformat:2 }}</td></tr>
+        {% endif %}
+        <tr class="grand-total"><td>Grand Total</td><td>{{ invoice.total|floatformat:2 }}</td></tr>
+        {% if invoice.paid_total %}
+        <tr><td>Paid</td><td style="color:#059669;">-{{ invoice.paid_total|floatformat:2 }}</td></tr>
+        {% endif %}
+        <tr class="grand-total"><td>Amount Due</td><td>{{ invoice.amount_due|floatformat:2 }}</td></tr>
+      </table>
+    </div>
+  </div>
+
+  {% if qr_data_uri %}
+  <div class="qr-section">
+    <div class="qr-label">ZATCA / Electronic Invoice QR</div>
+    <img src="{{ qr_data_uri }}" alt="QR Code" />
+  </div>
+  {% endif %}
+
+  <div class="footer-section">
+    <div class="notes">
+      {% if invoice.memo %}
+      <h3>Notes</h3>
+      <p>{{ invoice.memo }}</p>
+      {% endif %}
+      {% if invoice.terms_conditions %}
+      <h3 style="margin-top:8px;">Terms & Conditions</h3>
+      <p>{{ invoice.terms_conditions }}</p>
+      {% endif %}
+    </div>
+    <div class="stamp-area">
+      <h3>Authorized Stamp / Signature</h3>
+      <div class="stamp-box">Stamp & Signature</div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

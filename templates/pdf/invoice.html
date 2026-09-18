@@ -97,27 +97,50 @@
   </tbody>
 </table>
 
-<div class="totals">
-  <table>
-    <tr><td>Subtotal</td><td>{{ invoice.subtotal|floatformat:2|default:invoice.total|floatformat:2 }}</td></tr>
-    {% if invoice.tax %}<tr><td>Tax ({{ invoice.tax.code }} {{ invoice.tax.rate }}%)</td><td>{{ invoice.tax_amount|floatformat:2 }}</td></tr>{% endif %}
-    <tr class="total-row"><td>Total</td><td>{{ invoice.total|floatformat:2 }}</td></tr>
-    {% if invoice.paid_total %}<tr><td>Paid</td><td style="color:#059669;">-{{ invoice.paid_total|floatformat:2 }}</td></tr>{% endif %}
-    <tr class="total-row"><td>Amount Due</td><td>{{ invoice.amount_due|floatformat:2 }}</td></tr>
-  </table>
+<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-top:20px;">
+  <div style="width:40%;">
+    {% if qr_data_uri %}
+    <div style="text-align:left;">
+      <p style="font-size:8pt; font-weight:bold; color:#4f46e5; margin:0 0 4px 0;">ZATCA / Electronic Invoice QR</p>
+      <img src="{{ qr_data_uri }}" style="width:100px; height:100px; border:1px solid #e2e8f0; padding:2px;" alt="QR Code" />
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="totals" style="width:55%;">
+    <table>
+      <tr><td>Subtotal / المجموع الفرعي</td><td>{{ invoice.total|floatformat:2 }}</td></tr>
+      {% if invoice.global_discount_value %}
+      <tr><td>Global Discount / الخصم الكلي</td><td style="color:#dc2626;">-{{ invoice.global_discount_value|floatformat:2 }}</td></tr>
+      {% endif %}
+      {% if invoice.shipping_amount %}
+      <tr><td>Shipping / مصاريف الشحن</td><td>+{{ invoice.shipping_amount|floatformat:2 }}</td></tr>
+      {% endif %}
+      {% if invoice.adjustment_value %}
+      <tr><td>Adjustment / التسوية ({{ invoice.adjustment_label|default:"إضافات" }})</td><td>{{ invoice.adjustment_value|floatformat:2 }}</td></tr>
+      {% endif %}
+      <tr class="total-row"><td>Grand Total / الإجمالي النهائي</td><td>{{ invoice.total|floatformat:2 }}</td></tr>
+      {% if invoice.paid_total %}
+      <tr><td>Paid Upfront / المدفوع</td><td style="color:#059669;">-{{ invoice.paid_total|floatformat:2 }}</td></tr>
+      {% endif %}
+      <tr class="total-row"><td>Amount Due / المبلغ المتبقي</td><td>{{ invoice.amount_due|floatformat:2 }}</td></tr>
+    </table>
+  </div>
 </div>
 
 {% if invoice.memo %}
 <div class="footer">
-  <h3>Notes</h3>
+  <h3>Notes / ملاحظات</h3>
   <p>{{ invoice.memo }}</p>
 </div>
 {% endif %}
 
+{% if invoice.terms_conditions %}
 <div class="footer">
-  <h3>Payment Terms</h3>
-  <p>Payment is due within {{ invoice.due_date|default:"30 days" }} of invoice date. Please reference invoice number {{ invoice.number }} on your payment.</p>
+  <h3>Terms & Conditions / الشروط والأحكام</h3>
+  <p>{{ invoice.terms_conditions }}</p>
 </div>
+{% endif %}
 
 </body>
 </html>

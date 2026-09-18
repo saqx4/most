@@ -84,3 +84,34 @@ def money(value, digits=2):
     if value is None:
         return Decimal('0.00')
     return Decimal(value).quantize(Decimal('1.' + '0' * digits))
+
+
+def generate_zatca_qr(seller_name, tax_no, timestamp_iso, total_amount, tax_amount):
+    """Generate ZATCA Phase 1 TLV encoded base64 QR code string and data URI."""
+    import base64
+    from io import BytesIO
+    import qrcode
+
+    def get_tlv(tag, value):
+        val_bytes = str(value).encode('utf-8')
+        length = len(val_bytes)
+        return bytes([tag, length]) + val_bytes
+
+    tlv_data = (
+        get_tlv(1, seller_name or 'Company') +
+        get_tlv(2, tax_no or '0000000000') +
+        get_tlv(3, timestamp_iso or timezone.now().isoformat()) +
+        get_tlv(4, f'{float(total_amount):.2f}') +
+        get_tlv(5, f'{float(tax_amount):.2f}')
+    )
+    b64_qr = base64.b64encode(tlv_data).decode('utf-8')
+
+    qr = qrcode.QRCode(version=1, box_size=3, border=1)
+    qr.add_data(b64_qr)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    buf = BytesIO()
+    img.save(buf, format='PNG')
+    qr_img_b64 = base64.b64encode(buf.getvalue()).decode('utf-8')
+    return f'data:image/png;base64,{qr_img_b64}'

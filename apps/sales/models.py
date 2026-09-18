@@ -57,9 +57,32 @@ class Lead(CompanyScoped):
 
 
 class Customer(CompanyScoped):
-    names = None  # placeholder removed below
-
     name = models.CharField(max_length=200)
+    CLIENT_TYPE_CHOICES = [
+        ('individual', 'Individual / فردي'),
+        ('commercial', 'Commercial / تجاري'),
+    ]
+    client_type = models.CharField(max_length=15, choices=CLIENT_TYPE_CHOICES, default='commercial')
+    commercial_name = models.CharField(max_length=200, blank=True)
+    first_name = models.CharField(max_length=100, blank=True)
+    last_name = models.CharField(max_length=100, blank=True)
+    mobile = models.CharField(max_length=60, blank=True)
+    commercial_reg = models.CharField(max_length=100, blank=True)  # سجل تجاري
+    street1 = models.CharField(max_length=200, blank=True)
+    street2 = models.CharField(max_length=200, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    state = models.CharField(max_length=100, blank=True)
+    postal_code = models.CharField(max_length=30, blank=True)
+    country = models.CharField(max_length=100, blank=True)
+
+    # Secondary shipping address
+    shipping_street1 = models.CharField(max_length=200, blank=True)
+    shipping_street2 = models.CharField(max_length=200, blank=True)
+    shipping_city = models.CharField(max_length=100, blank=True)
+    shipping_state = models.CharField(max_length=100, blank=True)
+    shipping_postal_code = models.CharField(max_length=30, blank=True)
+    shipping_country = models.CharField(max_length=100, blank=True)
+
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=60, blank=True)
     website = models.URLField(blank=True)
@@ -128,6 +151,7 @@ class SalesOrder(CompanyScoped):
     notes = models.TextField(blank=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='sales_orders_created')
     confirmed_at = models.DateTimeField(null=True, blank=True)
+    exchange_rate = models.DecimalField(max_digits=14, decimal_places=6, default=Decimal('1.000000'), help_text='Exchange rate to base currency')
 
     class Meta:
         ordering = ['-id']
@@ -211,14 +235,46 @@ class SalesInvoice(CompanyScoped):
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT, related_name='ar_invoices')
     order = models.ForeignKey(SalesOrder, on_delete=models.PROTECT, null=True, blank=True, related_name='invoices')
     invoice_date = models.DateField(default=timezone.localdate)
+    issue_date = models.DateField(default=timezone.localdate, null=True, blank=True)
     due_date = models.DateField(null=True, blank=True)
+    payment_terms_days = models.PositiveIntegerField(default=0, help_text='Payment terms in days')
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.DRAFT)
     currency = models.ForeignKey(Currency, on_delete=models.PROTECT, null=True, blank=True)
     tax = models.ForeignKey(TaxRate, on_delete=models.PROTECT, null=True, blank=True)
+    salesperson = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='sales_invoices')
+    warehouse = models.ForeignKey('inventory.Warehouse', on_delete=models.SET_NULL, null=True, blank=True, related_name='invoices')
+
+    # Daftra Header & Layout
+    template_design = models.CharField(max_length=50, default='default', blank=True)
+
+    # Shipping Details (بيانات الشحن ومصاريف الشحن)
+    has_shipping = models.BooleanField(default=False)
+    shipping_recipient = models.CharField(max_length=150, blank=True)
+    shipping_address_text = models.TextField(blank=True)
+    shipping_amount = models.DecimalField(**MONEY, default=Decimal('0.00'))
+
+    # Global Discounts & Adjustments (خصم كلي وتسويات)
+    DISCOUNT_TYPE_CHOICES = [
+        ('fixed', 'Fixed Amount / مبلغ ثابت'),
+        ('percent', 'Percentage / نسبة مئوية'),
+    ]
+    global_discount_type = models.CharField(max_length=10, choices=DISCOUNT_TYPE_CHOICES, default='fixed')
+    global_discount_value = models.DecimalField(**MONEY, default=Decimal('0.00'))
+    adjustment_label = models.CharField(max_length=100, blank=True, default='')
+    adjustment_value = models.DecimalField(**MONEY, default=Decimal('0.00'))
+
+    # Paid Upfront (مدفوع بالفعل)
+    is_paid_upfront = models.BooleanField(default=False)
+    upfront_payment_amount = models.DecimalField(**MONEY, default=Decimal('0.00'))
+    upfront_payment_method = models.CharField(max_length=30, blank=True, default='cash')
+    upfront_payment_reference = models.CharField(max_length=100, blank=True)
+
     memo = models.TextField(blank=True)
+    terms_conditions = models.TextField(blank=True)
     is_recurring = models.BooleanField(default=False)
     posted_at = models.DateTimeField(null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    exchange_rate = models.DecimalField(max_digits=14, decimal_places=6, default=Decimal('1.000000'), help_text='Exchange rate to base currency')
 
     class Meta:
         ordering = ['-id']
@@ -229,7 +285,7 @@ class SalesInvoice(CompanyScoped):
     @property
     def total(self):
         from apps.sales.services import document_total
-        return document_total(self.lines.all())
+        return document_total(self.lines.all(), invoice=self)
 
     @property
     def paid_total(self):
@@ -241,20 +297,40 @@ class SalesInvoice(CompanyScoped):
 
 
 class SalesInvoiceLine(TimeStampMixin):
+    DISCOUNT_TYPE_CHOICES = [
+        ('percent', 'Percentage (%)'),
+        ('fixed', 'Fixed Amount'),
+    ]
     invoice = models.ForeignKey(SalesInvoice, on_delete=models.CASCADE, related_name='lines')
     product = models.ForeignKey('inventory.Product', on_delete=models.PROTECT, related_name='invoice_lines')
+    warehouse = models.ForeignKey('inventory.Warehouse', on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_lines')
+    salesperson = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     description = models.CharField(max_length=200, blank=True)
     quantity = models.DecimalField(**MONEY, default=Decimal('1.00'))
     price = models.DecimalField(**MONEY, default=Decimal('0.00'))
+    discount_type = models.CharField(max_length=10, choices=DISCOUNT_TYPE_CHOICES, default='percent')
     discount_percent = models.DecimalField(**MONEY, default=Decimal('0.00'))
-    tax = models.ForeignKey(TaxRate, on_delete=models.PROTECT, null=True, blank=True)
+    discount_amount = models.DecimalField(**MONEY, default=Decimal('0.00'))
+    tax = models.ForeignKey(TaxRate, on_delete=models.PROTECT, null=True, blank=True, related_name='invoice_lines_tax1')
+    tax2 = models.ForeignKey(TaxRate, on_delete=models.PROTECT, null=True, blank=True, related_name='invoice_lines_tax2')
 
     class Meta:
         ordering = ['id']
 
     @property
     def line_total(self):
-        return line_amount(self.price, self.quantity, self.discount_percent)
+        gross = self.price * self.quantity
+        if self.discount_type == 'fixed':
+            disc = self.discount_amount
+        else:
+            disc = gross * (self.discount_percent / Decimal('100.00'))
+        net = max(Decimal('0.00'), gross - disc)
+        tax_add = Decimal('0.00')
+        if self.tax:
+            tax_add += net * (self.tax.rate / Decimal('100.00'))
+        if self.tax2:
+            tax_add += net * (self.tax2.rate / Decimal('100.00'))
+        return net + tax_add
 
 
 class CustomerPayment(CompanyScoped):
@@ -303,13 +379,28 @@ class SalesQuote(CompanyScoped):
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT, related_name='quotes')
     quote_date = models.DateField(default=timezone.localdate)
     valid_until = models.DateField(null=True, blank=True)
+    payment_terms_days = models.PositiveIntegerField(default=0)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.DRAFT)
     currency = models.ForeignKey(Currency, on_delete=models.PROTECT, null=True, blank=True)
     salesperson = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='sales_quotes')
+    warehouse = models.ForeignKey('inventory.Warehouse', on_delete=models.SET_NULL, null=True, blank=True, related_name='quotes')
+
+    # Global Discounts & Shipping
+    has_shipping = models.BooleanField(default=False)
+    shipping_recipient = models.CharField(max_length=150, blank=True)
+    shipping_address_text = models.TextField(blank=True)
+    shipping_amount = models.DecimalField(**MONEY, default=Decimal('0.00'))
+    global_discount_type = models.CharField(max_length=10, choices=SalesInvoice.DISCOUNT_TYPE_CHOICES, default='fixed')
+    global_discount_value = models.DecimalField(**MONEY, default=Decimal('0.00'))
+    adjustment_label = models.CharField(max_length=100, blank=True, default='')
+    adjustment_value = models.DecimalField(**MONEY, default=Decimal('0.00'))
+
     notes = models.TextField(blank=True)
+    terms_conditions = models.TextField(blank=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     accepted_at = models.DateTimeField(null=True, blank=True)
     converted_to_order = models.ForeignKey(SalesOrder, on_delete=models.SET_NULL, null=True, blank=True, related_name='converted_quotes')
+    exchange_rate = models.DecimalField(max_digits=14, decimal_places=6, default=Decimal('1.000000'), help_text='Exchange rate to base currency')
 
     class Meta:
         ordering = ['-id']
@@ -320,16 +411,21 @@ class SalesQuote(CompanyScoped):
     @property
     def total(self):
         from apps.sales.services import document_total
-        return document_total(self.lines.all())
+        return document_total(self.lines.all(), invoice=self)
 
 
 class SalesQuoteLine(TimeStampMixin):
     quote = models.ForeignKey(SalesQuote, on_delete=models.CASCADE, related_name='lines')
     product = models.ForeignKey('inventory.Product', on_delete=models.PROTECT, related_name='quote_lines')
+    warehouse = models.ForeignKey('inventory.Warehouse', on_delete=models.SET_NULL, null=True, blank=True, related_name='quote_lines')
     description = models.CharField(max_length=200, blank=True)
     quantity = models.DecimalField(**MONEY, default=Decimal('1.00'))
     price = models.DecimalField(**MONEY, default=Decimal('0.00'))
+    discount_type = models.CharField(max_length=10, choices=SalesInvoiceLine.DISCOUNT_TYPE_CHOICES, default='percent')
     discount_percent = models.DecimalField(**MONEY, default=Decimal('0.00'))
+    discount_amount = models.DecimalField(**MONEY, default=Decimal('0.00'))
+    tax = models.ForeignKey(TaxRate, on_delete=models.PROTECT, null=True, blank=True, related_name='quote_lines_tax1')
+    tax2 = models.ForeignKey(TaxRate, on_delete=models.PROTECT, null=True, blank=True, related_name='quote_lines_tax2')
 
     class Meta:
         ordering = ['id']
@@ -339,7 +435,18 @@ class SalesQuoteLine(TimeStampMixin):
 
     @property
     def line_total(self):
-        return line_amount(self.price, self.quantity, self.discount_percent)
+        gross = self.price * self.quantity
+        if self.discount_type == 'fixed':
+            disc = self.discount_amount
+        else:
+            disc = gross * (self.discount_percent / Decimal('100.00'))
+        net = max(Decimal('0.00'), gross - disc)
+        tax_add = Decimal('0.00')
+        if self.tax:
+            tax_add += net * (self.tax.rate / Decimal('100.00'))
+        if self.tax2:
+            tax_add += net * (self.tax2.rate / Decimal('100.00'))
+        return net + tax_add
 
 
 # ---------------------------------------------------------------------------
@@ -431,7 +538,21 @@ class SalesSettings(CompanyScoped):
     quote_prefix = models.CharField(max_length=10, default='QOT')
     credit_note_prefix = models.CharField(max_length=10, default='CN')
     order_prefix = models.CharField(max_length=10, default='SO')
+    receipt_prefix = models.CharField(max_length=10, default='RCPT')
+
+    # Daftra Numbering Settings Parity (إعدادات الترقيم المتسلسل)
+    NUMBERING_FORMAT_CHOICES = [
+        ('prefix_num', 'بادئة ورقم متسلسل (مثال: INV-0001)'),
+        ('prefix_year_num', 'بادئة وسنة ورقم (مثال: INV-2026-0001)'),
+        ('prefix_month_num', 'بادئة وشهر وسنة ورقم (مثال: INV-2026-09-0001)'),
+    ]
+    numbering_format = models.CharField(max_length=30, choices=NUMBERING_FORMAT_CHOICES, default='prefix_num')
+    number_padding = models.PositiveSmallIntegerField(default=4, help_text='عدد خانات الرقم (مثال: 4 خانات تعطي 0001)')
+    reset_sequence_yearly = models.BooleanField(default=False, help_text='إعادة تصفير الترقيم سنوياً')
+    next_invoice_number = models.PositiveIntegerField(default=1, help_text='رقم الفاتورة التالي')
+
     default_notes = models.TextField(blank=True)
+    default_terms = models.TextField(blank=True)
     auto_post_invoices = models.BooleanField(default=False)
 
     class Meta:

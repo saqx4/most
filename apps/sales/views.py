@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -11,7 +13,7 @@ from apps.inventory.models import StockMovement
 from apps.sales import services as sal
 from apps.sales.forms import (CustomerForm, InvoiceForm, InvoiceLineForm,
                               OrderForm, OrderLineForm, PaymentForm)
-from apps.sales.models import (Customer, CreditNote, CreditNoteLine,
+from apps.sales.models import (Customer, CustomerPayment, CreditNote, CreditNoteLine,
                                PeriodicInvoice, SalesInvoice, SalesInvoiceLine,
                                SalesOrder, SalesOrderLine, SalesQuote,
                                SalesQuoteLine, SalesSettings)
@@ -188,8 +190,22 @@ def invoice_detail(request, pk):
     company = _company(request)
     invoice = get_object_or_404(SalesInvoice.objects.select_related('customer', 'order', 'currency', 'tax'), pk=pk, company=company)
     payments = invoice.allocations.select_related('payment')
+
+    from apps.core.services import generate_zatca_qr
+    tax_amt = Decimal('0.00')
+    for l in invoice.lines.all():
+        if getattr(l, 'tax', None):
+            tax_amt += l.line_total * (l.tax.rate / Decimal('100.00'))
+    qr_data_uri = generate_zatca_qr(
+        seller_name=company.name if company else 'ERP',
+        tax_no=company.tax_id if company else '',
+        timestamp_iso=f'{invoice.invoice_date}T12:00:00Z',
+        total_amount=invoice.total,
+        tax_amount=tax_amt,
+    )
+
     return render(request, 'apps/sales/invoice_detail.html', {
-        'invoice': invoice, 'payments': payments,
+        'invoice': invoice, 'payments': payments, 'qr_data_uri': qr_data_uri,
         'stock_movements': StockMovement.objects.filter(
             company=company, reference_type='SALES_DELIVERY', reference_id=invoice.pk),
     })
@@ -215,7 +231,36 @@ def invoice_create(request):
             invoice.save()
             formset.instance = invoice
             formset.save()
-            messages.success(request, f'Invoice {invoice.number} created.')
+
+            # If marked paid upfront ("مدفوع بالفعل"), record payment and allocate immediately
+            if invoice.is_paid_upfront and invoice.upfront_payment_amount > Decimal('0.00'):
+                try:
+                    pay_amt = invoice.upfront_payment_amount
+                    payment = CustomerPayment.objects.create(
+                        company=company,
+                        number=sal.next_number(company, 'RCPT'),
+                        customer=invoice.customer,
+                        date=invoice.invoice_date,
+                        amount=pay_amt,
+                        method=invoice.upfront_payment_method or 'cash',
+                        reference=invoice.upfront_payment_reference or f'Inv #{invoice.number}',
+                        notes=f'Upfront payment for Invoice {invoice.number}',
+                        status=CustomerPayment.Status.RECEIVED,
+                        created_by=request.user,
+                        posted_at=timezone.now()
+                    )
+                    sal.ARPaymentAllocation.objects.create(
+                        payment=payment,
+                        invoice=invoice,
+                        allocated=pay_amt
+                    )
+                    if invoice.amount_due <= Decimal('0.00'):
+                        invoice.status = SalesInvoice.Status.PAID
+                        invoice.save(update_fields=['status'])
+                except Exception as p_err:
+                    messages.warning(request, f'Invoice saved, but upfront payment allocation failed: {p_err}')
+
+            messages.success(request, f'Invoice {invoice.number} created successfully.')
             return redirect('sales:invoice_detail', pk=invoice.pk)
     return render(request, 'apps/sales/invoice_form.html', {'form': form, 'formset': formset})
 
@@ -228,6 +273,19 @@ def invoice_mark_paid(request, pk):
     invoice = get_object_or_404(SalesInvoice.objects.select_related('customer'), pk=pk, company=company)
     try:
         payment = sal.pay_invoice(invoice, user=request.user)
+        if invoice.warehouse:
+            from apps.inventory.services import apply_stock_movement
+            from apps.inventory.models import StockMovement
+            for line in invoice.lines.all():
+                if line.quantity > 0:
+                    apply_stock_movement(
+                        company, product=line.product, warehouse=invoice.warehouse,
+                        quantity=-line.quantity, unit_cost=line.product.avg_cost or Decimal('0.00'),
+                        movement_type=StockMovement.MovementType.SALES_OUT,
+                        reference_type='SALES_INVOICE', reference_id=invoice.pk,
+                        reference_number=invoice.number, notes=f'Auto-deduct from invoice {invoice.number}',
+                        user=request.user,
+                    )
         messages.success(request, f'Invoice {invoice.number} marked paid (payment {payment.number}).')
     except ValueError as exc:
         messages.error(request, str(exc))
@@ -556,8 +614,32 @@ def invoice_pdf(request, pk):
     company = _company(request)
     invoice = get_object_or_404(SalesInvoice.objects.select_related('customer', 'order', 'currency', 'tax'), pk=pk, company=company)
     from apps.core.pdf import render_to_pdf
-    return render_to_pdf('pdf/invoice.html', {
-        'invoice': invoice, 'company': company,
+    from apps.core.services import generate_zatca_qr
+
+    # Compute tax amount for QR
+    lines = invoice.lines.all()
+    tax_amt = Decimal('0.00')
+    for l in lines:
+        if getattr(l, 'tax', None):
+            tax_amt += l.line_total * (l.tax.rate / Decimal('100.00'))
+
+    qr_data_uri = generate_zatca_qr(
+        seller_name=company.name if company else 'ERP',
+        tax_no=company.tax_id if company else '',
+        timestamp_iso=f'{invoice.invoice_date}T12:00:00Z',
+        total_amount=invoice.total,
+        tax_amount=tax_amt
+    )
+
+    template_map = {
+        'modern': 'pdf/invoice_modern.html',
+        'classic': 'pdf/invoice_classic.html',
+        'pos': 'pdf/invoice_pos.html',
+    }
+    template_name = template_map.get(getattr(invoice, 'template_design', ''), 'pdf/invoice.html')
+
+    return render_to_pdf(template_name, {
+        'invoice': invoice, 'company': company, 'qr_data_uri': qr_data_uri,
     }, filename=f'{invoice.number}.pdf')
 
 
@@ -586,6 +668,62 @@ def customer_export(request):
     if fmt == 'xlsx':
         return export_to_excel(qs, fields, 'customers.xlsx')
     return export_to_csv(qs, fields, 'customers.csv')
+
+
+@login_required
+@roles_required('sales', 'accountant')
+def customer_import(request):
+    company = _company(request)
+    if request.method == 'POST':
+        file = request.FILES.get('file')
+        if not file:
+            messages.error(request, 'Please upload a file.')
+            return redirect('sales:customer_list')
+        from apps.core.export import import_customers_from_file
+        count, errors = import_customers_from_file(file, company, user=request.user)
+        if errors:
+            for e in errors[:5]:
+                messages.warning(request, e)
+        messages.success(request, f'{count} customer(s) imported successfully.')
+        return redirect('sales:customer_list')
+    return render(request, 'apps/sales/customer_import.html')
+
+
+@login_required
+def customer_statement(request, pk):
+    company = _company(request)
+    customer = get_object_or_404(Customer, pk=pk, company=company)
+    start_date = request.GET.get('start', '')
+    end_date = request.GET.get('end', '')
+
+    invoices = customer.ar_invoices.filter(company=company).select_related('currency')
+    payments = customer.payments.filter(company=company)
+
+    if start_date:
+        from datetime import date
+        invoices = invoices.filter(invoice_date__gte=start_date)
+        payments = payments.filter(date__gte=start_date)
+    if end_date:
+        from datetime import date
+        invoices = invoices.filter(invoice_date__lte=end_date)
+        payments = payments.filter(date__lte=end_date)
+
+    lines = []
+    for inv in invoices:
+        lines.append({'date': inv.invoice_date, 'type': 'Invoice', 'reference': inv.number, 'debit': inv.total, 'credit': Decimal('0.00'), 'balance': None})
+    for pmt in payments:
+        lines.append({'date': pmt.date, 'type': 'Payment', 'reference': pmt.number, 'debit': Decimal('0.00'), 'credit': pmt.amount, 'balance': None})
+
+    lines.sort(key=lambda x: x['date'] or timezone.localdate())
+
+    running = Decimal('0.00')
+    for line in lines:
+        running = running + line['debit'] - line['credit']
+        line['balance'] = running
+
+    return render(request, 'apps/sales/customer_statement.html', {
+        'customer': customer, 'lines': lines, 'start_date': start_date, 'end_date': end_date,
+    })
 
 
 @login_required

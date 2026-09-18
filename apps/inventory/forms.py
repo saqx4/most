@@ -1,7 +1,7 @@
 from django import forms
 
 from apps.inventory.models import (Category, Product, StockAdjustment, StockAdjustmentLine,
-                                   StockTransfer, StockTransferLine, Warehouse)
+                                   StockTransfer, StockTransferLine, UnitOfMeasure, Warehouse)
 
 FIELD_CLS = 'w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none'
 SELECT_CLS = 'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none'
@@ -22,22 +22,30 @@ def style_form(form):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['sku', 'name', 'category', 'uom', 'barcode', 'description',
-                  'purchase_price', 'sale_price', 'income_account', 'cogs_account',
-                  'expense_account', 'is_service', 'is_sellable', 'is_tracked',
-                  'is_active', 'reorder_point', 'can_backorder']
+        fields = [
+            'sku', 'name', 'category', 'brand', 'uom', 'barcode', 'description',
+            'purchase_price', 'sale_price', 'min_sale_price', 'tax1', 'tax2',
+            'purchase_tax1', 'purchase_tax2', 'income_account', 'cogs_account',
+            'expense_account', 'is_service', 'is_sellable', 'is_tracked',
+            'is_active', 'reorder_point', 'can_backorder'
+        ]
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
         }
 
     def __init__(self, *args, company=None, **kwargs):
         super().__init__(*args, **kwargs)
-        from apps.accounting.models import Account
+        from apps.accounting.models import Account, TaxRate
         from apps.inventory.models import Category, UnitOfMeasure
         self.fields['category'].queryset = Category.objects.filter(company=company)
         self.fields['category'].required = False
+        self.fields['brand'].required = False
+        self.fields['min_sale_price'].required = False
         self.fields['uom'].queryset = UnitOfMeasure.objects.all()
         self.fields['uom'].required = False
+        for tax_field in ('tax1', 'tax2', 'purchase_tax1', 'purchase_tax2'):
+            self.fields[tax_field].queryset = TaxRate.objects.filter(company=company, is_active=True)
+            self.fields[tax_field].required = False
         for name in ('income_account', 'cogs_account', 'expense_account'):
             self.fields[name].queryset = Account.objects.filter(company=company, is_active=True)
             self.fields[name].required = False
@@ -221,3 +229,55 @@ class WarehouseForm(forms.ModelForm):
         for fname, field in self.fields.items():
             if fname in label_map:
                 field.label = label_map[fname]
+
+
+class StockVoucherForm(forms.ModelForm):
+    class Meta:
+        from apps.inventory.models import StockVoucher
+        model = StockVoucher
+        fields = ['voucher_type', 'warehouse', 'to_warehouse', 'date', 'reason', 'reference', 'notes']
+        widgets = {
+            'notes': forms.Textarea(attrs={'rows': 2, 'placeholder': 'ملاحظات الإذن المخزني...'}),
+        }
+
+    def __init__(self, *args, company=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        from apps.inventory.models import Warehouse
+        self.fields['warehouse'].queryset = Warehouse.objects.filter(company=company, is_active=True)
+        self.fields['to_warehouse'].required = False
+        self.fields['to_warehouse'].queryset = Warehouse.objects.filter(company=company, is_active=True)
+        self.fields['reason'].required = False
+        self.fields['reference'].required = False
+        self.fields['notes'].required = False
+        style_form(self)
+
+
+class StockVoucherLineForm(forms.ModelForm):
+    class Meta:
+        from apps.inventory.models import StockVoucherLine
+        model = StockVoucherLine
+        fields = ['product', 'quantity', 'unit_cost', 'notes']
+
+    def __init__(self, *args, company=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        from apps.inventory.models import Product
+        self.fields['product'].queryset = Product.objects.filter(company=company, is_active=True)
+        self.fields['unit_cost'].required = False
+        self.fields['notes'].required = False
+        style_form(self)
+
+
+class UnitOfMeasureForm(forms.ModelForm):
+    class Meta:
+        model = UnitOfMeasure
+        fields = ['code', 'name', 'symbol']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            if isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.setdefault('class', 'h-4 w-4 rounded border-slate-300 text-indigo-600')
+            elif isinstance(field.widget, forms.Select):
+                field.widget.attrs.setdefault('class', SELECT_CLS)
+            else:
+                field.widget.attrs.setdefault('class', FIELD_CLS)

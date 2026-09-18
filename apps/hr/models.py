@@ -31,6 +31,11 @@ class Department(CompanyScoped):
 
 
 class Employee(CompanyScoped):
+    EMPLOYMENT_TYPES = [
+        ('full_time', 'Full Time / دوام كامل'),
+        ('part_time', 'Part Time / دوام جزئي'),
+        ('contract', 'Contract / عقد مؤقت'),
+    ]
     employee_code = models.CharField(max_length=30)
     user = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, blank=True, related_name='employees'
@@ -39,13 +44,21 @@ class Employee(CompanyScoped):
     last_name = models.CharField(max_length=120)
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=60, blank=True)
+    mobile = models.CharField(max_length=60, blank=True)
+    national_id = models.CharField(max_length=60, blank=True, help_text='الرقم القومي / الهوية')
     department = models.ForeignKey(
         Department, on_delete=models.SET_NULL, null=True, blank=True, related_name='employees'
     )
     job_title = models.CharField(max_length=160, blank=True)
+    designation = models.CharField(max_length=160, blank=True, help_text='المسمى الوظيفي')
+    employment_type = models.CharField(max_length=20, choices=EMPLOYMENT_TYPES, default='full_time')
     hired_on = models.DateField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     base_salary = models.DecimalField(**MONEY, default=Decimal('0.00'))
+    allowances = models.DecimalField(**MONEY, default=Decimal('0.00'), help_text='البدلات الشهرية')
+    bank_name = models.CharField(max_length=120, blank=True)
+    bank_account_number = models.CharField(max_length=100, blank=True)
+    iban = models.CharField(max_length=100, blank=True)
 
     class Meta:
         ordering = ['employee_code']

@@ -9,7 +9,9 @@ class EmployeeForm(forms.ModelForm):
         model = Employee
         fields = [
             'employee_code', 'user', 'first_name', 'last_name', 'email', 'phone',
-            'department', 'job_title', 'hired_on', 'is_active', 'base_salary',
+            'mobile', 'national_id', 'department', 'job_title', 'designation',
+            'employment_type', 'hired_on', 'is_active', 'base_salary', 'allowances',
+            'bank_name', 'bank_account_number', 'iban'
         ]
         widgets = {
             'email': forms.EmailInput(attrs={'class': 'input'}),

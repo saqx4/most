@@ -67,6 +67,13 @@ class Product(CompanyScoped):
     income_account = models.ForeignKey(Account, on_delete=models.PROTECT, null=True, blank=True, related_name='products_income')
     cogs_account = models.ForeignKey(Account, on_delete=models.PROTECT, null=True, blank=True, related_name='products_cogs')
     expense_account = models.ForeignKey(Account, on_delete=models.PROTECT, null=True, blank=True, related_name='products_expense')
+    brand = models.CharField(max_length=120, blank=True, help_text='الماركة / العلامة التجارية')
+    min_sale_price = models.DecimalField(**MONEY, default=Decimal('0.00'), help_text='أقل سعر بيع')
+    tax1 = models.ForeignKey(TaxRate, on_delete=models.SET_NULL, null=True, blank=True, related_name='products_tax1')
+    tax2 = models.ForeignKey(TaxRate, on_delete=models.SET_NULL, null=True, blank=True, related_name='products_tax2')
+    purchase_tax1 = models.ForeignKey(TaxRate, on_delete=models.SET_NULL, null=True, blank=True, related_name='products_ptax1')
+    purchase_tax2 = models.ForeignKey(TaxRate, on_delete=models.SET_NULL, null=True, blank=True, related_name='products_ptax2')
+
     is_service = models.BooleanField(default=False)
     is_sellable = models.BooleanField(default=True)
     is_tracked = models.BooleanField(default=True)
@@ -228,6 +235,50 @@ class StockAdjustmentLine(TimeStampMixin):
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
     quantity = models.DecimalField(**MONEY, default=Decimal('0.00'))
     reason = models.CharField(max_length=200, blank=True)
+
+    def __str__(self):
+        return f'{self.quantity} x {self.product}'
+
+
+# ---------------------------------------------------------------------------
+# Daftra Stock Vouchers (أذون المخزن: إضافة / صرف / تحويل)
+# ---------------------------------------------------------------------------
+class StockVoucher(CompanyScoped):
+    class VoucherType(models.TextChoices):
+        RECEIPT = 'in', 'إذن إضافة مخزنية (Stock In)'
+        ISSUE = 'out', 'إذن صرف مخزني (Stock Out)'
+        TRANSFER = 'transfer', 'إذن تحويل مخزني (Stock Transfer)'
+
+    class Status(models.TextChoices):
+        DRAFT = 'draft', 'مسودة (Draft)'
+        CONFIRMED = 'confirmed', 'مؤكد (Confirmed)'
+        CANCELLED = 'cancelled', 'ملغي (Cancelled)'
+
+    number = models.CharField(max_length=30, editable=False)
+    voucher_type = models.CharField(max_length=15, choices=VoucherType.choices, default=VoucherType.RECEIPT)
+    warehouse = models.ForeignKey(Warehouse, on_delete=models.PROTECT, related_name='vouchers')
+    to_warehouse = models.ForeignKey(Warehouse, on_delete=models.SET_NULL, null=True, blank=True, related_name='vouchers_received')
+    date = models.DateField(default=timezone.localdate)
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.DRAFT)
+    reason = models.CharField(max_length=200, blank=True)
+    reference = models.CharField(max_length=100, blank=True)
+    notes = models.TextField(blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='stock_vouchers')
+    confirmed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-id']
+
+    def __str__(self):
+        return f'{self.number} - {self.get_voucher_type_display()}'
+
+
+class StockVoucherLine(TimeStampMixin):
+    voucher = models.ForeignKey(StockVoucher, on_delete=models.CASCADE, related_name='lines')
+    product = models.ForeignKey(Product, on_delete=models.PROTECT)
+    quantity = models.DecimalField(**MONEY, default=Decimal('1.00'))
+    unit_cost = models.DecimalField(**MONEY, default=Decimal('0.00'))
+    notes = models.CharField(max_length=200, blank=True)
 
     def __str__(self):
         return f'{self.quantity} x {self.product}'

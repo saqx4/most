@@ -93,7 +93,7 @@ class OrderForm(forms.ModelForm):
     class Meta:
         model = SalesOrder
         fields = ['customer', 'warehouse', 'order_date', 'expected_delivery',
-                  'currency', 'salesperson', 'tax', 'notes']
+                  'currency', 'exchange_rate', 'salesperson', 'tax', 'notes']
         widgets = {'notes': forms.Textarea(attrs={'rows': 2})}
 
     def __init__(self, *args, company=None, **kwargs):
@@ -105,6 +105,7 @@ class OrderForm(forms.ModelForm):
         self.fields['expected_delivery'].required = False
         self.fields['currency'].required = False
         self.fields['currency'].queryset = Currency.objects.all()
+        self.fields['exchange_rate'].required = False
         self.fields['salesperson'].required = False
         self.fields['salesperson'].queryset = User.objects.filter(company=company).order_by('username')
         self.fields['tax'].required = False
@@ -142,20 +143,53 @@ class OrderLineForm(forms.ModelForm):
 class InvoiceForm(forms.ModelForm):
     class Meta:
         model = SalesInvoice
-        fields = ['customer', 'order', 'invoice_date', 'due_date', 'currency', 'tax', 'memo']
-        widgets = {'memo': forms.Textarea(attrs={'rows': 2})}
+        fields = [
+            'customer', 'order', 'invoice_date', 'issue_date', 'due_date',
+            'payment_terms_days', 'currency', 'exchange_rate', 'tax', 'salesperson', 'warehouse',
+            'template_design', 'has_shipping', 'shipping_recipient',
+            'shipping_address_text', 'shipping_amount', 'global_discount_type',
+            'global_discount_value', 'adjustment_label', 'adjustment_value',
+            'is_paid_upfront', 'upfront_payment_amount', 'upfront_payment_method',
+            'upfront_payment_reference', 'memo', 'terms_conditions'
+        ]
+        widgets = {
+            'template_design': forms.Select(choices=[
+                ('default', 'Default'),
+                ('modern', 'Modern'),
+                ('classic', 'Classic'),
+                ('pos', 'POS Thermal 80mm'),
+            ]),
+            'memo': forms.Textarea(attrs={'rows': 2, 'placeholder': 'ملاحظات الفاتورة...'}),
+            'terms_conditions': forms.Textarea(attrs={'rows': 2, 'placeholder': 'الشروط والأحكام...'}),
+            'shipping_address_text': forms.Textarea(attrs={'rows': 2, 'placeholder': 'عنوان الشحن والتسليم...'}),
+        }
 
     def __init__(self, *args, company=None, **kwargs):
         super().__init__(*args, **kwargs)
         from apps.accounting.models import Currency, TaxRate
+        from apps.core.models import User
+        from apps.inventory.models import Warehouse
+        self.fields['customer'].queryset = Customer.objects.filter(company=company, is_active=True)
         self.fields['order'].required = False
         self.fields['order'].queryset = SalesOrder.objects.filter(company=company)
+        self.fields['issue_date'].required = False
         self.fields['due_date'].required = False
         self.fields['currency'].required = False
         self.fields['currency'].queryset = Currency.objects.all()
+        self.fields['exchange_rate'].required = False
         self.fields['tax'].required = False
         self.fields['tax'].queryset = TaxRate.objects.filter(company=company, is_active=True)
+        self.fields['salesperson'].required = False
+        self.fields['salesperson'].queryset = User.objects.filter(company=company).order_by('username')
+        self.fields['warehouse'].required = False
+        self.fields['warehouse'].queryset = Warehouse.objects.filter(company=company, is_active=True)
+        self.fields['payment_terms_days'].required = False
+        self.fields['shipping_amount'].required = False
+        self.fields['global_discount_value'].required = False
+        self.fields['adjustment_value'].required = False
+        self.fields['upfront_payment_amount'].required = False
         self.fields['memo'].required = False
+        self.fields['terms_conditions'].required = False
         style_form(self)
 
     def save(self, company=None, user=None, commit=True):
@@ -172,16 +206,26 @@ class InvoiceForm(forms.ModelForm):
 class InvoiceLineForm(forms.ModelForm):
     class Meta:
         model = SalesInvoiceLine
-        fields = ['product', 'description', 'quantity', 'price', 'discount_percent', 'tax']
+        fields = [
+            'product', 'warehouse', 'description', 'quantity', 'price',
+            'discount_type', 'discount_percent', 'discount_amount', 'tax', 'tax2'
+        ]
 
     def __init__(self, *args, company=None, **kwargs):
         super().__init__(*args, **kwargs)
         from apps.accounting.models import TaxRate
-        from apps.inventory.models import Product
+        from apps.inventory.models import Product, Warehouse
         self.fields['product'].queryset = Product.objects.filter(company=company, is_active=True, is_sellable=True)
+        self.fields['warehouse'].required = False
+        self.fields['warehouse'].queryset = Warehouse.objects.filter(company=company, is_active=True)
         self.fields['description'].required = False
+        self.fields['discount_type'].required = False
+        self.fields['discount_percent'].required = False
+        self.fields['discount_amount'].required = False
         self.fields['tax'].required = False
         self.fields['tax'].queryset = TaxRate.objects.filter(company=company, is_active=True)
+        self.fields['tax2'].required = False
+        self.fields['tax2'].queryset = TaxRate.objects.filter(company=company, is_active=True)
         style_form(self)
 
 
@@ -222,19 +266,39 @@ class PaymentForm(forms.ModelForm):
 class QuoteForm(forms.ModelForm):
     class Meta:
         model = SalesQuote
-        fields = ['customer', 'quote_date', 'valid_until', 'currency', 'salesperson', 'notes']
-        widgets = {'notes': forms.Textarea(attrs={'rows': 2})}
+        fields = [
+            'customer', 'quote_date', 'valid_until', 'payment_terms_days',
+            'currency', 'exchange_rate', 'salesperson', 'warehouse', 'has_shipping',
+            'shipping_recipient', 'shipping_address_text', 'shipping_amount',
+            'global_discount_type', 'global_discount_value', 'adjustment_label',
+            'adjustment_value', 'notes', 'terms_conditions'
+        ]
+        widgets = {
+            'notes': forms.Textarea(attrs={'rows': 2, 'placeholder': 'ملاحظات عرض السعر...'}),
+            'terms_conditions': forms.Textarea(attrs={'rows': 2, 'placeholder': 'الشروط والأحكام...'}),
+            'shipping_address_text': forms.Textarea(attrs={'rows': 2, 'placeholder': 'عنوان التوصيل...'}),
+        }
 
     def __init__(self, *args, company=None, **kwargs):
         super().__init__(*args, **kwargs)
         from apps.accounting.models import Currency
         from apps.core.models import User
+        from apps.inventory.models import Warehouse
+        self.fields['customer'].queryset = Customer.objects.filter(company=company, is_active=True)
         self.fields['valid_until'].required = False
+        self.fields['payment_terms_days'].required = False
         self.fields['currency'].required = False
         self.fields['currency'].queryset = Currency.objects.all()
+        self.fields['exchange_rate'].required = False
         self.fields['salesperson'].required = False
         self.fields['salesperson'].queryset = User.objects.filter(company=company).order_by('username')
+        self.fields['warehouse'].required = False
+        self.fields['warehouse'].queryset = Warehouse.objects.filter(company=company, is_active=True)
+        self.fields['shipping_amount'].required = False
+        self.fields['global_discount_value'].required = False
+        self.fields['adjustment_value'].required = False
         self.fields['notes'].required = False
+        self.fields['terms_conditions'].required = False
         style_form(self)
 
     def save(self, company=None, user=None, commit=True):
@@ -251,13 +315,27 @@ class QuoteForm(forms.ModelForm):
 class QuoteLineForm(forms.ModelForm):
     class Meta:
         model = SalesQuoteLine
-        fields = ['product', 'description', 'quantity', 'price', 'discount_percent']
+        fields = [
+            'product', 'warehouse', 'description', 'quantity', 'price',
+            'discount_type', 'discount_percent', 'discount_amount', 'tax', 'tax2'
+        ]
 
     def __init__(self, *args, company=None, **kwargs):
         super().__init__(*args, **kwargs)
-        from apps.inventory.models import Product
+        from apps.accounting.models import TaxRate
+        from apps.inventory.models import Product, Warehouse
         self.fields['product'].queryset = Product.objects.filter(company=company, is_active=True, is_sellable=True)
+        self.fields['warehouse'].required = False
+        self.fields['warehouse'].queryset = Warehouse.objects.filter(company=company, is_active=True)
         self.fields['description'].required = False
+        self.fields['discount_type'].required = False
+        self.fields['discount_percent'].required = False
+        self.fields['discount_amount'].required = False
+        self.fields['tax'].required = False
+        self.fields['tax'].queryset = TaxRate.objects.filter(company=company, is_active=True)
+        self.fields['tax2'].required = False
+        self.fields['tax2'].queryset = TaxRate.objects.filter(company=company, is_active=True)
+        style_form(self)
         style_form(self)
 
 
@@ -326,9 +404,16 @@ class PeriodicInvoiceForm(forms.ModelForm):
 class SalesSettingsForm(forms.ModelForm):
     class Meta:
         model = SalesSettings
-        fields = ['default_payment_term', 'default_tax', 'invoice_prefix', 'quote_prefix',
-                  'credit_note_prefix', 'order_prefix', 'default_notes', 'auto_post_invoices']
-        widgets = {'default_notes': forms.Textarea(attrs={'rows': 2})}
+        fields = [
+            'invoice_prefix', 'quote_prefix', 'credit_note_prefix', 'order_prefix',
+            'receipt_prefix', 'numbering_format', 'number_padding', 'reset_sequence_yearly',
+            'next_invoice_number', 'default_payment_term', 'default_tax',
+            'default_notes', 'default_terms', 'auto_post_invoices'
+        ]
+        widgets = {
+            'default_notes': forms.Textarea(attrs={'rows': 2, 'placeholder': 'الملاحظات الافتراضية للفواتير...'}),
+            'default_terms': forms.Textarea(attrs={'rows': 2, 'placeholder': 'الشروط والأحكام الافتراضية...'}),
+        }
 
     def __init__(self, *args, company=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -338,4 +423,5 @@ class SalesSettingsForm(forms.ModelForm):
         self.fields['default_tax'].required = False
         self.fields['default_tax'].queryset = TaxRate.objects.filter(company=company, is_active=True)
         self.fields['default_notes'].required = False
+        self.fields['default_terms'].required = False
         style_form(self)

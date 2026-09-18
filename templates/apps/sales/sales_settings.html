@@ -1,19 +1,118 @@
 {% extends 'base.html' %}
-{% block title %}{{ t.SALES_SETTINGS }}{% endblock %}
-{% block page_title %}{{ t.SALES_SETTINGS }}{% endblock %}
+{% block title %}إعدادات المبيعات والترقيم المتسلسل{% endblock %}
+{% block page_title %}إعدادات المبيعات والترقيم المتسلسل{% endblock %}
+
 {% block content %}
-<div class="mx-auto max-w-2xl rounded-2xl border border-slate-200 bg-white p-6">
-  <h2 class="mb-6 text-lg font-semibold text-slate-900">{{ t.SALES_SETTINGS }}</h2>
-  <form method="post" class="space-y-4">{% csrf_token %}
-    {% for field in form.visible_fields %}
-    <div>
-      <label class="mb-1 block text-sm font-medium text-slate-700">{{ field.label }}</label>
-      {{ field }}
-      {% if field.errors %}<p class="mt-1 text-xs text-red-600">{{ field.errors.0 }}</p>{% endif %}
+<div class="mx-auto max-w-4xl space-y-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+      <i class="ri-settings-4-line text-indigo-600"></i> إعدادات المبيعات والترقيم (Daftra Numbering)
+    </h1>
+    <a href="{% url 'sales:invoice_list' %}" class="inline-flex items-center gap-1 text-sm text-indigo-600 hover:underline">
+      <i class="ri-arrow-right-line"></i> العودة للمبيعات
+    </a>
+  </div>
+
+  <form method="post" class="space-y-6">
+    {% csrf_token %}
+
+    <!-- 1. Numbering Sequence Card (إعدادات الترقيم المتسلسل) -->
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+      <h2 class="text-base font-semibold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
+        <i class="ri-hashtag text-indigo-600"></i> إعدادات الترقيم المتسلسل (Daftra Numbering Rules)
+      </h2>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div>
+          <label class="mb-1 block text-xs font-medium text-slate-700">تنسيق الترقيم</label>
+          {{ form.numbering_format }}
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-medium text-slate-700">عدد خانات الرقم (Padding)</label>
+          {{ form.number_padding }}
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-medium text-slate-700">رقم الفاتورة التالي</label>
+          {{ form.next_invoice_number }}
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 pt-2">
+        {{ form.reset_sequence_yearly }}
+        <label for="{{ form.reset_sequence_yearly.id_for_label }}" class="text-xs font-medium text-slate-700 cursor-pointer">
+          إعادة تصفير الترقيم سنوياً مع بداية كل عام ميلادي
+        </label>
+      </div>
+
+      <!-- Prefixes Grid -->
+      <div class="pt-4 border-t border-slate-100">
+        <h3 class="text-xs font-semibold text-slate-800 mb-3">بادئات المستندات (Document Prefixes):</h3>
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-5">
+          <div>
+            <label class="mb-1 block text-xs font-medium text-slate-600">بادئة الفواتير</label>
+            {{ form.invoice_prefix }}
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-medium text-slate-600">بادئة عروض الأسعار</label>
+            {{ form.quote_prefix }}
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-medium text-slate-600">بادئة الإشعارات الدائنة</label>
+            {{ form.credit_note_prefix }}
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-medium text-slate-600">بادئة أوامر البيع</label>
+            {{ form.order_prefix }}
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-medium text-slate-600">بادئة سندات القبض</label>
+            {{ form.receipt_prefix }}
+          </div>
+        </div>
+      </div>
     </div>
-    {% endfor %}
-    <div class="flex items-center gap-3 pt-4">
-      <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-700">{{ t.SAVE }}</button>
+
+    <!-- 2. Defaults & Policies Card -->
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+      <h2 class="text-base font-semibold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
+        <i class="ri-file-settings-line text-indigo-600"></i> الإعدادات الافتراضية للفواتير
+      </h2>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label class="mb-1 block text-xs font-medium text-slate-700">شروط الدفع الافتراضية</label>
+          {{ form.default_payment_term }}
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-medium text-slate-700">الضريبة الافتراضية</label>
+          {{ form.default_tax }}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 pt-2">
+        <div>
+          <label class="mb-1 block text-xs font-medium text-slate-700">الملاحظات الافتراضية</label>
+          {{ form.default_notes }}
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-medium text-slate-700">الشروط والأحكام الافتراضية</label>
+          {{ form.default_terms }}
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+        {{ form.auto_post_invoices }}
+        <label for="{{ form.auto_post_invoices.id_for_label }}" class="text-xs font-medium text-slate-700 cursor-pointer">
+          ترحيل الفواتير للحسابات العامة تلقائياً عند الإنشاء (Auto-Post)
+        </label>
+      </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="flex items-center gap-3">
+      <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700">
+        <i class="ri-save-line"></i> حفظ جميع الإعدادات
+      </button>
     </div>
   </form>
 </div>

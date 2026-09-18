@@ -275,6 +275,8 @@
           <a href="{% url 'inventory:stock_movements' %}" class="nav-item">{{ t.STOCK_MOVEMENTS }}</a>
           <a href="{% url 'inventory:stock_adjustment_create' %}" class="nav-item">{{ t.STOCK_ADJUSTMENTS }}</a>
           <a href="{% url 'inventory:stock_transfer_create' %}" class="nav-item">{{ t.STOCK_TRANSFERS }}</a>
+          <a href="{% url 'inventory:stock_voucher_list' %}" class="nav-item">{{ t.STOCK_VOUCHERS|default:'Vouchers' }}</a>
+          <a href="{% url 'inventory:uom_list' %}" class="nav-item">{{ t.UNITS_OF_MEASURE|default:'Units of Measure' }}</a>
         </div>
       </div>
 
@@ -320,6 +322,9 @@
           <a href="{% url 'reports:trial_balance' %}" class="nav-item">{{ t.TRIAL_BALANCE }}</a>
           <a href="{% url 'reports:income_statement' %}" class="nav-item">{{ t.INCOME_STATEMENT }}</a>
           <a href="{% url 'reports:balance_sheet' %}" class="nav-item">{{ t.BALANCE_SHEET }}</a>
+          <a href="{% url 'accounting:currency_list' %}" class="nav-item">{{ t.CURRENCIES|default:'Currencies' }}</a>
+          <a href="{% url 'accounting:paymentterm_list' %}" class="nav-item">{{ t.PAYMENT_TERMS|default:'Payment Terms' }}</a>
+          <a href="{% url 'accounting:fiscalyear_list' %}" class="nav-item">{{ t.FISCAL_YEARS|default:'Fiscal Years' }}</a>
         </div>
       </div>
 
@@ -352,6 +357,7 @@
         <div id="items-settings" class="nav-section nav-child hidden">
           <a href="{% url 'core:user_list' %}" class="nav-item">{{ t.USER_MANAGEMENT }}</a>
           <a href="{% url 'core:profile' %}" class="nav-item">{{ t.MY_PROFILE }}</a>
+          <a href="{% url 'core:activity_log' %}" class="nav-item">Activity Log</a>
         </div>
       </div>
       {% endif %}
@@ -368,6 +374,69 @@
     </div>
   </aside>
   <div id="sidebarBackdrop" class="sidebar-backdrop lg:hidden" onclick="closeSidebar()"></div>
+
+  <!-- Command Palette -->
+  <div id="commandPalette" class="hidden fixed inset-0 z-[100] flex items-start justify-center pt-[8vh] sm:pt-[15vh] px-3">
+    <div id="cmdBackdrop" class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+    <div class="relative w-full max-w-lg rounded-2xl border border-gray-200/80 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900 overflow-hidden">
+      <!-- Search Input -->
+      <div class="flex items-center gap-3 border-b border-gray-100 px-3 sm:px-4 dark:border-gray-800">
+        <i class="ri-search-line text-gray-400 text-sm flex-shrink-0"></i>
+        <input
+          id="cmdInput"
+          type="text"
+          placeholder="Search anything..."
+          class="flex-1 bg-transparent py-3 sm:py-3.5 text-sm text-gray-800 placeholder-gray-400 outline-none dark:text-gray-200 dark:placeholder-gray-500"
+          autocomplete="off"
+        >
+        <kbd class="flex-shrink-0 rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-500">ESC</kbd>
+      </div>
+      <!-- Results -->
+      <div id="cmdResults" class="max-h-[55vh] sm:max-h-[50vh] overflow-y-auto p-1.5">
+        <div id="cmdList"></div>
+        <div id="cmdEmpty" class="hidden py-10 text-center">
+          <i class="ri-search-line text-3xl text-gray-300 dark:text-gray-600 mb-2"></i>
+          <p class="text-sm text-gray-400">No results found</p>
+        </div>
+        <div id="cmdLoading" class="hidden py-6 text-center">
+          <i class="ri-loader-4-line animate-spin text-lg text-gray-400"></i>
+        </div>
+        <!-- Quick Pages (shown when empty) -->
+        <div id="cmdPages" class="p-1">
+          <div class="px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-600">Quick Navigation</div>
+          <a href="{% url 'reports:dashboard' %}" class="cmd-item flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800">
+            <i class="ri-dashboard-3-line text-gray-400 text-sm"></i> Dashboard
+          </a>
+          <a href="{% url 'sales:invoice_list' %}" class="cmd-item flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800">
+            <i class="ri-file-text-line text-gray-400 text-sm"></i> Invoices
+          </a>
+          <a href="{% url 'sales:customer_list' %}" class="cmd-item flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800">
+            <i class="ri-user-3-line text-gray-400 text-sm"></i> Customers
+          </a>
+          <a href="{% url 'inventory:product_list' %}" class="cmd-item flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800">
+            <i class="ri-archive-line text-gray-400 text-sm"></i> Products
+          </a>
+          <a href="{% url 'purchasing:supplier_list' %}" class="cmd-item flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800">
+            <i class="ri-truck-line text-gray-400 text-sm"></i> Suppliers
+          </a>
+          <a href="{% url 'accounting:journal_list' %}" class="cmd-item flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800">
+            <i class="ri-line-chart-line text-gray-400 text-sm"></i> Journal Entries
+          </a>
+          <a href="{% url 'hr:employee_list' %}" class="cmd-item flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800">
+            <i class="ri-team-line text-gray-400 text-sm"></i> Employees
+          </a>
+        </div>
+      </div>
+      <!-- Footer -->
+      <div class="hidden sm:flex items-center justify-between border-t border-gray-100 px-4 py-2 dark:border-gray-800">
+        <div class="flex items-center gap-3 text-[11px] text-gray-400">
+          <span class="flex items-center gap-1"><kbd class="rounded border border-gray-200 bg-gray-100 px-1 py-0.5 text-[9px] dark:border-gray-600 dark:bg-gray-800">&uarr;&darr;</kbd> Navigate</span>
+          <span class="flex items-center gap-1"><kbd class="rounded border border-gray-200 bg-gray-100 px-1 py-0.5 text-[9px] dark:border-gray-600 dark:bg-gray-800">&crarr;</kbd> Open</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   {% endblock %}
 {% endif %}
 
@@ -380,7 +449,19 @@
       </button>
       <h1 class="text-[15px] font-semibold tracking-tight text-gray-900 dark:text-white">{% block page_title %}Dashboard{% endblock %}</h1>
     </div>
+
+    <!-- Global Search Trigger -->
+    <button id="searchTrigger" type="button" class="flex items-center gap-2 rounded-lg border border-gray-200/80 bg-white/50 px-3 py-1.5 text-xs text-gray-400 hover:border-gray-300 hover:text-gray-500 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-500 dark:hover:border-gray-600 dark:hover:text-gray-400 transition-colors cursor-pointer">
+      <i class="ri-search-line text-[13px]"></i>
+      <span class="hidden sm:inline">Search...</span>
+      <kbd class="hidden sm:inline rounded border border-gray-200 bg-gray-100 px-1 py-0.5 text-[10px] font-medium text-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-500">Ctrl K</kbd>
+    </button>
+
     <div class="flex items-center gap-1.5">
+      <!-- Mobile Search -->
+      <button id="searchTriggerMobile" type="button" class="sm:hidden rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300" title="Search (Ctrl+K)">
+        <i class="ri-search-line text-[17px]"></i>
+      </button>
       <!-- Language -->
       <form id="langForm" method="post" action="{% url 'set_language' %}" class="inline">
         {% csrf_token %}
@@ -515,6 +596,215 @@
         if (icon)  icon.style.transform = 'rotate(180deg)';
         active.classList.add('active');
       }
+    });
+  })();
+
+  // --- Command Palette (Ctrl+K) ---
+  (function() {
+    var palette = document.getElementById('commandPalette');
+    var backdrop = document.getElementById('cmdBackdrop');
+    var input = document.getElementById('cmdInput');
+    var list = document.getElementById('cmdList');
+    var emptyMsg = document.getElementById('cmdEmpty');
+    var loadingMsg = document.getElementById('cmdLoading');
+    var pagesSection = document.getElementById('cmdPages');
+    var trigger = document.getElementById('searchTrigger');
+    var debounceTimer = null;
+    var activeIndex = -1;
+
+    function openPalette() {
+      palette.classList.remove('hidden');
+      input.value = '';
+      input.focus();
+      list.innerHTML = '';
+      emptyMsg.classList.add('hidden');
+      loadingMsg.classList.add('hidden');
+      pagesSection.classList.remove('hidden');
+      activeIndex = -1;
+    }
+
+    function closePalette() {
+      palette.classList.add('hidden');
+      input.value = '';
+    }
+
+    // Open
+    if (trigger) trigger.addEventListener('click', openPalette);
+    var triggerMobile = document.getElementById('searchTriggerMobile');
+    if (triggerMobile) triggerMobile.addEventListener('click', openPalette);
+    document.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        openPalette();
+      }
+      if (e.key === 'Escape' && !palette.classList.contains('hidden')) {
+        closePalette();
+      }
+    });
+
+    // Close on backdrop click
+    if (backdrop) backdrop.addEventListener('click', closePalette);
+
+    // Keyboard nav
+    input.addEventListener('keydown', function(e) {
+      var items = list.querySelectorAll('a.cmd-item');
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        activeIndex = Math.min(activeIndex + 1, items.length - 1);
+        items.forEach(function(item, i) {
+          item.classList.toggle('bg-gray-50', i === activeIndex);
+          item.classList.toggle('dark:bg-gray-800', i === activeIndex);
+        });
+        if (items[activeIndex]) items[activeIndex].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        activeIndex = Math.max(activeIndex - 1, 0);
+        items.forEach(function(item, i) {
+          item.classList.toggle('bg-gray-50', i === activeIndex);
+          item.classList.toggle('dark:bg-gray-800', i === activeIndex);
+        });
+        if (items[activeIndex]) items[activeIndex].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter' && activeIndex >= 0 && items[activeIndex]) {
+        e.preventDefault();
+        window.location.href = items[activeIndex].href;
+      }
+    });
+
+    // Search
+    input.addEventListener('input', function() {
+      clearTimeout(debounceTimer);
+      var q = input.value.trim();
+      activeIndex = -1;
+
+      if (q.length < 2) {
+        list.innerHTML = '';
+        emptyMsg.classList.add('hidden');
+        loadingMsg.classList.add('hidden');
+        pagesSection.classList.remove('hidden');
+        return;
+      }
+
+      pagesSection.classList.add('hidden');
+      loadingMsg.classList.remove('hidden');
+      emptyMsg.classList.add('hidden');
+      list.innerHTML = '';
+
+      debounceTimer = setTimeout(function() {
+        fetch('/search/?q=' + encodeURIComponent(q), {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          loadingMsg.classList.add('hidden');
+          list.innerHTML = '';
+
+          // Also search pages
+          var pages = [
+            { title: 'Dashboard', icon: 'ri-dashboard-3-line', url: '/reports/', keywords: 'dashboard home main' },
+            { title: 'Invoices', icon: 'ri-file-text-line', url: '/sales/invoices/', keywords: 'invoice billing' },
+            { title: 'New Invoice', icon: 'ri-add-circle-line', url: '/sales/invoices/new/', keywords: 'create new invoice' },
+            { title: 'Customers', icon: 'ri-user-3-line', url: '/sales/customers/', keywords: 'clients customers' },
+            { title: 'New Customer', icon: 'ri-add-circle-line', url: '/sales/customers/new/', keywords: 'create new customer client' },
+            { title: 'Sales Orders', icon: 'ri-shopping-bag-3-line', url: '/sales/orders/', keywords: 'orders sales' },
+            { title: 'New Order', icon: 'ri-add-circle-line', url: '/sales/orders/new/', keywords: 'create new order' },
+            { title: 'Quotes', icon: 'ri-file-copy-line', url: '/sales/quotes/', keywords: 'quotes quotation' },
+            { title: 'New Quote', icon: 'ri-add-circle-line', url: '/sales/quotes/new/', keywords: 'create new quote' },
+            { title: 'Credit Notes', icon: 'ri-refund-line', url: '/sales/credit-notes/', keywords: 'credit notes return' },
+            { title: 'Payments', icon: 'ri-money-dollar-circle-line', url: '/sales/payments/', keywords: 'payments received' },
+            { title: 'Sales Settings', icon: 'ri-settings-4-line', url: '/sales/settings/', keywords: 'sales settings configuration' },
+            { title: 'Products', icon: 'ri-archive-line', url: '/inventory/', keywords: 'products items inventory' },
+            { title: 'New Product', icon: 'ri-add-circle-line', url: '/inventory/products/new/', keywords: 'create new product item' },
+            { title: 'Categories', icon: 'ri-folder-line', url: '/inventory/categories/', keywords: 'categories' },
+            { title: 'Warehouses', icon: 'ri-building-2-line', url: '/inventory/warehouses/', keywords: 'warehouses stock locations' },
+            { title: 'Stock Levels', icon: 'ri-stack-line', url: '/inventory/stock/levels/', keywords: 'stock levels quantity' },
+            { title: 'Stock Movements', icon: 'ri-arrow-left-right-line', url: '/inventory/stock/movements/', keywords: 'stock movements history' },
+            { title: 'Stock Adjustment', icon: 'ri-add-box-line', url: '/inventory/stock/adjustments/new/', keywords: 'adjust stock' },
+            { title: 'Stock Transfer', icon: 'ri-exchange-line', url: '/inventory/stock/transfers/new/', keywords: 'transfer stock between warehouses' },
+            { title: 'Units of Measure', icon: 'ri-ruler-line', url: '/inventory/uom/', keywords: 'uom units measure' },
+            { title: 'Suppliers', icon: 'ri-truck-line', url: '/purchasing/suppliers/', keywords: 'suppliers vendors' },
+            { title: 'New Supplier', icon: 'ri-add-circle-line', url: '/purchasing/suppliers/new/', keywords: 'create new supplier vendor' },
+            { title: 'Purchase Orders', icon: 'ri-file-list-3-line', url: '/purchasing/orders/', keywords: 'purchase orders buying' },
+            { title: 'New Purchase Order', icon: 'ri-add-circle-line', url: '/purchasing/orders/new/', keywords: 'create new purchase order' },
+            { title: 'Bills', icon: 'ri-bill-line', url: '/purchasing/bills/', keywords: 'supplier bills' },
+            { title: 'New Bill', icon: 'ri-add-circle-line', url: '/purchasing/bills/new/', keywords: 'create new bill' },
+            { title: 'Supplier Payments', icon: 'ri-money-dollar-circle-line', url: '/purchasing/payments/', keywords: 'supplier payments' },
+            { title: 'Journal Entries', icon: 'ri-line-chart-line', url: '/accounting/journal/', keywords: 'journal entries accounting' },
+            { title: 'New Journal Entry', icon: 'ri-add-circle-line', url: '/accounting/journal/new/', keywords: 'create new journal entry' },
+            { title: 'General Ledger', icon: 'ri-book-2-line', url: '/accounting/general-ledger/', keywords: 'general ledger gl' },
+            { title: 'Currencies', icon: 'ri-money-dollar-circle-line', url: '/accounting/currencies/', keywords: 'currencies exchange rates' },
+            { title: 'Payment Terms', icon: 'ri-calendar-line', url: '/accounting/payment-terms/', keywords: 'payment terms' },
+            { title: 'Fiscal Years', icon: 'ri-calendar-check-line', url: '/accounting/fiscal-years/', keywords: 'fiscal years' },
+            { title: 'Trial Balance', icon: 'ri-scales-line', url: '/reports/trial-balance/', keywords: 'trial balance report' },
+            { title: 'Income Statement', icon: 'ri-funds-line', url: '/reports/income-statement/', keywords: 'income statement profit loss' },
+            { title: 'Balance Sheet', icon: 'ri-pie-chart-line', url: '/reports/balance-sheet/', keywords: 'balance sheet' },
+            { title: 'Employees', icon: 'ri-team-line', url: '/hr/employees/', keywords: 'employees staff' },
+            { title: 'New Employee', icon: 'ri-add-circle-line', url: '/hr/employees/new/', keywords: 'create new employee' },
+            { title: 'Departments', icon: 'ri-building-line', url: '/hr/departments/', keywords: 'departments' },
+            { title: 'Attendance', icon: 'ri-time-line', url: '/hr/attendance/', keywords: 'attendance clock in out' },
+            { title: 'Leaves', icon: 'ri-calendar-event-line', url: '/hr/leaves/', keywords: 'leave requests time off' },
+            { title: 'Payslips', icon: 'ri-file-list-2-line', url: '/hr/payslips/', keywords: 'payslips payroll salary' },
+            { title: 'BOM', icon: 'ri-hammer-line', url: '/manufacturing/bom/', keywords: 'bill of materials bom' },
+            { title: 'Work Orders', icon: 'ri-tools-line', url: '/manufacturing/work-orders/', keywords: 'work orders manufacturing' },
+            { title: 'Activity Log', icon: 'ri-history-line', url: '/activity-log/', keywords: 'activity log audit trail' },
+            { title: 'Users', icon: 'ri-user-settings-line', url: '/users/', keywords: 'users management' },
+            { title: 'My Profile', icon: 'ri-user-line', url: '/profile/', keywords: 'my profile account' },
+          ];
+
+          var lq = q.toLowerCase();
+          var matchedPages = pages.filter(function(p) {
+            return p.title.toLowerCase().includes(lq) || p.keywords.toLowerCase().includes(lq);
+          }).slice(0, 4);
+
+          var allResults = [];
+
+          // Add matched pages
+          matchedPages.forEach(function(p) {
+            allResults.push({
+              type: 'Page', icon: p.icon, color: 'text-gray-400',
+              title: p.title, subtitle: 'Navigate to page',
+              url: p.url
+            });
+          });
+
+          // Add data results
+          data.results.forEach(function(r) { allResults.push(r); });
+
+          if (allResults.length === 0) {
+            emptyMsg.classList.remove('hidden');
+            return;
+          }
+
+          // Group by type
+          var groups = {};
+          allResults.forEach(function(r) {
+            if (!groups[r.type]) groups[r.type] = [];
+            groups[r.type].push(r);
+          });
+
+          Object.keys(groups).forEach(function(type) {
+            var groupDiv = document.createElement('div');
+            groupDiv.className = 'mb-1';
+            groupDiv.innerHTML = '<div class="px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-600">' + type + '</div>';
+
+            groups[type].forEach(function(r) {
+              var a = document.createElement('a');
+              a.href = r.url;
+              a.className = 'cmd-item flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors';
+              a.innerHTML =
+                '<i class="' + r.icon + ' text-sm ' + r.color + ' flex-shrink-0"></i>' +
+                '<span class="truncate">' + r.title + '</span>' +
+                (r.subtitle ? '<span class="ml-auto text-[10px] text-gray-400 dark:text-gray-600 truncate max-w-[120px]">' + r.subtitle + '</span>' : '');
+              groupDiv.appendChild(a);
+            });
+
+            list.appendChild(groupDiv);
+          });
+        })
+        .catch(function() {
+          loadingMsg.classList.add('hidden');
+          emptyMsg.classList.remove('hidden');
+        });
+      }, 250);
     });
   })();
 </script>

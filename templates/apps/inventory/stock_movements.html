@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block page_title %}{{ t.STOCK_MOVEMENTS }}{% endblock %}
 {% block content %}
-<div class="mb-6 flex items-center justify-between">
+<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
   <h2 class="text-xl font-bold text-slate-900">{{ t.STOCK_MOVEMENTS }}</h2>
   <div class="flex gap-2">
     <a href="{% url 'inventory:stock_adjustment_create' %}" class="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50"><i class="ri-edit-2-line"></i> {{ t.ADJUST_STOCK }}</a>
@@ -17,7 +17,7 @@
   {% endfor %}
 </div>
 
-<div class="rounded-xl bg-white shadow-sm border border-slate-100 overflow-hidden">
+<div class="rounded-xl bg-white shadow-sm border border-slate-100 overflow-x-auto">
   <table class="min-w-full text-sm">
     <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
       <tr>

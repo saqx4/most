@@ -1,6 +1,8 @@
 from django.contrib import messages
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_GET, require_POST
 
@@ -103,3 +105,128 @@ def user_toggle_active(request, pk):
     status = 'activated' if target.is_active else 'deactivated'
     messages.success(request, f'User "{target.username}" {status}.')
     return redirect('core:user_list')
+
+
+@login_required
+@roles_required('admin', 'manager')
+def activity_log(request):
+    from apps.core.models import AuditLog
+    logs = AuditLog.objects.all().select_related('user').order_by('-created_at')
+    model_filter = request.GET.get('model', '')
+    if model_filter:
+        logs = logs.filter(model=model_filter)
+    action_filter = request.GET.get('action', '')
+    if action_filter:
+        logs = logs.filter(action=action_filter)
+    paginator = Paginator(logs, 50)
+    page = paginator.get_page(request.GET.get('page'))
+    return render(request, 'core/activity_log.html', {'page_obj': page, 'model_filter': model_filter, 'action_filter': action_filter})
+
+
+@login_required
+def global_search(request):
+    q = request.GET.get('q', '').strip()
+    if len(q) < 2:
+        return JsonResponse({'results': []})
+
+    from django.db.models import Q
+    results = []
+    company = getattr(request.user, 'company', None)
+
+    # Customers
+    from apps.sales.models import Customer
+    for c in Customer.objects.filter(
+        Q(name__icontains=q) | Q(email__icontains=q) | Q(phone__icontains=q) | Q(tax_id__icontains=q),
+        company=company, is_active=True
+    )[:5]:
+        results.append({
+            'type': 'Customer', 'icon': 'ri-user-3-line', 'color': 'text-blue-500',
+            'title': c.name, 'subtitle': c.email or c.phone or '',
+            'url': f'/sales/customers/{c.pk}/',
+        })
+
+    # Products
+    from apps.inventory.models import Product
+    for p in Product.objects.filter(
+        Q(name__icontains=q) | Q(sku__icontains=q) | Q(barcode__icontains=q),
+        company=company, is_active=True
+    )[:5]:
+        results.append({
+            'type': 'Product', 'icon': 'ri-archive-line', 'color': 'text-emerald-500',
+            'title': p.name, 'subtitle': p.sku,
+            'url': f'/inventory/products/{p.pk}/',
+        })
+
+    # Invoices
+    from apps.sales.models import SalesInvoice
+    for inv in SalesInvoice.objects.filter(
+        Q(number__icontains=q) | Q(customer__name__icontains=q),
+        company=company
+    )[:5]:
+        results.append({
+            'type': 'Invoice', 'icon': 'ri-file-text-line', 'color': 'text-indigo-500',
+            'title': inv.number, 'subtitle': f'{inv.customer.name} — {inv.status}',
+            'url': f'/sales/invoices/{inv.pk}/',
+        })
+
+    # Orders
+    from apps.sales.models import SalesOrder
+    for o in SalesOrder.objects.filter(
+        Q(number__icontains=q) | Q(customer__name__icontains=q),
+        company=company
+    )[:5]:
+        results.append({
+            'type': 'Order', 'icon': 'ri-shopping-bag-3-line', 'color': 'text-amber-500',
+            'title': o.number, 'subtitle': f'{o.customer.name} — {o.status}',
+            'url': f'/sales/orders/{o.pk}/',
+        })
+
+    # Quotes
+    from apps.sales.models import SalesQuote
+    for qt in SalesQuote.objects.filter(
+        Q(number__icontains=q) | Q(customer__name__icontains=q),
+        company=company
+    )[:5]:
+        results.append({
+            'type': 'Quote', 'icon': 'ri-file-copy-line', 'color': 'text-cyan-500',
+            'title': qt.number, 'subtitle': f'{qt.customer.name} — {qt.status}',
+            'url': f'/sales/quotes/{qt.pk}/',
+        })
+
+    # Suppliers
+    from apps.purchasing.models import Supplier
+    for s in Supplier.objects.filter(
+        Q(name__icontains=q) | Q(email__icontains=q) | Q(phone__icontains=q),
+        company=company, is_active=True
+    )[:5]:
+        results.append({
+            'type': 'Supplier', 'icon': 'ri-truck-line', 'color': 'text-orange-500',
+            'title': s.name, 'subtitle': s.email or s.phone or '',
+            'url': f'/purchasing/suppliers/{s.pk}/',
+        })
+
+    # Purchase Orders
+    from apps.purchasing.models import PurchaseOrder
+    for po in PurchaseOrder.objects.filter(
+        Q(number__icontains=q) | Q(supplier__name__icontains=q),
+        company=company
+    )[:5]:
+        results.append({
+            'type': 'Purchase Order', 'icon': 'ri-file-list-3-line', 'color': 'text-teal-500',
+            'title': po.number, 'subtitle': f'{po.supplier.name} — {po.status}',
+            'url': f'/purchasing/orders/{po.pk}/',
+        })
+
+    # Employees
+    from apps.hr.models import Employee
+    for e in Employee.objects.filter(
+        Q(first_name__icontains=q) | Q(last_name__icontains=q) | Q(employee_code__icontains=q),
+        company=company, is_active=True
+    )[:5]:
+        results.append({
+            'type': 'Employee', 'icon': 'ri-team-line', 'color': 'text-pink-500',
+            'title': e.full_name, 'subtitle': e.job_title or e.employee_code,
+            'url': f'/hr/employees/{e.pk}/',
+        })
+
+    return JsonResponse({'results': results})

@@ -11,19 +11,80 @@ ZERO = Decimal('0.00')
 
 
 def next_number(company, prefix, padding=4):
-    seq_name = f'{prefix}{company.pk}'
-    return get_sequence_next(seq_name, prefix=prefix, padding=padding)
+    from apps.sales.models import SalesSettings
+    settings = SalesSettings.objects.filter(company=company).first()
+    pad = padding
+    fmt = 'prefix_num'
+    if settings:
+        pad = settings.number_padding or padding
+        fmt = settings.number_format if hasattr(settings, 'number_format') else settings.numbering_format
+        if prefix == 'INV' and settings.invoice_prefix:
+            prefix = settings.invoice_prefix
+        elif prefix == 'QOT' and settings.quote_prefix:
+            prefix = settings.quote_prefix
+        elif prefix == 'CN' and settings.credit_note_prefix:
+            prefix = settings.credit_note_prefix
+        elif prefix == 'SO' and settings.order_prefix:
+            prefix = settings.order_prefix
+        elif prefix == 'RCPT' and settings.receipt_prefix:
+            prefix = settings.receipt_prefix
+
+    today = timezone.localdate()
+    seq_name = f'{prefix}_{company.pk}'
+    if settings and getattr(settings, 'reset_sequence_yearly', False):
+        seq_name = f'{prefix}_{company.pk}_{today.year}'
+
+    from apps.core.models import NumberSequence
+    seq, _ = NumberSequence.objects.get_or_create(
+        name=seq_name, defaults={'prefix': prefix, 'padding': pad}
+    )
+    seq.last_number += 1
+    seq.save(update_fields=['last_number', 'updated_at'])
+
+    num_part = f'{seq.last_number:0{pad}d}'
+    if fmt == 'prefix_year_num':
+        return f'{prefix}-{today.year}-{num_part}'
+    elif fmt == 'prefix_month_num':
+        return f'{prefix}-{today.year}-{today.month:02d}-{num_part}'
+    return f'{prefix}-{num_part}'
 
 
-def document_total(lines):
+def document_total(lines, invoice=None):
     from apps.sales.models import line_amount
-    total = ZERO
+    subtotal = ZERO
+    tax_total = ZERO
     for line in lines:
-        net = line_amount(line.price, line.quantity, line.discount_percent)
+        gross = line.price * line.quantity
+        if getattr(line, 'discount_type', 'percent') == 'fixed':
+            disc = getattr(line, 'discount_amount', ZERO) or ZERO
+        else:
+            disc = gross * ((getattr(line, 'discount_percent', ZERO) or ZERO) / Decimal('100.00'))
+        net = max(ZERO, gross - disc)
+        subtotal += net
         if getattr(line, 'tax', None):
-            net += net * (line.tax.rate / Decimal('100.00'))
-        total += net
-    return total
+            tax_total += net * (line.tax.rate / Decimal('100.00'))
+        if getattr(line, 'tax2', None):
+            tax_total += net * (line.tax2.rate / Decimal('100.00'))
+
+    total = subtotal + tax_total
+
+    if invoice:
+        # Global discount
+        g_disc = getattr(invoice, 'global_discount_value', ZERO) or ZERO
+        if getattr(invoice, 'global_discount_type', 'fixed') == 'percent':
+            total -= subtotal * (g_disc / Decimal('100.00'))
+        else:
+            total -= g_disc
+
+        # Shipping
+        shipping = getattr(invoice, 'shipping_amount', ZERO) or ZERO
+        total += shipping
+
+        # Adjustment
+        adjustment = getattr(invoice, 'adjustment_value', ZERO) or ZERO
+        total += adjustment
+
+    return max(ZERO, total)
 
 
 def _resolve_account(company, codes, types):

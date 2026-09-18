@@ -2,8 +2,8 @@
 {% block title %}{{ t.ATTENDANCE_TITLE }}{% endblock %}
 {% block page_title %}{{ t.ATTENDANCE_TITLE }}{% endblock %}
 {% block content %}
-<div class="mb-4 flex items-center gap-2">
-  <form method="get" class="flex items-center gap-2">
+<div class="mb-4 flex flex-wrap items-center gap-2">
+  <form method="get" class="flex flex-wrap items-center gap-2">
     <input type="date" name="date" value="{{ date }}" class="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
     <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">{{ t.APPLY }}</button>
     {% if date %}<a href="{% url 'hr:attendance_list' %}" class="text-sm font-medium text-slate-500">{{ t.RESET }}</a>{% endif %}

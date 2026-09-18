@@ -48,13 +48,25 @@ class PurchaseOrder(CompanyScoped):
 
     number = models.CharField(max_length=30, editable=False)
     supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT, related_name='purchase_orders')
+    warehouse = models.ForeignKey('inventory.Warehouse', on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_orders')
     order_date = models.DateField(default=timezone.localdate)
     expected_delivery = models.DateField(null=True, blank=True)
+    payment_terms_days = models.PositiveIntegerField(default=0)
     delivery_address = models.TextField(blank=True)
     tax = models.ForeignKey(TaxRate, on_delete=models.PROTECT, null=True, blank=True, related_name='purchase_orders')
     currency = models.ForeignKey(Currency, on_delete=models.PROTECT, null=True, blank=True)
     status = models.CharField(max_length=10, choices=PurchaseOrderStatus.choices, default=PurchaseOrderStatus.DRAFT)
+
+    # Daftra Parity: Shipping, Discounts & Adjustments
+    has_shipping = models.BooleanField(default=False)
+    shipping_amount = models.DecimalField(**MONEY, default=Decimal('0.00'))
+    global_discount_type = models.CharField(max_length=10, choices=[('fixed', 'Fixed Amount'), ('percent', 'Percentage')], default='fixed')
+    global_discount_value = models.DecimalField(**MONEY, default=Decimal('0.00'))
+    adjustment_label = models.CharField(max_length=100, blank=True, default='')
+    adjustment_value = models.DecimalField(**MONEY, default=Decimal('0.00'))
+
     notes = models.TextField(blank=True)
+    terms_conditions = models.TextField(blank=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_orders_created')
     confirmed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_orders_confirmed')
     confirmed_at = models.DateTimeField(null=True, blank=True)

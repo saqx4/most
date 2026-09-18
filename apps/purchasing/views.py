@@ -379,3 +379,35 @@ def payment_delete(request, pk):
     payment.delete()
     messages.success(request, f'Supplier payment deleted.')
     return redirect('purchasing:payment_list')
+
+
+@login_required
+def supplier_export(request):
+    company = _company(request)
+    fmt = request.GET.get('format', 'csv')
+    fields = ['name', 'contact_person', 'email', 'phone', 'tax_id', 'is_active']
+    from apps.purchasing.models import Supplier
+    qs = Supplier.objects.filter(company=company).order_by('name')
+    from apps.core.export import export_to_csv, export_to_excel
+    if fmt == 'xlsx':
+        return export_to_excel(qs, fields, 'suppliers.xlsx')
+    return export_to_csv(qs, fields, 'suppliers.csv')
+
+
+@login_required
+@roles_required('purchasing', 'accountant')
+def supplier_import(request):
+    company = _company(request)
+    if request.method == 'POST':
+        file = request.FILES.get('file')
+        if not file:
+            messages.error(request, 'Please upload a file.')
+            return redirect('purchasing:supplier_list')
+        from apps.core.export import import_suppliers_from_file
+        count, errors = import_suppliers_from_file(file, company, user=request.user)
+        if errors:
+            for e in errors[:5]:
+                messages.warning(request, e)
+        messages.success(request, f'{count} supplier(s) imported successfully.')
+        return redirect('purchasing:supplier_list')
+    return render(request, 'apps/purchasing/supplier_import.html')

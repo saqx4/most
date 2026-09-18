@@ -1,0 +1,518 @@
+[
+  {
+    "text": "mostafa",
+    "href": "/"
+  },
+  {
+    "text": "الموارد البشرية",
+    "href": "/v2/owner/dashboard"
+  },
+  {
+    "text": "إدارة التطبيقات",
+    "href": "/v2/owner/plugin-manager/2"
+  },
+  {
+    "text": "إدارة الفواتير",
+    "href": "/owner/invoices/index?reset=1"
+  },
+  {
+    "text": "إنشاء فاتورة",
+    "href": "/owner/invoices/add"
+  },
+  {
+    "text": "إدارة عروض الأسعار",
+    "href": "/owner/invoices/estimates"
+  },
+  {
+    "text": "إنشاء عرض سعر",
+    "href": "/owner/invoices/add_estimate"
+  },
+  {
+    "text": "إشعارات دائنة",
+    "href": "/owner/invoices/creditnotes"
+  },
+  {
+    "text": "الفواتير المرتجعة",
+    "href": "/owner/invoices/refund"
+  },
+  {
+    "text": "الفواتير الدورية",
+    "href": "/owner/invoices/subscriptions"
+  },
+  {
+    "text": "مدفوعات العملاء",
+    "href": "/owner/invoice_payments/index?reset=1"
+  },
+  {
+    "text": "إعدادات المبيعات",
+    "href": "/v2/owner/sales_settings"
+  },
+  {
+    "text": "قوائم مواد الإنتاج",
+    "href": "/v2/owner/entity/bom/list?reset=1"
+  },
+  {
+    "text": "خطط الإنتاج",
+    "href": "/v2/owner/entity/production_plan/list"
+  },
+  {
+    "text": "أوامر التصنيع",
+    "href": "/v2/owner/entity/manufacturing_order/list?reset=1"
+  },
+  {
+    "text": "التكاليف غير المباشرة",
+    "href": "/v2/owner/entity/manufacturing_order_indirect_cost/list"
+  },
+  {
+    "text": "محطات العمل",
+    "href": "/v2/owner/entity/workstation/list?reset=1"
+  },
+  {
+    "text": "الإعدادات",
+    "href": "/v2/owner/manufacturing_settings"
+  },
+  {
+    "text": "المبيعات المستهدفة و العمولات",
+    "href": "/v2/owner/commissions"
+  },
+  {
+    "text": "قواعد العمولة",
+    "href": "/v2/owner/commission_rules"
+  },
+  {
+    "text": "فترات المبيعات",
+    "href": "/v2/owner/commission_sheets"
+  },
+  {
+    "text": "إدارة العملاء",
+    "href": "/v2/owner/entity/client/list?reset=1"
+  },
+  {
+    "text": "إضافة عميل جديد",
+    "href": "/owner/clients/add"
+  },
+  {
+    "text": "المواعيد",
+    "href": "/owner/appointments/index/0/1"
+  },
+  {
+    "text": "قائمة الاتصال",
+    "href": "/owner/client_contacts/index?reset=1"
+  },
+  {
+    "text": "إدارة علاقات العملاء",
+    "href": "/v2/owner/crm"
+  },
+  {
+    "text": "إعدادات العميل",
+    "href": "/v2/owner/clients/settings"
+  },
+  {
+    "text": "المنتجات والخدمات",
+    "href": "/owner/products/index?reset=1"
+  },
+  {
+    "text": "إدارة الإذون المخزنية",
+    "href": "/owner/requisitions/index?reset=1"
+  },
+  {
+    "text": "قوائم الأسعار",
+    "href": "/v2/owner/price_lists"
+  },
+  {
+    "text": "المستودعات",
+    "href": "/owner/stores/index?reset=1"
+  },
+  {
+    "text": "إدارة الجرد",
+    "href": "/v2/owner/entity/stocktaking/list?reset=1"
+  },
+  {
+    "text": "إعدادت المخزون و المنتجات",
+    "href": "/v2/owner/inventory/settings"
+  },
+  {
+    "text": "طلبات الشراء",
+    "href": "/v2/owner/entity/purchase_request/list?reset=1"
+  },
+  {
+    "text": "طلبات عروض الأسعار",
+    "href": "/v2/owner/entity/quotation_request/list?reset=1"
+  },
+  {
+    "text": "عروض أسعار المشتريات",
+    "href": "/v2/owner/entity/purchase_quotation/list?reset=1"
+  },
+  {
+    "text": "أوامر الشراء",
+    "href": "/v2/owner/entity/purchase_order-13/list?reset=1"
+  },
+  {
+    "text": "فواتير الشراء",
+    "href": "/v2/owner/entity/purchase_order/list?reset=1"
+  },
+  {
+    "text": "مرتجعات المشتريات",
+    "href": "/v2/owner/entity/purchase_refund/list?reset=1"
+  },
+  {
+    "text": "إشعارات مدينة",
+    "href": "/v2/owner/entity/purchase_debit_note/list?reset=1"
+  },
+  {
+    "text": "إدارة الموردين",
+    "href": "/v2/owner/entity/supplier/list?reset=1"
+  },
+  {
+    "text": "مدفوعات الموردين",
+    "href": "/owner/purchase_order_payments/index"
+  },
+  {
+    "text": "إعدادات المشتريات",
+    "href": "/v2/owner/purchase-invoices/settings"
+  },
+  {
+    "text": "المصروفات",
+    "href": "/owner/expenses/index?reset=1"
+  },
+  {
+    "text": "سندات القبض",
+    "href": "/owner/incomes/index?reset=1"
+  },
+  {
+    "text": "خزائن وحسابات بنكية",
+    "href": "/v2/owner/banks/treasury"
+  },
+  {
+    "text": "عُهَد الموظفين",
+    "href": "/v2/owner/entity/employee_custody/list"
+  },
+  {
+    "text": "إعدادات المالية",
+    "href": "/v2/owner/finance_settings"
+  },
+  {
+    "text": "القيود اليومية",
+    "href": "/owner/journals/index?reset=1"
+  },
+  {
+    "text": "أضف قيد",
+    "href": "/owner/journals/add"
+  },
+  {
+    "text": "دليل الحسابات",
+    "href": "/v2/owner/chart-of-accounts"
+  },
+  {
+    "text": "مراكز التكلفة",
+    "href": "/v2/owner/cost-centers"
+  },
+  {
+    "text": "الأصول",
+    "href": "/owner/assets/index?reset=1"
+  },
+  {
+    "text": "إعدادات الحسابات العامه",
+    "href": "/v2/owner/accounting/settings"
+  },
+  {
+    "text": "إدارة الموظفين",
+    "href": "/v2/owner/entity/staff/list?reset=1"
+  },
+  {
+    "text": "إدارة أدوار الموظفين",
+    "href": "/owner/roles/index?reset=1"
+  },
+  {
+    "text": "أصول الموظفين",
+    "href": "/v2/owner/entity/employee_asset/list"
+  },
+  {
+    "text": "الإعدادات",
+    "href": "/v2/owner/staff/settings"
+  },
+  {
+    "text": "إدارة المسميات الوظيفية",
+    "href": "/v2/owner/designations"
+  },
+  {
+    "text": "إدارة الأقسام",
+    "href": "/v2/owner/departments"
+  },
+  {
+    "text": "إدارة المستويات الوظيفية",
+    "href": "/v2/owner/employment_levels"
+  },
+  {
+    "text": "إدارة أنواع الوظائف",
+    "href": "/v2/owner/employment_types"
+  },
+  {
+    "text": "الهيكل التنظيمي",
+    "href": "/v2/owner/staff/organizational-chart"
+  },
+  {
+    "text": "سجلات الحضور",
+    "href": "/v2/owner/attendance_logs"
+  },
+  {
+    "text": "أيام الحضور",
+    "href": "/v2/owner/attendance_days"
+  },
+  {
+    "text": "دفاتر الحضور",
+    "href": "/v2/owner/attendance_sheets"
+  },
+  {
+    "text": "أذونات إجازة",
+    "href": "/v2/owner/attendance_permissions"
+  },
+  {
+    "text": "طلبات الإجازة",
+    "href": "/v2/owner/entity/leave_application/list?reset=1"
+  },
+  {
+    "text": "إدارة الورديات",
+    "href": "/v2/owner/shifts"
+  },
+  {
+    "text": "الورديات المؤقتة",
+    "href": "/v2/owner/allocated_shifts"
+  },
+  {
+    "text": "جدول الورديات",
+    "href": "/v2/owner/shift-schedule"
+  },
+  {
+    "text": "سجل جلسات الحضور",
+    "href": "/v2/owner/attendance_sessions"
+  },
+  {
+    "text": "الإعدادات",
+    "href": "/v2/owner/attendance_settings"
+  },
+  {
+    "text": "العقود",
+    "href": "/v2/owner/entity/contract/list"
+  },
+  {
+    "text": "مسير الرواتب",
+    "href": "/v2/owner/payruns"
+  },
+  {
+    "text": "قسائم الرواتب",
+    "href": "/v2/owner/payslips"
+  },
+  {
+    "text": "السلف",
+    "href": "/v2/owner/loans"
+  },
+  {
+    "text": "بنود الراتب",
+    "href": "/v2/owner/salary_components"
+  },
+  {
+    "text": "قوالب الراتب",
+    "href": "/v2/owner/salary_structures"
+  },
+  {
+    "text": "الإعدادات",
+    "href": "/v2/owner/payroll_settings"
+  },
+  {
+    "text": "تقارير المبيعات",
+    "href": "/owner/reports/list/#invoices"
+  },
+  {
+    "text": "تقارير المشتريات",
+    "href": "/owner/reports/list/#purchase_orders"
+  },
+  {
+    "text": "تقارير الحسابات العامة",
+    "href": "/owner/reports/list/#accounting"
+  },
+  {
+    "text": "تقارير التصنيع",
+    "href": "/owner/reports/list/#manufacturing"
+  },
+  {
+    "text": "تقارير الموظفين",
+    "href": "/owner/reports/list/#employees_reports"
+  },
+  {
+    "text": "تقارير العملاء",
+    "href": "/owner/reports/list/#clients"
+  },
+  {
+    "text": "تقارير المخزون",
+    "href": "/owner/reports/list/#inventory"
+  },
+  {
+    "text": "تقرير استهلاك العملات الذكية",
+    "href": "/owner/reports/report/aic_consumption?show_report=1"
+  },
+  {
+    "text": "سجل النشاطات للحساب",
+    "href": "/v2/owner/activity_logs?reset=1"
+  },
+  {
+    "text": "إدارة الفروع",
+    "href": "/owner/branches/index?reset=1"
+  },
+  {
+    "text": "أضف فرع",
+    "href": "/owner/branches/add"
+  },
+  {
+    "text": "إعدادات الفروع",
+    "href": "/owner/branches/settings"
+  },
+  {
+    "text": "قوالب للطباعة",
+    "href": "/owner/printable_templates/index?reset=1"
+  },
+  {
+    "text": "قوالب الفواتير الجاهزة",
+    "href": "/owner/invoices/templates"
+  },
+  {
+    "text": "قوالب البريد الإلكتروني",
+    "href": "/owner/email_templates/index?reset=1"
+  },
+  {
+    "text": "الشروط والأحكام",
+    "href": "/owner/terms/index?reset=1"
+  },
+  {
+    "text": "إدارة الملفات والمستندات",
+    "href": "/owner/documents/index?reset=1"
+  },
+  {
+    "text": "قواعد الإرسال الآلي",
+    "href": "/owner/auto_reminder_rules/index?reset=1"
+  },
+  {
+    "text": "معلومات الحساب",
+    "href": "/owner/owners/account_info"
+  },
+  {
+    "text": "إعدادات الحساب",
+    "href": "/settings"
+  },
+  {
+    "text": "إعدادات الـ SMTP",
+    "href": "/smtp_settings"
+  },
+  {
+    "text": "طرق الدفع",
+    "href": "/owner/payment_gateways/index?reset=1"
+  },
+  {
+    "text": "إعدادات الترقيم المتسلسل",
+    "href": "/owner/numbering/settings/0"
+  },
+  {
+    "text": "إعدادات الضرائب",
+    "href": "/owner/taxes/index?reset=1"
+  },
+  {
+    "text": "شعار وألوان النظام",
+    "href": "/?colors=1"
+  },
+  {
+    "text": "API",
+    "href": "/owner/api_keys/dashboard"
+  },
+  {
+    "text": "دليل النظام",
+    "href": "https://docs.daftra.com"
+  },
+  {
+    "text": "أرسل لنا رأيك",
+    "href": "/owner/sites_enquiries/index"
+  },
+  {
+    "text": "عن Daftra",
+    "href": "https://www.daftra.com/about-daftra"
+  },
+  {
+    "text": "عرض الجميع",
+    "href": "/v2/owner/site/notifications"
+  },
+  {
+    "text": "تحديثات النظام",
+    "href": "/v2/owner/site/updates"
+  },
+  {
+    "text": "دليل النظام",
+    "href": "https://www.daftra.com/system-manual"
+  },
+  {
+    "text": "تغيير البريد الإلكتروني",
+    "href": "/owner/owners/change_email"
+  },
+  {
+    "text": "تغيير كلمة المرور",
+    "href": "/owner/owners/change_password"
+  },
+  {
+    "text": "تطبيقات Daftra",
+    "href": "/v2/owner/mobile-apps"
+  },
+  {
+    "text": "تجديد الاشتراك",
+    "href": "/renew"
+  },
+  {
+    "text": "تسجيل الخروج",
+    "href": "/owner/owners/logout"
+  },
+  {
+    "text": "إدارة القوالب",
+    "href": "/owner/printable_templates/index"
+  },
+  {
+    "text": "فريق الدعم",
+    "href": "https://www.daftra.com/contact"
+  },
+  {
+    "text": "الفواتير",
+    "href": "/owner/invoices/index"
+  },
+  {
+    "text": "العملاء",
+    "href": "/owner/clients/index"
+  },
+  {
+    "text": "التفاصيل",
+    "href": "/owner/reports/revenue?report_type=period&date_from=2025-09-18&date_to=2026-09-18&period_type=daily&group_by=monthly"
+  },
+  {
+    "text": "التفاصيل",
+    "href": "/owner/reports/profit?type=monthly&income_type=payment&date_from=2025-10-18&currency=-1&"
+  },
+  {
+    "text": "عرض الجميع",
+    "href": "/owner/invoice_payments/index"
+  },
+  {
+    "text": "التفاصيل",
+    "href": "/owner/reports/payments?group_by=monthly&date_from=2025-09-18&date_to=2026-09-18&is_summary=1&report_type=payment&type=payment&currency=-1"
+  },
+  {
+    "text": "عرض الجميع",
+    "href": "/owner/products/index?status%5B0%5D=3&status%5B1%5D=2"
+  },
+  {
+    "text": "عرض",
+    "href": "/owner/products/view/3"
+  },
+  {
+    "text": "عرض",
+    "href": "/owner/products/view/2"
+  },
+  {
+    "text": "عرض",
+    "href": "/owner/products/view/1"
+  }
+]
